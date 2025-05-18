@@ -1,3 +1,4 @@
+
 import React from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import EnhancedHero from "@/components/home/EnhancedHero";
@@ -9,10 +10,15 @@ import CtaSection from "@/components/home/CtaSection";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { 
-  ArrowRight, Sparkles, LogIn
+  ArrowRight, Sparkles, LogIn, Shield, Database, Lock, Share2,
+  FileCheck, User, FileArchive, Award, Briefcase, GraduationCap,
+  BarChart, MessageSquare, Rocket, Code, Globe, FileText, Monitor,
+  Brain, BookOpen
 } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 
 const Index = () => {
   const { isAuthenticated, user } = useAuth();
@@ -23,6 +29,21 @@ const Index = () => {
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true },
     transition: { duration: 0.8 }
+  };
+
+  // Define staggerContainer and itemVariant animations
+  const staggerContainer = {
+    initial: {},
+    whileInView: {
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+  
+  const itemVariant = {
+    initial: { opacity: 0, y: 20 },
+    whileInView: { opacity: 1, y: 0 }
   };
   
   return (
