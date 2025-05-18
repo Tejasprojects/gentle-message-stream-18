@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, LineChart, PieChart, Video, Download } from "lucide-react";
+import { BarChart, LineChart, Video, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import VideoRecorder from './VideoRecorder';
@@ -17,7 +17,7 @@ import {
   LineElement, 
   ArcElement,
   RadialLinearScale,
-  Tooltip, 
+  Tooltip as ChartTooltip, 
   Legend 
 } from 'chart.js';
 import { Bar, Pie, Radar } from 'react-chartjs-2';
@@ -31,7 +31,7 @@ ChartJS.register(
   LineElement,
   ArcElement,
   RadialLinearScale,
-  Tooltip, 
+  ChartTooltip, 
   Legend
 );
 
