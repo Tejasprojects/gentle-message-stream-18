@@ -110,17 +110,17 @@ export default {
 					}
 				},
 				blob: {
-					'0%, 100%': {
+					'0%': {
 						transform: 'translate(0, 0) scale(1)'
 					},
-					'25%': {
-						transform: 'translate(20px, -30px) scale(1.1)'
+					'33%': {
+						transform: 'translate(30px, -50px) scale(1.1)'
 					},
-					'50%': {
+					'66%': {
 						transform: 'translate(-20px, 20px) scale(0.9)'
 					},
-					'75%': {
-						transform: 'translate(30px, 30px) scale(1.2)'
+					'100%': {
+						transform: 'translate(0, 0) scale(1)'
 					}
 				},
 				'pulse-glow': {
@@ -151,7 +151,7 @@ export default {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'float': 'float 5s ease-in-out infinite',
-				'blob': 'blob 15s ease-in-out infinite',
+				'blob': 'blob 20s ease-in-out infinite',
 				'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
 				'rotate-gauge': 'rotate-gauge 2s ease-out',
 				'bounce-soft': 'bounce-soft 2s ease-in-out infinite',

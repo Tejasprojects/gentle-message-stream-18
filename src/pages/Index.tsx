@@ -1,6 +1,6 @@
 import React from "react";
 import MainLayout from "@/components/layout/MainLayout";
-import HeroSection from "@/components/home/HeroSection";
+import EnhancedHero from "@/components/home/EnhancedHero";
 import FeaturesSection from "@/components/home/FeaturesSection";
 import HowItWorksSection from "@/components/home/HowItWorksSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
@@ -9,14 +9,9 @@ import CtaSection from "@/components/home/CtaSection";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { 
-  ArrowRight, Sparkles, FileText, MessageSquare, BarChart, 
-  GraduationCap, LogIn, Shield, Database, Lock, Share2, 
-  FileCheck, Award, BookOpen, Cpu, User, Globe, Code,
-  Briefcase, Brain, FileArchive, Monitor, Rocket
+  ArrowRight, Sparkles, LogIn
 } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
 
 const Index = () => {
@@ -30,25 +25,12 @@ const Index = () => {
     transition: { duration: 0.8 }
   };
   
-  const staggerContainer = {
-    initial: { opacity: 0 },
-    whileInView: { opacity: 1 },
-    viewport: { once: true },
-    transition: { staggerChildren: 0.1 }
-  };
-  
-  const itemVariant = {
-    initial: { opacity: 0, y: 20 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true }
-  };
-  
   return (
     <MainLayout>
       {/* Career Path Simulator Promo Banner */}
-      <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 p-4 text-center mb-4">
+      <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 p-4 text-center mb-0">
         <div className="container mx-auto">
-          <p className="flex items-center justify-center text-lg font-medium text-indigo-900 gap-2">
+          <p className="flex items-center justify-center text-lg font-medium text-indigo-900 dark:text-indigo-200 gap-2">
             <Sparkles className="h-5 w-5 text-indigo-600" />
             {isAuthenticated ? (
               <>
@@ -74,7 +56,8 @@ const Index = () => {
         </div>
       </div>
       
-      <HeroSection />
+      {/* Replace the old HeroSection with our new EnhancedHero */}
+      <EnhancedHero />
       
       {/* Blockchain Documents Section */}
       <section className="py-20 bg-gradient-to-r from-blue-50 to-indigo-50">
