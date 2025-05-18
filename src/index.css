@@ -1,0 +1,228 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+@layer base {
+  :root {
+    --background: 210 50% 98%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+ 
+    --radius: 0.75rem;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-poppins;
+  }
+}
+
+/* Glass Morphism Effects */
+.glassmorphism {
+  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-glass;
+}
+
+.glassmorphism-dark {
+  @apply bg-deep-blue/40 backdrop-blur-md border border-white/10 shadow-glass;
+}
+
+.gradient-bg-blue {
+  @apply bg-gradient-to-r from-modern-blue-700 via-modern-blue-600 to-modern-blue-500;
+}
+
+.gradient-bg-purple {
+  @apply bg-gradient-to-r from-soft-purple to-modern-blue-500;
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-modern-blue-600 to-soft-purple;
+}
+
+/* Button Styles */
+.btn-gradient {
+  @apply bg-gradient-to-r from-modern-blue-500 to-soft-purple text-white 
+         transition-all duration-300 hover:shadow-lg hover:from-modern-blue-600 
+         hover:to-soft-purple transform hover:scale-105;
+}
+
+.btn-glassmorphic {
+  @apply glassmorphism text-modern-blue-700 hover:shadow-md transition-all duration-300 
+         hover:bg-white/90 transform hover:scale-102;
+}
+
+/* 3D Effects */
+.card-3d {
+  @apply transition-transform duration-300 hover:shadow-xl;
+  transform-style: preserve-3d;
+}
+
+.card-3d:hover {
+  transform: perspective(1000px) rotateX(2deg) rotateY(5deg);
+}
+
+/* Resume specific styles */
+.resume-text {
+  @apply text-black !important;
+}
+
+.resume-btn {
+  @apply bg-gradient-to-r from-modern-blue-500 to-soft-purple text-white !important;
+}
+
+.resume-nav-btn {
+  @apply bg-white text-black hover:bg-gray-100 !important;
+}
+
+/* Force resume preview content to always have black text */
+#resume-content {
+  @apply text-black bg-white !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+#resume-content h1, 
+#resume-content h2, 
+#resume-content h3, 
+#resume-content h4,
+#resume-content p,
+#resume-content span,
+#resume-content div,
+#resume-content li,
+#resume-content a {
+  @apply text-black !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+/* PDF specific font styles to ensure consistency */
+.pdf-export-content {
+  font-family: Arial, Helvetica, sans-serif !important;
+  color: black !important;
+}
+
+.pdf-export-content * {
+  font-family: Arial, Helvetica, sans-serif !important;
+  color: black !important;
+}
+
+.pdf-export-content .job-title {
+  color: #3B82F6 !important;
+}
+
+.pdf-export-content .contact-info {
+  color: #4B5563 !important;
+}
+
+.pdf-export-content .section-heading {
+  color: black !important;
+  font-weight: 600 !important;
+}
+
+/* Ensure navigation buttons are visible */
+.pagination-button {
+  @apply bg-modern-blue-500 text-white !important;
+}
+
+/* Common UI components */
+.glass-card {
+  @apply glassmorphism rounded-xl;
+}
+
+.floating-card {
+  @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+}
+
+/* Form field styles */
+.form-input-enhanced {
+  @apply rounded-lg border-gray-300 focus:border-modern-blue-500 focus:ring 
+         focus:ring-modern-blue-200 focus:ring-opacity-50 font-poppins;
+}
+
+.form-label-enhanced {
+  @apply block text-sm font-medium text-gray-700 mb-1 font-poppins;
+}
+
+/* Headings */
+.heading-primary {
+  @apply text-3xl font-bold mb-4 font-sf-pro;
+}
+
+.heading-secondary {
+  @apply text-2xl font-semibold mb-3 font-sf-pro;
+}
+
+.heading-tertiary {
+  @apply text-xl font-medium mb-2 font-sf-pro;
+}
+
+/* 3D and animation styles */
+@layer utilities {
+  /* 3D transforms */
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  /* Glassmorphism */
+  .glass {
+    @apply backdrop-blur-xl bg-white/80 border border-white/20 shadow-glass;
+  }
+  
+  .glass-dark {
+    @apply backdrop-blur-xl bg-deep-blue/30 border border-white/10 shadow-glass;
+  }
+  
+  /* Gradients */
+  .gradient-text-blue {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-modern-blue-600 to-modern-blue-400;
+  }
+  
+  .gradient-border-left {
+    @apply border-l-4 border-modern-blue-500;
+  }
+
+  /* Hover Effects */
+  .hover-scale {
+    @apply transition-transform duration-300;
+  }
+  
+  .hover-scale:hover {
+    @apply transform scale-105;
+  }
+  
+  .hover-glow:hover {
+    @apply shadow-neon;
+  }
+}
