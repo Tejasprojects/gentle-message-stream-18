@@ -58,35 +58,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 .eq('id', currentSession.user.id)
                 .single();
               
-              if (error) {
+              if (error || !profileData) {
                 console.error('Error fetching user profile:', error);
+                setUser(null);
                 return;
               }
               
-              if (profileData) {
-                // Convert profile data to User type
-                const userData: User = {
-                  id: currentSession.user.id,
-                  name: profileData.full_name || currentSession.user.email?.split('@')[0] || '',
-                  email: currentSession.user.email || '',
-                  role: (profileData.role as UserRole) || 'student',
-                  profilePicture: profileData.profile_picture || null,
-                  createdAt: profileData.created_at || currentSession.user.created_at,
-                };
-                setUser(userData);
-              } else {
-                // Fallback if no profile data found
-                setUser({
-                  id: currentSession.user.id,
-                  name: currentSession.user.email?.split('@')[0] || '',
-                  email: currentSession.user.email || '',
-                  role: 'student', // Default role
-                  profilePicture: null,
-                  createdAt: currentSession.user.created_at,
-                });
-              }
+              // Convert profile data to User type
+              const userData: User = {
+                id: currentSession.user.id,
+                name: profileData.full_name || currentSession.user.email?.split('@')[0] || '',
+                email: profileData.email || currentSession.user.email || '',
+                role: (profileData.role as UserRole) || 'student',
+                profilePicture: profileData.profile_picture || null,
+                createdAt: profileData.created_at || currentSession.user.created_at,
+              };
+              setUser(userData);
             } catch (err) {
               console.error('Unexpected error in profile fetch:', err);
+              setUser(null);
             }
           }, 0);
         } else {
@@ -110,33 +100,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           .then(({ data: profileData, error }) => {
             setIsLoading(false);
             
-            if (error) {
+            if (error || !profileData) {
               console.error('Error fetching user profile:', error);
+              setUser(null);
               return;
             }
             
-            if (profileData) {
-              // Convert profile data to User type
-              const userData: User = {
-                id: currentSession.user.id,
-                name: profileData.full_name || currentSession.user.email?.split('@')[0] || '',
-                email: currentSession.user.email || '',
-                role: (profileData.role as UserRole) || 'student',
-                profilePicture: profileData.profile_picture || null,
-                createdAt: profileData.created_at || currentSession.user.created_at,
-              };
-              setUser(userData);
-            } else {
-              // Fallback if no profile data found
-              setUser({
-                id: currentSession.user.id,
-                name: currentSession.user.email?.split('@')[0] || '',
-                email: currentSession.user.email || '',
-                role: 'student', // Default role
-                profilePicture: null,
-                createdAt: currentSession.user.created_at,
-              });
-            }
+            // Convert profile data to User type
+            const userData: User = {
+              id: currentSession.user.id,
+              name: profileData.full_name || currentSession.user.email?.split('@')[0] || '',
+              email: profileData.email || currentSession.user.email || '',
+              role: (profileData.role as UserRole) || 'student',
+              profilePicture: profileData.profile_picture || null,
+              createdAt: profileData.created_at || currentSession.user.created_at,
+            };
+            setUser(userData);
           });
       } else {
         setIsLoading(false);
@@ -153,6 +132,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setIsLoading(true);
       
+      // First, check if user exists in profiles table
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .single();
+      
+      if (profileError || !profileData) {
+        throw new Error("Account not found. Please register first.");
+      }
+      
+      // Proceed with login if profile exists
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -188,6 +179,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setIsLoading(true);
       
+      // Check if profile already exists
+      const { data: existingProfile, error: profileCheckError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .single();
+      
+      if (existingProfile) {
+        throw new Error("This email is already registered. Please use a different email or login.");
+      }
+      
       // Register with Supabase
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -202,6 +204,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       if (error) {
         throw error;
+      }
+      
+      if (data.user) {
+        // Manually insert into profiles table to ensure it's there
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            full_name: name,
+            email: email,
+            role: role,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        
+        if (insertError) {
+          console.error("Error creating profile:", insertError);
+          // Try to clean up auth user if profile creation fails
+          await supabase.auth.admin?.deleteUser(data.user.id);
+          throw new Error("Failed to create user profile. Please try again.");
+        }
       }
       
       // Show success message
@@ -252,6 +275,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Forgot password
   const forgotPassword = async (email: string) => {
     try {
+      // Check if profile exists
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .single();
+      
+      if (profileError || !profileData) {
+        throw new Error("Account not found. Please register first.");
+      }
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: window.location.origin + '/reset-password',
       });
