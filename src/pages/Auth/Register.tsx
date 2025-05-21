@@ -78,7 +78,7 @@ const Register: React.FC = () => {
       
       setIsSubmitting(true);
       try {
-        // Using name, email, password, and role as per the AuthContext type definition
+        // Using name, email, password for registration - role is handled by the database
         await register(formData.fullName, formData.email, formData.password, 'student');
         navigate('/dashboard');
       } catch (error) {
@@ -373,7 +373,7 @@ const Register: React.FC = () => {
       
       setIsSubmitting(true);
       try {
-        // Using name, email, password, and role as per the AuthContext type definition
+        // Using name, email, password for registration - role is handled by the database
         await register(formData.organizationName, formData.email, formData.password, 'organization');
         navigate('/dashboard');
       } catch (error) {

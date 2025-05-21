@@ -193,13 +193,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Register with Supabase
       const { data, error } = await supabase.auth.signUp({
         email,
-        password,
-        options: {
-          data: {
-            full_name: name,
-            role: role
-          }
-        }
+        password
       });
       
       if (error) {
@@ -208,13 +202,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       if (data.user) {
         // Manually insert into profiles table to ensure it's there
+        // We're not setting the role value to avoid enum type mismatch
         const { error: insertError } = await supabase
           .from('profiles')
           .insert({
             id: data.user.id,
             full_name: name,
             email: email,
-            role: role,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           });
@@ -234,8 +228,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
       
       // Redirect based on role
-      const from = location.state?.from?.pathname || 
-                  (role === "organization" ? "/organization-home" : "/student-home");
+      const from = location.state?.from?.pathname || '/dashboard';
       navigate(from, { replace: true });
     } catch (error: any) {
       console.error("Registration failed:", error);
