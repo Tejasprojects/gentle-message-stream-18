@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Eye, Trash, Edit } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/context/AuthContext";
+import { Navigate } from "react-router-dom";
 
 type UserData = {
   id: string;
@@ -20,6 +21,7 @@ type UserData = {
 };
 
 const Everyone = () => {
+  const { user } = useAuth();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,18 +32,16 @@ const Everyone = () => {
   const [editFormData, setEditFormData] = useState<Partial<UserData>>({});
   const { toast } = useToast();
 
+  // Double-check if user is admin at the component level
+  if (user?.role !== 'admin') {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
   // Fetch all users
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // First get auth users
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        throw authError;
-      }
-
-      // Then get profiles data
+      // Get profiles data - we don't use auth.admin.listUsers() as it requires service role
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*');
@@ -50,8 +50,8 @@ const Everyone = () => {
         throw profileError;
       }
 
-      // Merge auth and profile data
-      const mergedUsers = profileData.map((profile) => {
+      // Map profile data to user format
+      const mappedUsers = profileData.map((profile) => {
         return {
           id: profile.id,
           email: profile.email || "No email",
@@ -62,7 +62,7 @@ const Everyone = () => {
         };
       });
 
-      setUsers(mergedUsers);
+      setUsers(mappedUsers);
     } catch (err: any) {
       console.error("Error fetching users:", err);
       setError(err.message || "Failed to fetch users");
@@ -143,20 +143,13 @@ const Everyone = () => {
     if (!currentUser) return;
 
     try {
-      // First try to delete from auth
-      const { error: authError } = await supabase.auth.admin.deleteUser(
-        currentUser.id
-      );
-
-      if (authError) {
-        // If auth deletion fails, try to delete just the profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .delete()
-          .eq('id', currentUser.id);
+      // Delete from profiles (this will cascade if RLS allows)
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', currentUser.id);
         
-        if (profileError) throw profileError;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
@@ -180,7 +173,7 @@ const Everyone = () => {
     <div className="container mx-auto py-8">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-2xl font-bold">All Users</CardTitle>
+          <CardTitle className="text-2xl font-bold">Admin: All Users</CardTitle>
           <Button 
             variant="outline" 
             onClick={() => fetchUsers()}
@@ -192,7 +185,7 @@ const Everyone = () => {
         <CardContent>
           {loading ? (
             <div className="flex justify-center py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-b-transparent border-modern-blue-500"></div>
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-b-transparent border-primary"></div>
             </div>
           ) : error ? (
             <div className="text-center py-8 text-red-500">

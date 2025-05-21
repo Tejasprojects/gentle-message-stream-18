@@ -83,10 +83,14 @@ function App() {
               <Route path="/verify-document/:documentId" element={<VerifyDocument />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
               
-              {/* Admin tools */}
+              {/* Admin tools - restrict to admin role only */}
               <Route 
                 path="/everyone" 
-                element={<Everyone />} 
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <Everyone />
+                  </ProtectedRoute>
+                } 
               />
               
               {/* Public information pages */}
