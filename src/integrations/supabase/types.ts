@@ -9,157 +9,97 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      organization_profiles: {
-        Row: {
-          address: string | null
-          created_at: string | null
-          description: string | null
-          id: string
-          industry: string | null
-          logo: string | null
-          org_name: string
-          org_type: string | null
-          updated_at: string | null
-          verification_document: string | null
-          website: string | null
-        }
-        Insert: {
-          address?: string | null
-          created_at?: string | null
-          description?: string | null
-          id: string
-          industry?: string | null
-          logo?: string | null
-          org_name: string
-          org_type?: string | null
-          updated_at?: string | null
-          verification_document?: string | null
-          website?: string | null
-        }
-        Update: {
-          address?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          industry?: string | null
-          logo?: string | null
-          org_name?: string
-          org_type?: string | null
-          updated_at?: string | null
-          verification_document?: string | null
-          website?: string | null
-        }
-        Relationships: []
-      }
-      organization_stats: {
-        Row: {
-          active_job_posts: number | null
-          applications_received: number | null
-          candidates_interviewed: number | null
-          certificates_issued: number | null
-          created_at: string | null
-          id: string
-          organization_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          active_job_posts?: number | null
-          applications_received?: number | null
-          candidates_interviewed?: number | null
-          certificates_issued?: number | null
-          created_at?: string | null
-          id?: string
-          organization_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          active_job_posts?: number | null
-          applications_received?: number | null
-          candidates_interviewed?: number | null
-          certificates_issued?: number | null
-          created_at?: string | null
-          id?: string
-          organization_id?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
+          bio: string | null
           created_at: string | null
-          education: string | null
+          email: string | null
           full_name: string | null
           github_url: string | null
           id: string
+          industry: string | null
           linkedin_url: string | null
           location: string | null
           occupation: string | null
+          password_hash: string | null
           phone_number: string | null
           profile_picture: string | null
-          role: string
+          skills: string[] | null
           updated_at: string | null
         }
         Insert: {
+          bio?: string | null
           created_at?: string | null
-          education?: string | null
+          email?: string | null
           full_name?: string | null
           github_url?: string | null
           id: string
+          industry?: string | null
           linkedin_url?: string | null
           location?: string | null
           occupation?: string | null
+          password_hash?: string | null
           phone_number?: string | null
           profile_picture?: string | null
-          role?: string
+          skills?: string[] | null
           updated_at?: string | null
         }
         Update: {
+          bio?: string | null
           created_at?: string | null
-          education?: string | null
+          email?: string | null
           full_name?: string | null
           github_url?: string | null
           id?: string
+          industry?: string | null
           linkedin_url?: string | null
           location?: string | null
           occupation?: string | null
+          password_hash?: string | null
           phone_number?: string | null
           profile_picture?: string | null
-          role?: string
+          skills?: string[] | null
           updated_at?: string | null
         }
         Relationships: []
       }
-      user_stats: {
+      resumes: {
         Row: {
-          career_track_progress: number | null
-          certifications_earned: number | null
           created_at: string | null
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          filename: string
           id: string
-          interviews_attempted: number | null
-          resume_score: number | null
-          resumes_generated: number | null
+          is_primary: boolean | null
+          parsed_content: string | null
+          title: string
           updated_at: string | null
           user_id: string
         }
         Insert: {
-          career_track_progress?: number | null
-          certifications_earned?: number | null
           created_at?: string | null
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          filename: string
           id?: string
-          interviews_attempted?: number | null
-          resume_score?: number | null
-          resumes_generated?: number | null
+          is_primary?: boolean | null
+          parsed_content?: string | null
+          title: string
           updated_at?: string | null
           user_id: string
         }
         Update: {
-          career_track_progress?: number | null
-          certifications_earned?: number | null
           created_at?: string | null
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          filename?: string
           id?: string
-          interviews_attempted?: number | null
-          resume_score?: number | null
-          resumes_generated?: number | null
+          is_primary?: boolean | null
+          parsed_content?: string | null
+          title?: string
           updated_at?: string | null
           user_id?: string
         }
@@ -173,7 +113,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "admin" | "hr" | "job_seeker"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -288,6 +228,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["admin", "hr", "job_seeker"],
+    },
   },
 } as const
