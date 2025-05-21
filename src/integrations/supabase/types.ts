@@ -24,6 +24,7 @@ export type Database = {
           password_hash: string | null
           phone_number: string | null
           profile_picture: string | null
+          role: string | null
           skills: string[] | null
           updated_at: string | null
         }
@@ -41,6 +42,7 @@ export type Database = {
           password_hash?: string | null
           phone_number?: string | null
           profile_picture?: string | null
+          role?: string | null
           skills?: string[] | null
           updated_at?: string | null
         }
@@ -58,6 +60,7 @@ export type Database = {
           password_hash?: string | null
           phone_number?: string | null
           profile_picture?: string | null
+          role?: string | null
           skills?: string[] | null
           updated_at?: string | null
         }
