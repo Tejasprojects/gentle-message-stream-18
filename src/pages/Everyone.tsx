@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Eye, Trash, Edit } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import { Navigate } from "react-router-dom";
+import PublicNavbar from "@/components/layout/PublicNavbar";
 
 type UserData = {
   id: string;
@@ -25,17 +26,12 @@ const Everyone = () => {
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showViewDialog, setShowViewDialog] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
-  const [editFormData, setEditFormData] = useState<Partial<UserData>>({});
   const { toast } = useToast();
 
-  // Double-check if user is admin at the component level
-  if (user?.role !== 'admin') {
-    return <Navigate to="/unauthorized" replace />;
-  }
+  // Only admins can see edit and delete controls
+  const isAdmin = user?.role === 'admin';
 
   // Fetch all users
   const fetchUsers = async () => {
@@ -85,209 +81,113 @@ const Everyone = () => {
     setShowViewDialog(true);
   };
 
-  const handleEditUser = (user: UserData) => {
-    setCurrentUser(user);
-    setEditFormData({
-      email: user.email,
-      full_name: user.full_name,
-      role: user.role
-    });
-    setShowEditDialog(true);
-  };
-
-  const handleDeleteUser = (user: UserData) => {
-    setCurrentUser(user);
-    setShowDeleteDialog(true);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setEditFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const submitEdit = async () => {
-    if (!currentUser) return;
-
-    try {
-      // Update profile data
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          email: editFormData.email,
-          full_name: editFormData.full_name,
-          role: editFormData.role
-        })
-        .eq('id', currentUser.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "User updated successfully",
-      });
-
-      // Refresh users list
-      fetchUsers();
-      setShowEditDialog(false);
-    } catch (err: any) {
-      console.error("Error updating user:", err);
-      toast({
-        title: "Error",
-        description: `Failed to update user: ${err.message}`,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const confirmDelete = async () => {
-    if (!currentUser) return;
-
-    try {
-      // Delete from profiles (this will cascade if RLS allows)
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', currentUser.id);
-        
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "User deleted successfully",
-      });
-
-      // Refresh users list
-      fetchUsers();
-      setShowDeleteDialog(false);
-    } catch (err: any) {
-      console.error("Error deleting user:", err);
-      toast({
-        title: "Error",
-        description: `Failed to delete user: ${err.message}`,
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
-    <div className="container mx-auto py-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-2xl font-bold">Admin: All Users</CardTitle>
-          <Button 
-            variant="outline" 
-            onClick={() => fetchUsers()}
-            disabled={loading}
-          >
-            Refresh
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-b-transparent border-primary"></div>
-            </div>
-          ) : error ? (
-            <div className="text-center py-8 text-red-500">
-              <p>{error}</p>
-              <Button 
-                variant="outline" 
-                onClick={() => fetchUsers()} 
-                className="mt-4"
-              >
-                Retry
-              </Button>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Created At</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.length === 0 ? (
+    <div className="min-h-screen flex flex-col">
+      <PublicNavbar />
+      <div className="container mx-auto py-8 flex-1">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-2xl font-bold">All Users</CardTitle>
+            <Button 
+              variant="outline" 
+              onClick={() => fetchUsers()}
+              disabled={loading}
+            >
+              Refresh
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-b-transparent border-primary"></div>
+              </div>
+            ) : error ? (
+              <div className="text-center py-8 text-red-500">
+                <p>{error}</p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => fetchUsers()} 
+                  className="mt-4"
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
-                      No users found
-                    </TableCell>
+                    <TableHead>User</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Created At</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ) : (
-                  users.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <Avatar>
-                            {user.profile_picture ? (
-                              <AvatarImage src={user.profile_picture} alt={user.full_name || "User"} />
-                            ) : null}
-                            <AvatarFallback>
-                              {user.full_name
-                                ? user.full_name.substring(0, 2).toUpperCase()
-                                : user.email.substring(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium">{user.full_name || "N/A"}</p>
-                            <p className="text-xs text-gray-500">{user.id.substring(0, 8)}...</p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          user.role === 'admin' 
-                            ? 'bg-red-100 text-red-800' 
-                            : user.role === 'organization' 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-green-100 text-green-800'
-                        }`}>
-                          {user.role || "student"}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {user.created_at 
-                          ? new Date(user.created_at).toLocaleString() 
-                          : "N/A"}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => handleViewUser(user)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => handleEditUser(user)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => handleDeleteUser(user)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </div>
+                </TableHeader>
+                <TableBody>
+                  {users.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8">
+                        No users found
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+                  ) : (
+                    users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            <Avatar>
+                              {user.profile_picture ? (
+                                <AvatarImage src={user.profile_picture} alt={user.full_name || "User"} />
+                              ) : null}
+                              <AvatarFallback>
+                                {user.full_name
+                                  ? user.full_name.substring(0, 2).toUpperCase()
+                                  : user.email.substring(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium">{user.full_name || "N/A"}</p>
+                              <p className="text-xs text-gray-500">{user.id.substring(0, 8)}...</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            user.role === 'admin' 
+                              ? 'bg-red-100 text-red-800' 
+                              : user.role === 'organization' 
+                              ? 'bg-blue-100 text-blue-800' 
+                              : 'bg-green-100 text-green-800'
+                          }`}>
+                            {user.role || "student"}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          {user.created_at 
+                            ? new Date(user.created_at).toLocaleString() 
+                            : "N/A"}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => handleViewUser(user)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* View User Dialog */}
       <Dialog open={showViewDialog} onOpenChange={setShowViewDialog}>
@@ -327,78 +227,6 @@ const Everyone = () => {
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit User Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Email</label>
-              <Input
-                name="email"
-                value={editFormData.email || ""}
-                onChange={handleInputChange}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Full Name</label>
-              <Input
-                name="full_name"
-                value={editFormData.full_name || ""}
-                onChange={handleInputChange}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Role</label>
-              <Input
-                name="role"
-                value={editFormData.role || ""}
-                onChange={handleInputChange}
-                className="mt-1"
-                placeholder="student, organization, or admin"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={submitEdit}>Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete User Dialog */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
-          </DialogHeader>
-          <p>
-            Are you sure you want to delete the user{" "}
-            <span className="font-semibold">
-              {currentUser?.full_name || currentUser?.email}
-            </span>
-            ? This action cannot be undone.
-          </p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
-              Cancel
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={confirmDelete}
-            >
-              Delete User
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
