@@ -6,6 +6,6 @@ export interface User {
   email: string;
   name?: string;
   role: UserRole;
-  profilePicture?: string;
+  profilePicture?: string | null;
   createdAt?: string; // Adding this to fix type issues
 }

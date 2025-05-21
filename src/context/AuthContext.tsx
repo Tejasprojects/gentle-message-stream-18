@@ -201,14 +201,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
       
       if (data.user) {
-        // Manually insert into profiles table with the role as string
+        // Convert user role to match the enum in the database
+        let dbRole = 'job_seeker'; // Default value that matches enum
+        
+        // Map our application roles to database enum values
+        if (role === 'organization') {
+          dbRole = 'hr';
+        } else if (role === 'admin') {
+          dbRole = 'admin';
+        } else {
+          // Default for 'student' or any other role
+          dbRole = 'job_seeker';
+        }
+        
+        // Manually insert into profiles table with the correct role enum value
         const { error: insertError } = await supabase
           .from('profiles')
           .insert({
             id: data.user.id,
             full_name: name,
             email: email,
-            role: role,  // This should work now as the role will be a string value
+            role: dbRole,  // Use the mapped enum value that matches the database
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           });
