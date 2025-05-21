@@ -78,16 +78,12 @@ const Register: React.FC = () => {
       
       setIsSubmitting(true);
       try {
-        // Using name, email, password for registration - role is handled by the database
+        // Register the user with role 'student'
         await register(formData.fullName, formData.email, formData.password, 'student');
-        navigate('/dashboard');
+        // Navigation happens in the AuthContext after successful registration
       } catch (error) {
         console.error("Registration failed:", error);
-        toast({
-          title: "Registration failed",
-          description: "Could not create your account",
-          variant: "destructive",
-        });
+        // Error toast is handled in AuthContext
       } finally {  
         setIsSubmitting(false);
       }
@@ -265,15 +261,14 @@ const Register: React.FC = () => {
             <Select 
               value={formData.role} 
               onValueChange={(value) => handleSelectChange('role', value)}
+              disabled
               required
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select your role" />
+                <SelectValue placeholder="Student" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="student">Student</SelectItem>
-                <SelectItem value="freelancer">Freelancer</SelectItem>
-                <SelectItem value="job-seeker">Job Seeker</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -373,16 +368,12 @@ const Register: React.FC = () => {
       
       setIsSubmitting(true);
       try {
-        // Using name, email, password for registration - role is handled by the database
+        // Register the user with role 'organization'
         await register(formData.organizationName, formData.email, formData.password, 'organization');
-        navigate('/dashboard');
+        // Navigation happens in the AuthContext after successful registration
       } catch (error) {
         console.error("Registration failed:", error);
-        toast({
-          title: "Registration failed",
-          description: "Could not create your account",
-          variant: "destructive",
-        });
+        // Error toast is handled in AuthContext
       } finally {
         setIsSubmitting(false);
       }

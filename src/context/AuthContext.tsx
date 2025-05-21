@@ -190,7 +190,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         throw new Error("This email is already registered. Please use a different email or login.");
       }
       
-      // Register with Supabase
+      // Register with Supabase - don't include role data here to avoid enum validation issues
       const { data, error } = await supabase.auth.signUp({
         email,
         password
@@ -201,14 +201,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
       
       if (data.user) {
-        // Manually insert into profiles table to ensure it's there
-        // We're not setting the role value to avoid enum type mismatch
+        // Manually insert into profiles table with the role as string
         const { error: insertError } = await supabase
           .from('profiles')
           .insert({
             id: data.user.id,
             full_name: name,
             email: email,
+            role: role,  // This should work now as the role will be a string value
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           });
@@ -227,8 +227,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         description: "Welcome to QwiX CV",
       });
       
-      // Redirect based on role
-      const from = location.state?.from?.pathname || '/dashboard';
+      // Redirect to appropriate page based on role
+      const dashboardPath = role === 'organization' ? '/organization-home' : '/dashboard';
+      const from = location.state?.from?.pathname || dashboardPath;
       navigate(from, { replace: true });
     } catch (error: any) {
       console.error("Registration failed:", error);
