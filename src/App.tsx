@@ -20,6 +20,7 @@ import CertificationCenter from "@/pages/CertificationCenter";
 import CertificateDetails from "@/pages/CertificateDetails";
 import VerifyCertificate from "@/pages/VerifyCertificate";
 import VerifyDocument from "@/pages/VerifyDocument";
+import Everyone from "@/pages/Everyone";
 import OrganizationDashboard from "./pages/organization/OrganizationDashboard";
 import ResumeParser from "./pages/organization/ResumeParser";
 import DocumentGenerator from "./pages/organization/DocumentGenerator";
@@ -81,7 +82,13 @@ function App() {
               <Route path="/verify-cert/:certHash" element={<VerifyCertificate />} />
               <Route path="/verify-document/:documentId" element={<VerifyDocument />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
-
+              
+              {/* Admin tools */}
+              <Route 
+                path="/everyone" 
+                element={<Everyone />} 
+              />
+              
               {/* Public information pages */}
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
