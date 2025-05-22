@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
-import { Briefcase, Users, Calendar, FileText } from "lucide-react";
+import { Briefcase, Users, Calendar, FileText, BarChart } from "lucide-react";
 
 const Dashboard = () => {
   const { user } = useAuth();
