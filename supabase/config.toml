@@ -1,1 +1,8 @@
+
 project_id = "ihtqcwysnusiiacmiubw"
+
+[functions.jobs-handler]
+  verify_jwt = true
+
+[functions.candidates-handler]
+  verify_jwt = true
