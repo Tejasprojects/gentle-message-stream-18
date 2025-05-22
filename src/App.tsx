@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,7 +7,6 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/layout/Layout";
 import Dashboard from "@/pages/Dashboard";
 import StudentHome from "@/pages/StudentHome";
-import OrganizationHome from "@/pages/OrganizationHome";
 import Login from "@/pages/Auth/Login";
 import Register from "@/pages/Auth/Register";
 import ForgotPassword from "@/pages/Auth/ForgotPassword";
@@ -22,12 +20,6 @@ import CertificateDetails from "@/pages/CertificateDetails";
 import VerifyCertificate from "@/pages/VerifyCertificate";
 import VerifyDocument from "@/pages/VerifyDocument";
 import Everyone from "@/pages/Everyone";
-import OrganizationDashboard from "./pages/organization/OrganizationDashboard";
-import ResumeParser from "./pages/organization/ResumeParser";
-import DocumentGenerator from "./pages/organization/DocumentGenerator";
-import BlockchainVerification from "./pages/organization/BlockchainVerification";
-import AIInterviewer from "./pages/organization/AIInterviewer";
-import AptitudeExams from "./pages/organization/AptitudeExams";
 import ResumeBuilder from "./pages/ResumeBuilder";
 import LinkedInOptimizer from "./pages/LinkedInOptimizer";
 import ATSScanner from "./pages/ATSScanner";
@@ -52,6 +44,10 @@ import HRDashboardIndex from "@/pages/HRDashboard";
 import HRDashboardJobs from "@/pages/HRDashboard/Jobs";
 import HRDashboardCandidates from "@/pages/HRDashboard/Candidates";
 import HRDashboardAIAgents from "@/pages/HRDashboard/AIAgents";
+import HRDashboardInterviews from "@/pages/HRDashboard/Interviews";
+import HRDashboardAnalytics from "@/pages/HRDashboard/Analytics";
+import HRDashboardSettings from "@/pages/HRDashboard/Settings";
+import HRDashboardProfile from "@/pages/HRDashboard/Profile";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -109,32 +105,70 @@ function App() {
                 } 
               />
               
-              {/* Organization landing page */}
-              <Route 
-                path="/organization-home" 
-                element={
-                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
-                    <OrganizationHome />
-                  </ProtectedRoute>
-                } 
-              />
-
               {/* HR Dashboard Routes */}
               <Route
                 path="/hr-dashboard"
-                element={<HRDashboardIndex />}
+                element={
+                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
+                    <HRDashboardIndex />
+                  </ProtectedRoute>
+                }
               />
               <Route
                 path="/hr-dashboard/jobs"
-                element={<HRDashboardJobs />}
+                element={
+                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
+                    <HRDashboardJobs />
+                  </ProtectedRoute>
+                }
               />
               <Route
                 path="/hr-dashboard/candidates"
-                element={<HRDashboardCandidates />}
+                element={
+                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
+                    <HRDashboardCandidates />
+                  </ProtectedRoute>
+                }
               />
               <Route
                 path="/hr-dashboard/ai-agents"
-                element={<HRDashboardAIAgents />}
+                element={
+                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
+                    <HRDashboardAIAgents />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/hr-dashboard/interviews"
+                element={
+                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
+                    <HRDashboardInterviews />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/hr-dashboard/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
+                    <HRDashboardAnalytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/hr-dashboard/settings"
+                element={
+                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
+                    <HRDashboardSettings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/hr-dashboard/profile"
+                element={
+                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
+                    <HRDashboardProfile />
+                  </ProtectedRoute>
+                }
               />
               
               {/* Protected user/student routes */}
@@ -323,68 +357,13 @@ function App() {
                 } 
               />
               
-              {/* Organization routes */}
-              <Route 
-                path="/organization/dashboard" 
-                element={
-                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
-                    <OrganizationDashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              <Route 
-                path="/organization/resume-parser" 
-                element={
-                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
-                    <ResumeParser />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              <Route 
-                path="/organization/document-generator" 
-                element={
-                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
-                    <DocumentGenerator />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              <Route 
-                path="/organization/blockchain-verification" 
-                element={
-                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
-                    <BlockchainVerification />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              <Route 
-                path="/organization/ai-interviewer" 
-                element={
-                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
-                    <AIInterviewer />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              <Route 
-                path="/organization/aptitude-exams" 
-                element={
-                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
-                    <AptitudeExams />
-                  </ProtectedRoute>
-                } 
-              />
-              
               {/* Default route - redirect to appropriate landing page based on role */}
               <Route 
                 path="/" 
                 element={
                   <ProtectedRoute>
                     {({ user }) => (
-                      user?.role === 'organization' ? <OrganizationHome /> : <StudentHome />
+                      user?.role === 'organization' ? <HRDashboardIndex /> : <StudentHome />
                     )}
                   </ProtectedRoute>
                 } 

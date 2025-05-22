@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                   
                   // Determine dashboard path based on user role
                   if (userData.role === 'organization') {
-                    dashboardPath = '/organization-home';
+                    dashboardPath = '/hr-dashboard';
                   } else if (userData.role === 'admin') {
                     dashboardPath = '/everyone'; // Admin users go to Everyone page by default
                   }
@@ -148,7 +148,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 
                 // Determine dashboard path based on user role
                 if (userData.role === 'organization') {
-                  dashboardPath = '/organization-home';
+                  dashboardPath = '/hr-dashboard';
                 } else if (userData.role === 'admin') {
                   dashboardPath = '/everyone'; // Admin users go to Everyone page by default
                 }
