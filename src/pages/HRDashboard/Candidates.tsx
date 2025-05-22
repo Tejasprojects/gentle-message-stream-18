@@ -50,7 +50,7 @@ const Candidates = () => {
           const processedCandidates = data.map(candidate => {
             // Use the most recent application for this candidate
             const latestApplication = candidate.applications?.sort((a, b) => 
-              new Date(b.application_date) - new Date(a.application_date)
+              new Date(b.application_date || 0).getTime() - new Date(a.application_date || 0).getTime()
             )[0];
             
             return {

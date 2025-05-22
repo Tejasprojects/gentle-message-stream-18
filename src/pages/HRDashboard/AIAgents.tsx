@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { CpuIcon, Settings, Power, RotateCw, AlertCircle, CheckCircle, Clock, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -46,7 +45,11 @@ const AIAgents = () => {
           
           // Calculate system statistics
           const activeCount = data.filter(agent => agent.status === 'Active').length;
-          const avgAccuracy = data.reduce((sum, agent) => sum + (agent.accuracy_rate || 0), 0) / data.length || 0;
+          
+          // Make sure accuracy_rate is treated as a number with a default of 0 if null
+          const avgAccuracy = data.length > 0 ? 
+            data.reduce((sum, agent) => sum + (typeof agent.accuracy_rate === 'number' ? agent.accuracy_rate : 0), 0) / data.length : 
+            0;
           
           setSystemStats({
             activeAgents: activeCount,
@@ -104,7 +107,7 @@ const AIAgents = () => {
     
     const now = new Date();
     const activityTime = new Date(timestamp);
-    const diffInMinutes = Math.floor((now - activityTime) / (1000 * 60));
+    const diffInMinutes = Math.floor((now.getTime() - activityTime.getTime()) / (1000 * 60));
     
     if (diffInMinutes < 1) return 'Just now';
     if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;

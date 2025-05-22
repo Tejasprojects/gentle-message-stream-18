@@ -33,8 +33,8 @@ const Jobs = () => {
           setJobs(jobsData || []);
           setTotalJobs(jobsData?.length || 0);
           
-          // Count active jobs
-          const active = jobsData?.filter(job => job.status === 'Active').length || 0;
+          // Count active jobs - using 'Open' status which is a valid enum value
+          const active = jobsData?.filter(job => job.status === 'Open').length || 0;
           setActiveJobs(active);
         }
       } catch (error) {
@@ -49,7 +49,7 @@ const Jobs = () => {
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case 'Active':
+      case 'Open':
         return 'bg-green-100 text-green-800 dark:bg-green-800/20 dark:text-green-400';
       case 'Draft':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800/20 dark:text-yellow-400';

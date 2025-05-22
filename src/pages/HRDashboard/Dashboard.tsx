@@ -21,11 +21,11 @@ const Dashboard = () => {
     async function fetchDashboardData() {
       setLoading(true);
       try {
-        // Fetch active job postings count
+        // Fetch active job postings count - using 'Open' status which is a valid enum value
         const { count: jobCount, error: jobError } = await supabase
           .from('jobs')
           .select('*', { count: 'exact', head: true })
-          .eq('status', 'Active');
+          .eq('status', 'Open');
 
         if (jobError) console.error("Error fetching jobs:", jobError);
 
