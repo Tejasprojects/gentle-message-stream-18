@@ -46,6 +46,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        console.log("Auth state changed:", event);
         setSession(currentSession);
         
         if (currentSession?.user) {
@@ -77,7 +78,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 setUser(userData);
 
                 // If this is a signup or login event, navigate to the dashboard
-                if (event === 'SIGNED_IN') {
+                if (event === 'SIGNED_IN' || event === 'SIGNED_UP' || event === 'TOKEN_REFRESHED') {
+                  console.log("Signed in/up event detected, redirecting to dashboard");
                   const dashboardPath = userData.role === 'organization' ? '/organization-home' : '/student-home';
                   navigate(dashboardPath, { replace: true });
                 }
@@ -98,6 +100,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      console.log("Checking for existing session:", currentSession ? "Found" : "Not found");
       setSession(currentSession);
       
       if (currentSession?.user) {
@@ -130,7 +133,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               setUser(userData);
               
               // Check if we're on the login page and redirect if needed
-              if (location.pathname === '/login') {
+              if (location.pathname === '/login' || location.pathname === '/register') {
+                console.log("Already logged in and on login/register page, redirecting to home");
                 const dashboardPath = userData.role === 'organization' ? '/organization-home' : '/student-home';
                 navigate(dashboardPath, { replace: true });
               }
@@ -163,6 +167,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (error) {
         throw error;
       }
+      
+      console.log("Login successful, auth state change will handle redirection");
       
       // Success message
       toast({

@@ -27,7 +27,9 @@ const Login = () => {
   
   // If already logged in, redirect to appropriate page
   useEffect(() => {
+    console.log("Login page - Auth status:", isAuthenticated, user);
     if (isAuthenticated && user) {
+      console.log("Login page - Already authenticated, redirecting");
       const dashboardPath = user.role === 'organization' ? '/organization-home' : '/student-home';
       navigate(dashboardPath, { replace: true });
     }
@@ -45,6 +47,7 @@ const Login = () => {
     }
     
     try {
+      console.log("Login page - Attempting login");
       await login(email, password);
     } catch (error) {
       console.error("Login error:", error);
@@ -63,6 +66,7 @@ const Login = () => {
     }
     
     try {
+      console.log("Login page - Attempting registration");
       await register(name, email, password, userRole);
     } catch (error) {
       console.error("Registration error:", error);
