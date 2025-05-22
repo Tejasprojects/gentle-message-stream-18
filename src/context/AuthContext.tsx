@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { User, UserRole } from "@/types/auth";
@@ -201,27 +200,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
       
       if (data.user) {
-        // Convert user role to match the enum in the database
-        let dbRole = 'job_seeker'; // Default value that matches enum
-        
-        // Map our application roles to database enum values
-        if (role === 'organization') {
-          dbRole = 'hr';
-        } else if (role === 'admin') {
-          dbRole = 'admin';
-        } else {
-          // Default for 'student' or any other role
-          dbRole = 'job_seeker';
-        }
-        
-        // Manually insert into profiles table with the correct role enum value
+        // Directly insert the role from the frontend - no mapping needed now
         const { error: insertError } = await supabase
           .from('profiles')
           .insert({
             id: data.user.id,
             full_name: name,
             email: email,
-            role: dbRole,  // Use the mapped enum value that matches the database
+            role: role,  // Now directly using the role from the frontend
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           });
