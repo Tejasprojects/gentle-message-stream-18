@@ -3,11 +3,10 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Eye, Trash, Edit } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import PublicNavbar from "@/components/layout/PublicNavbar";
@@ -37,17 +36,25 @@ const Everyone = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Get profiles data - we don't use auth.admin.listUsers() as it requires service role
+      // Use more robust error handling and logging
+      console.log("Fetching users...");
+      
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*');
 
+      console.log("Fetch result:", { data: profileData, error: profileError });
+      
       if (profileError) {
         throw profileError;
       }
 
+      if (!profileData || profileData.length === 0) {
+        console.log("No profiles found in the database");
+      }
+
       // Map profile data to user format
-      const mappedUsers = profileData.map((profile) => {
+      const mappedUsers = profileData ? profileData.map((profile) => {
         return {
           id: profile.id,
           email: profile.email || "No email",
@@ -56,8 +63,9 @@ const Everyone = () => {
           profile_picture: profile.profile_picture,
           created_at: profile.created_at
         };
-      });
+      }) : [];
 
+      console.log("Mapped users:", mappedUsers);
       setUsers(mappedUsers);
     } catch (err: any) {
       console.error("Error fetching users:", err);

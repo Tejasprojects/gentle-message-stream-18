@@ -58,22 +58,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 .eq('id', currentSession.user.id)
                 .single();
               
-              if (error || !profileData) {
+              if (error) {
                 console.error('Error fetching user profile:', error);
                 setUser(null);
                 return;
               }
               
-              // Convert profile data to User type
-              const userData: User = {
-                id: currentSession.user.id,
-                name: profileData.full_name || currentSession.user.email?.split('@')[0] || '',
-                email: profileData.email || currentSession.user.email || '',
-                role: (profileData.role as UserRole) || 'student',
-                profilePicture: profileData.profile_picture || null,
-                createdAt: profileData.created_at || currentSession.user.created_at,
-              };
-              setUser(userData);
+              if (profileData) {
+                // Convert profile data to User type
+                const userData: User = {
+                  id: currentSession.user.id,
+                  name: profileData.full_name || currentSession.user.email?.split('@')[0] || '',
+                  email: profileData.email || currentSession.user.email || '',
+                  role: (profileData.role as UserRole) || 'student',
+                  profilePicture: profileData.profile_picture || null,
+                  createdAt: profileData.created_at || currentSession.user.created_at,
+                };
+                setUser(userData);
+
+                // If this is a signup or login event, navigate to the dashboard
+                if (event === 'SIGNED_IN' || event === 'SIGNED_UP') {
+                  const dashboardPath = userData.role === 'organization' ? '/organization-home' : '/dashboard';
+                  navigate(dashboardPath, { replace: true });
+                }
+              } else {
+                console.error('No profile data found');
+                setUser(null);
+              }
             } catch (err) {
               console.error('Unexpected error in profile fetch:', err);
               setUser(null);
@@ -100,22 +111,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           .then(({ data: profileData, error }) => {
             setIsLoading(false);
             
-            if (error || !profileData) {
+            if (error) {
               console.error('Error fetching user profile:', error);
               setUser(null);
               return;
             }
             
-            // Convert profile data to User type
-            const userData: User = {
-              id: currentSession.user.id,
-              name: profileData.full_name || currentSession.user.email?.split('@')[0] || '',
-              email: profileData.email || currentSession.user.email || '',
-              role: (profileData.role as UserRole) || 'student',
-              profilePicture: profileData.profile_picture || null,
-              createdAt: profileData.created_at || currentSession.user.created_at,
-            };
-            setUser(userData);
+            if (profileData) {
+              // Convert profile data to User type
+              const userData: User = {
+                id: currentSession.user.id,
+                name: profileData.full_name || currentSession.user.email?.split('@')[0] || '',
+                email: profileData.email || currentSession.user.email || '',
+                role: (profileData.role as UserRole) || 'student',
+                profilePicture: profileData.profile_picture || null,
+                createdAt: profileData.created_at || currentSession.user.created_at,
+              };
+              setUser(userData);
+            } else {
+              console.error('No profile data found');
+              setUser(null);
+            }
           });
       } else {
         setIsLoading(false);
@@ -125,7 +141,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   // Login function
   const login = async (email: string, password: string) => {
@@ -147,10 +163,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         title: "Login successful!",
         description: "Welcome back to QwiX CV",
       });
-      
-      // Redirect based on role
-      const from = location.state?.from?.pathname || '/dashboard';
-      navigate(from, { replace: true });
     } catch (error: any) {
       console.error("Login failed:", error);
       toast({
@@ -194,10 +206,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         description: "Welcome to QwiX CV",
       });
       
-      // Redirect to appropriate page based on role
-      const dashboardPath = role === 'organization' ? '/organization-home' : '/dashboard';
-      const from = location.state?.from?.pathname || dashboardPath;
-      navigate(from, { replace: true });
+      // The navigation will be handled by the auth state change listener
     } catch (error: any) {
       console.error("Registration failed:", error);
       toast({
