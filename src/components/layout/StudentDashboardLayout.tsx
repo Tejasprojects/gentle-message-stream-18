@@ -4,19 +4,41 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { 
-  Briefcase, Calendar, ChevronLeft, ChevronRight, Cog, CpuIcon, Home, 
-  BarChart, LogOut, Users, Bell, Search, Menu, X, FileText
+  Briefcase, Calendar, ChevronLeft, ChevronRight, Cog, Home, 
+  BarChart, LogOut, Users, Bell, Search, Menu, X, FileText,
+  Linkedin, GitCompare, Route, Mic, RotateCw, Shield, Code,
+  Rocket, Activity, Brain, Award, Lock, HelpCircle, PhoneCall,
+  Mail
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface StudentDashboardLayoutProps {
   children: React.ReactNode;
 }
 
+type NavItem = {
+  name: string;
+  icon: React.ElementType;
+  path: string;
+  badge?: number;
+};
+
+type NavSection = {
+  title?: string;
+  items: NavItem[];
+};
+
 const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    "CV TOOLS": true,
+    "CAREER GUIDE": true,
+    "MAHAYUDH LEARN": true,
+    "BLOCKCHAIN SECURITY": true
+  });
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,19 +51,71 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
     setMobileOpen(!mobileOpen);
   };
 
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   const handleLogout = async () => {
     await logout();
     navigate("/login");
   };
 
-  const navItems = [
-    { name: "Dashboard", icon: Home, path: "/student-home" },
-    { name: "Resume Builder", icon: FileText, path: "/builder" },
-    { name: "Job Board", icon: Briefcase, path: "/job-board" },
-    { name: "Applications", icon: Calendar, path: "/my-applications" },
-    { name: "Certificates", icon: BarChart, path: "/certification-center" },
-    { name: "Interview Coach", icon: Users, path: "/interview-coach" },
-    { name: "Settings", icon: Cog, path: "/settings" },
+  const navSections: NavSection[] = [
+    {
+      items: [
+        { name: "Dashboard", icon: Home, path: "/student-home" },
+        { name: "Job Search", icon: Search, path: "/job-search" },
+        { name: "Apply for Jobs", icon: FileText, path: "/apply" },
+        { name: "My Applications", icon: Mail, path: "/my-applications", badge: 3 },
+        { name: "My Analytics", icon: BarChart, path: "/analytics" },
+      ]
+    },
+    {
+      title: "CV TOOLS",
+      items: [
+        { name: "Resume Builder", icon: FileText, path: "/builder" },
+        { name: "ATS Scanner", icon: Search, path: "/ats-scanner" },
+        { name: "LinkedIn Optimizer", icon: Linkedin, path: "/linkedin-optimizer" },
+        { name: "Resume Compare", icon: GitCompare, path: "/resume-compare" },
+      ]
+    },
+    {
+      title: "CAREER GUIDE",
+      items: [
+        { name: "Career Path Simulator", icon: Route, path: "/career-path-simulator" },
+        { name: "Interview Coach", icon: Mic, path: "/interview-coach" },
+        { name: "Job Board", icon: Briefcase, path: "/job-board" },
+        { name: "AI Job Switch Planner", icon: RotateCw, path: "/ai-job-switch-planner" },
+        { name: "AI Shadow Career Simulator", icon: Users, path: "/ai-shadow-career-simulator" },
+        { name: "AI Layoff Readiness Toolkit", icon: Shield, path: "/ai-layoff-readiness-toolkit" },
+      ]
+    },
+    {
+      title: "MAHAYUDH LEARN",
+      items: [
+        { name: "AI Coding Coach", icon: Code, path: "/ai-coding-coach" },
+        { name: "MahayudhPro Builder", icon: Rocket, path: "/qwixpro-builder" },
+        { name: "Skill Gap Analysis", icon: Activity, path: "/skill-gap-analysis" },
+        { name: "Mindprint Assessment", icon: Brain, path: "/mindprint-assessment" },
+      ]
+    },
+    {
+      title: "BLOCKCHAIN SECURITY",
+      items: [
+        { name: "MahayudhCert", icon: Award, path: "/certification-center" },
+        { name: "Blockchain Vault", icon: Lock, path: "/blockchain-vault" },
+      ]
+    },
+    {
+      items: [
+        { name: "Help Center", icon: HelpCircle, path: "/help" },
+        { name: "Settings", icon: Cog, path: "/settings" },
+        { name: "ContactConnect", icon: PhoneCall, path: "/contact" },
+      ]
+    },
   ];
 
   const isActive = (path: string) => {
@@ -108,31 +182,101 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
         </div>
 
         {/* Nav Items */}
-        <nav className="flex-grow py-6 overflow-y-auto">
-          <ul className="space-y-1 px-3">
-            {navItems.map((item) => (
-              <li key={item.name}>
-                <Button
-                  variant={isActive(item.path) ? "secondary" : "ghost"}
-                  className={cn(
-                    "w-full justify-start",
-                    isActive(item.path)
-                      ? "bg-gray-700 text-white"
-                      : "text-gray-300 hover:text-white hover:bg-gray-700",
-                    collapsed ? "px-2" : "px-4"
-                  )}
-                  onClick={() => {
-                    navigate(item.path);
-                    if (mobileOpen) setMobileOpen(false);
-                  }}
-                >
-                  <item.icon size={20} />
-                  {!collapsed && <span className="ml-3">{item.name}</span>}
-                </Button>
-              </li>
+        <nav className="flex-grow py-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800">
+          <ul className="space-y-0.5 px-3">
+            {navSections.map((section, sectionIndex) => (
+              <React.Fragment key={section.title || `section-${sectionIndex}`}>
+                {section.title && (
+                  <li className={cn("pt-3 pb-1", collapsed ? "hidden" : "")}>
+                    <div className="flex items-center justify-between px-2">
+                      <span className="text-xs font-semibold text-gray-400">
+                        {section.title}
+                      </span>
+                      <button
+                        onClick={() => toggleSection(section.title)}
+                        className="p-0.5 rounded hover:bg-gray-700 text-gray-400"
+                      >
+                        <ChevronRight
+                          size={14}
+                          className={cn(
+                            "transition-transform",
+                            openSections[section.title] ? "transform rotate-90" : ""
+                          )}
+                        />
+                      </button>
+                    </div>
+                  </li>
+                )}
+                
+                {(!section.title || openSections[section.title]) && section.items.map((item) => (
+                  <li key={item.name}>
+                    <Button
+                      variant={isActive(item.path) ? "secondary" : "ghost"}
+                      className={cn(
+                        "w-full justify-start relative",
+                        isActive(item.path)
+                          ? "bg-gray-700 text-white"
+                          : "text-gray-300 hover:text-white hover:bg-gray-700",
+                        collapsed ? "px-2" : "px-4"
+                      )}
+                      onClick={() => {
+                        navigate(item.path);
+                        if (mobileOpen) setMobileOpen(false);
+                      }}
+                    >
+                      <item.icon size={20} />
+                      {!collapsed && (
+                        <>
+                          <span className="ml-3">{item.name}</span>
+                          {item.badge && (
+                            <Badge 
+                              className="ml-auto bg-blue-500 hover:bg-blue-600" 
+                              variant="secondary"
+                            >
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </>
+                      )}
+                      {collapsed && item.badge && (
+                        <Badge 
+                          className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                          variant="destructive"
+                        >
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </Button>
+                  </li>
+                ))}
+
+                {/* Separator after main nav and before first section, and after the last item */}
+                {(sectionIndex === 0 || sectionIndex === navSections.length - 2) && (
+                  <li className="py-2 px-2">
+                    <div className="h-px bg-gray-700" />
+                  </li>
+                )}
+              </React.Fragment>
             ))}
-            {/* Add a Profile nav item */}
+
+            {/* Logout button at the end */}
             <li>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full justify-start mt-2",
+                  "text-gray-300 hover:text-white hover:bg-gray-700",
+                  collapsed ? "px-2" : "px-4"
+                )}
+                onClick={handleLogout}
+              >
+                <LogOut size={20} />
+                {!collapsed && <span className="ml-3">Logout</span>}
+              </Button>
+            </li>
+
+            {/* Profile at the bottom outside the sections */}
+            <li className="mt-4">
               <Button
                 variant={isActive("/profile") ? "secondary" : "ghost"}
                 className={cn(
@@ -158,37 +302,23 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
           </ul>
         </nav>
 
-        {/* User Profile */}
-        <div className={cn(
-          "p-4 border-t border-gray-700 flex items-center",
-          collapsed ? "justify-center" : "justify-between"
-        )}>
-          <div className={cn("flex items-center", collapsed ? "justify-center" : "gap-3")}>
-            <Avatar className="h-9 w-9">
-              <AvatarImage src={user?.profilePicture || "/placeholder.svg"} />
-              <AvatarFallback>
-                {user?.name?.charAt(0) || "U"}
-              </AvatarFallback>
-            </Avatar>
-            {!collapsed && (
+        {/* User Profile (in collapsed state move to the bottom) */}
+        {!collapsed && (
+          <div className="p-4 border-t border-gray-700">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-9 w-9">
+                <AvatarImage src={user?.profilePicture || "/placeholder.svg"} />
+                <AvatarFallback>
+                  {user?.name?.charAt(0) || "U"}
+                </AvatarFallback>
+              </Avatar>
               <div className="flex flex-col">
                 <span className="text-sm font-medium leading-none">{user?.name || "Student"}</span>
                 <span className="text-xs text-gray-400">User</span>
               </div>
-            )}
+            </div>
           </div>
-
-          {!collapsed && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleLogout} 
-              className="text-gray-400 hover:text-white hover:bg-gray-700"
-            >
-              <LogOut size={18} />
-            </Button>
-          )}
-        </div>
+        )}
       </aside>
 
       {/* Main Content */}
