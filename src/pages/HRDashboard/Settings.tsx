@@ -42,8 +42,11 @@ const Settings = () => {
         if (error) {
           console.error("Error fetching settings:", error);
         } else if (userData && userData.settings) {
-          // Initialize settings with defaults and override with stored values if available
-          const storedSettings = userData.settings || {};
+          // Make sure userData.settings is an object before spreading it
+          const storedSettings = typeof userData.settings === 'object' && userData.settings !== null 
+            ? userData.settings 
+            : {};
+            
           setSettings({
             ...settings,
             ...storedSettings
