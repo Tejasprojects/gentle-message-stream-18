@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { 
@@ -125,6 +125,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     navigate(item.path);
                     if (mobileOpen) setMobileOpen(false);
                   }}
+                  as={Link}
+                  to={item.path}
                 >
                   <item.icon size={20} />
                   {!collapsed && <span className="ml-3">{item.name}</span>}
@@ -146,6 +148,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   navigate("/hr-dashboard/profile");
                   if (mobileOpen) setMobileOpen(false);
                 }}
+                as={Link}
+                to="/hr-dashboard/profile"
               >
                 <Avatar className="h-5 w-5">
                   <AvatarFallback className="text-xs bg-gray-600">

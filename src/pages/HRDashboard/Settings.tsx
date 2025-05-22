@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Briefcase, BarChart as BarChartIcon, Calendar, Cpu as CpuIcon, Plus } from "lucide-react";
+import { Briefcase, BarChart, Calendar, CpuIcon, Plus } from "lucide-react";
 
 const Settings: React.FC = () => {
   const { toast } = useToast();
