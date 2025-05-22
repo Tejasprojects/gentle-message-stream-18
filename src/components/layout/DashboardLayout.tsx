@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { 
@@ -46,11 +46,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   const isActive = (path: string) => {
     return location.pathname === path;
-  };
-
-  const handleNavigation = (path: string) => {
-    navigate(path);
-    if (mobileOpen) setMobileOpen(false);
   };
 
   return (
@@ -126,7 +121,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                       : "text-gray-300 hover:text-white hover:bg-gray-700",
                     collapsed ? "px-2" : "px-4"
                   )}
-                  onClick={() => handleNavigation(item.path)}
+                  onClick={() => {
+                    navigate(item.path);
+                    if (mobileOpen) setMobileOpen(false);
+                  }}
                 >
                   <item.icon size={20} />
                   {!collapsed && <span className="ml-3">{item.name}</span>}
@@ -144,7 +142,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     : "text-gray-300 hover:text-white hover:bg-gray-700",
                   collapsed ? "px-2" : "px-4"
                 )}
-                onClick={() => handleNavigation("/hr-dashboard/profile")}
+                onClick={() => {
+                  navigate("/hr-dashboard/profile");
+                  if (mobileOpen) setMobileOpen(false);
+                }}
               >
                 <Avatar className="h-5 w-5">
                   <AvatarFallback className="text-xs bg-gray-600">

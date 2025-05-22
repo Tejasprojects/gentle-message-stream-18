@@ -1,14 +1,9 @@
 
 import React from "react";
 import Dashboard from "./Dashboard";
-import DashboardLayout from "@/components/layout/DashboardLayout";
 
 const HRDashboardIndex = () => {
-  return (
-    <DashboardLayout>
-      <Dashboard />
-    </DashboardLayout>
-  );
+  return <Dashboard />;
 };
 
 export default HRDashboardIndex;
