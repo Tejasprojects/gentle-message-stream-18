@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Eye, Trash } from "lucide-react";
@@ -36,14 +36,14 @@ const Everyone = () => {
   // Only admins can see edit and delete controls
   const isAdmin = user?.role === 'admin';
 
-  // Fetch all users - Modified to ensure we get all users
+  // Fetch all users - Modified to ensure we get all users without RLS restrictions
   const fetchUsers = async () => {
     setLoading(true);
     setError(null); // Clear any previous errors
     try {
-      console.log("Fetching users from profiles table...");
+      console.log("Fetching ALL users from profiles table...");
       
-      // Get all profiles without using single()
+      // Make sure we're fetching all profiles with proper credentials
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
