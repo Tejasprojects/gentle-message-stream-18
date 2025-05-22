@@ -77,9 +77,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 };
                 setUser(userData);
 
-                // If this is a signup or login event, navigate to the dashboard
-                if (event === 'SIGNED_IN' || event === 'SIGNED_UP' || event === 'TOKEN_REFRESHED') {
-                  console.log("Signed in/up event detected, redirecting to dashboard");
+                // If this is a login event, navigate to the dashboard
+                // Using 'SIGNED_IN' and 'TOKEN_REFRESHED' as these are valid auth event types
+                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                  console.log("Signed in event detected, redirecting to dashboard");
                   const dashboardPath = userData.role === 'organization' ? '/organization-home' : '/student-home';
                   navigate(dashboardPath, { replace: true });
                 }
