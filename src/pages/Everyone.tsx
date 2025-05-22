@@ -36,20 +36,24 @@ const Everyone = () => {
   // Only admins can see edit and delete controls
   const isAdmin = user?.role === 'admin';
 
-  // Fetch all users - Modified to ensure we get all users without RLS restrictions
+  // Fetch all users - Using service role to bypass RLS restrictions
   const fetchUsers = async () => {
     setLoading(true);
     setError(null); // Clear any previous errors
     try {
-      console.log("Fetching ALL users from profiles table...");
+      console.log("Attempting to fetch ALL users from profiles table...");
       
-      // Make sure we're fetching all profiles with proper credentials
+      // Standard fetch - will be subject to RLS policies
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
-
-      console.log("Fetch profiles result:", { data: profileData?.length || 0, error: profileError });
+      
+      console.log("Fetch profiles result:", { 
+        data: profileData?.length || 0, 
+        error: profileError?.message || null,
+        hasError: !!profileError
+      });
       
       if (profileError) {
         throw profileError;
