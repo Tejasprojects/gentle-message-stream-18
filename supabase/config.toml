@@ -19,3 +19,7 @@ port = 54323
 # Config for your webhook functions
 [functions.handle_new_user]
 verify_jwt = true
+
+# Config for user deletion function
+[functions.delete-user]
+verify_jwt = true

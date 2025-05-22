@@ -3,13 +3,14 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye } from "lucide-react";
+import { Eye, Trash } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import PublicNavbar from "@/components/layout/PublicNavbar";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 type UserData = {
   id: string;
@@ -27,6 +28,9 @@ const Everyone = () => {
   const [error, setError] = useState<string | null>(null);
   const [showViewDialog, setShowViewDialog] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UserData | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const { toast } = useToast();
 
   // Only admins can see edit and delete controls
@@ -87,6 +91,69 @@ const Everyone = () => {
   const handleViewUser = (user: UserData) => {
     setCurrentUser(user);
     setShowViewDialog(true);
+  };
+  
+  const handleDeleteClick = (user: UserData) => {
+    setUserToDelete(user);
+    setShowDeleteDialog(true);
+  };
+  
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    
+    setDeleteLoading(true);
+    try {
+      console.log("Deleting user:", userToDelete.id);
+      
+      // 1. First delete associated data (resumes, etc)
+      const { error: resumesError } = await supabase
+        .from('resumes')
+        .delete()
+        .eq('user_id', userToDelete.id);
+        
+      if (resumesError) {
+        console.error("Error deleting user resumes:", resumesError);
+      }
+      
+      // 2. Delete profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userToDelete.id);
+        
+      if (profileError) {
+        throw profileError;
+      }
+      
+      // 3. Delete auth user (requires admin key, done in edge function)
+      const { error: authError } = await supabase.functions.invoke('delete-user', {
+        body: { userId: userToDelete.id }
+      });
+      
+      if (authError) {
+        throw authError;
+      }
+      
+      // Success - remove from UI
+      setUsers(users.filter(u => u.id !== userToDelete.id));
+      
+      toast({
+        title: "User Deleted",
+        description: `${userToDelete.full_name || userToDelete.email} has been permanently deleted.`,
+      });
+      
+      setShowDeleteDialog(false);
+      setUserToDelete(null);
+    } catch (err: any) {
+      console.error("Error deleting user:", err);
+      toast({
+        title: "Error",
+        description: `Failed to delete user: ${err.message || "Unknown error"}`,
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   return (
@@ -182,9 +249,21 @@ const Everyone = () => {
                               variant="ghost" 
                               size="sm" 
                               onClick={() => handleViewUser(user)}
+                              title="View user details"
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
+                            {isAdmin && (
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                onClick={() => handleDeleteClick(user)}
+                                title="Delete user permanently"
+                              >
+                                <Trash className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
@@ -237,6 +316,46 @@ const Everyone = () => {
           )}
         </DialogContent>
       </Dialog>
+      
+      {/* Delete User Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete User Permanently</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {userToDelete?.full_name || userToDelete?.email}? 
+              This action cannot be undone and will delete all of their data, including:
+              
+              <ul className="list-disc pl-5 mt-2">
+                <li>Profile information</li>
+                <li>All resumes and documents</li>
+                <li>Authentication data</li>
+                <li>Any other associated records</li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeleteUser();
+              }}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+              disabled={deleteLoading}
+            >
+              {deleteLoading ? (
+                <>
+                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-b-transparent border-white"></span>
+                  Deleting...
+                </>
+              ) : (
+                "Delete Permanently"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
