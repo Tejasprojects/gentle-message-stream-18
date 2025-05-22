@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import { 
   Calendar, ChevronDown, Download, BarChart as BarChartIcon, 
-  ArrowUpRight, Filter, Share2
+  ArrowUpRight, Filter, Share2, Plus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -211,7 +211,12 @@ const HRDashboardAnalytics = () => {
                 </CardHeader>
                 <CardContent className="pt-0">
                   <div className="h-[350px]">
-                    <ChartContainer className="h-full w-full">
+                    <ChartContainer 
+                      className="h-full w-full"
+                      config={{
+                        value: { label: "Count" }
+                      }}
+                    >
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                           data={recruitmentFunnelData}
