@@ -1,6 +1,5 @@
-
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,12 +17,21 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [userRole, setUserRole] = useState<UserRole>("student");
-  const { login, register, isLoading } = useAuth();
+  const { login, register, isLoading, isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   const location = useLocation();
+  const navigate = useNavigate();
   
   // Get the "from" path from location state or default to home
   const from = location.state?.from?.pathname || "/";
+  
+  // If already logged in, redirect to appropriate page
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const dashboardPath = user.role === 'organization' ? '/organization-home' : '/student-home';
+      navigate(dashboardPath, { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

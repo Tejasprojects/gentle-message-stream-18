@@ -36,16 +36,17 @@ const Everyone = () => {
   // Only admins can see edit and delete controls
   const isAdmin = user?.role === 'admin';
 
-  // Fetch all users
+  // Fetch all users - Modified to ensure we get all users
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Use more robust error handling and logging
       console.log("Fetching users...");
       
+      // Use a more reliable approach to get all profiles
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('*');
+        .select('*')
+        .order('created_at', { ascending: false });
 
       console.log("Fetch result:", { data: profileData, error: profileError });
       
@@ -55,10 +56,14 @@ const Everyone = () => {
 
       if (!profileData || profileData.length === 0) {
         console.log("No profiles found in the database");
+        setUsers([]);
+        return;
       }
 
+      console.log(`Found ${profileData.length} profiles`);
+
       // Map profile data to user format
-      const mappedUsers = profileData ? profileData.map((profile) => {
+      const mappedUsers = profileData.map((profile) => {
         return {
           id: profile.id,
           email: profile.email || "No email",
@@ -67,7 +72,7 @@ const Everyone = () => {
           profile_picture: profile.profile_picture,
           created_at: profile.created_at
         };
-      }) : [];
+      });
 
       console.log("Mapped users:", mappedUsers);
       setUsers(mappedUsers);

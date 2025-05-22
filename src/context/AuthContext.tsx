@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { User, UserRole } from "@/types/auth";
@@ -77,7 +78,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
                 // If this is a signup or login event, navigate to the dashboard
                 if (event === 'SIGNED_IN') {
-                  const dashboardPath = userData.role === 'organization' ? '/organization-home' : '/dashboard';
+                  const dashboardPath = userData.role === 'organization' ? '/organization-home' : '/student-home';
                   navigate(dashboardPath, { replace: true });
                 }
               } else {
@@ -127,6 +128,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 createdAt: profileData.created_at || currentSession.user.created_at,
               };
               setUser(userData);
+              
+              // Check if we're on the login page and redirect if needed
+              if (location.pathname === '/login') {
+                const dashboardPath = userData.role === 'organization' ? '/organization-home' : '/student-home';
+                navigate(dashboardPath, { replace: true });
+              }
             } else {
               console.error('No profile data found');
               setUser(null);
@@ -140,7 +147,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   // Login function
   const login = async (email: string, password: string) => {
@@ -162,6 +169,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         title: "Login successful!",
         description: "Welcome back to QwiX CV",
       });
+      
+      // We don't need to manually redirect here anymore because the onAuthStateChange will handle it
     } catch (error: any) {
       console.error("Login failed:", error);
       toast({
