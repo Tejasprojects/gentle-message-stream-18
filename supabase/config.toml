@@ -6,3 +6,6 @@ project_id = "ihtqcwysnusiiacmiubw"
 
 [functions.candidates-handler]
   verify_jwt = true
+
+[functions.hr-members-handler]
+  verify_jwt = true
