@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Calendar, ChevronLeft, ChevronRight, Clock, Download, Plus, Star,
-  Video, FileText, Loader2 
+  Video, FileText, Loader2, CheckCircle, RotateCw, AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, startOfWeek, addDays, addWeeks, subWeeks, parseISO } from "date-fns";

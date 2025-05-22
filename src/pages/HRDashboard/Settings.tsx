@@ -27,18 +27,26 @@ const Settings = () => {
     async function fetchSettings() {
       try {
         setLoading(true);
+        // Get the current user
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) return;
+        
         // Fetch settings from the hr_members table
         const { data: userData, error } = await supabase
           .from('hr_members')
-          .select('settings')
+          .select('*')
+          .eq('user_profile_id', user.id)
           .single();
 
         if (error) {
           console.error("Error fetching settings:", error);
-        } else if (userData?.settings) {
+        } else if (userData) {
+          // Initialize settings with defaults and override with stored values if available
+          const storedSettings = userData.settings || {};
           setSettings({
             ...settings,
-            ...userData.settings
+            ...storedSettings
           });
         }
       } catch (error) {

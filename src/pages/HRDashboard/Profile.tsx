@@ -61,6 +61,7 @@ const Profile = () => {
             hire_date: data.hire_date || "",
             role: data.role || "",
             specializations: data.specializations || [],
+            // Handle potentially missing bio field
             bio: data.bio || ""
           });
         }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
          LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
@@ -28,26 +27,31 @@ const Analytics = () => {
     async function fetchAnalyticsData() {
       setLoading(true);
       try {
-        // Fetch jobs and applications data
+        // Fetch jobs data
         const { data: jobsData, error: jobsError } = await supabase
           .from('jobs')
           .select(`
             id,
             title,
             status,
-            department,
-            posted_date,
-            location,
-            applications (
-              id,
-              status,
-              application_date,
-              pipeline_stage
-            )
+            location
+          `);
+
+        // Fetch applications data separately
+        const { data: applicationsData, error: applicationsError } = await supabase
+          .from('applications')
+          .select(`
+            id,
+            status,
+            application_date,
+            pipeline_stage,
+            job_id
           `);
 
         if (jobsError) {
           console.error("Error fetching jobs for analytics:", jobsError);
+        } else if (applicationsError) {
+          console.error("Error fetching applications for analytics:", applicationsError);
         } else {
           // Generate applications over time data
           const now = new Date();
@@ -62,7 +66,7 @@ const Analytics = () => {
             ['Rejected', 0]
           ]);
           
-          // Track departments for department hiring chart
+          // Track departments based on job locations for department hiring chart
           const departmentMap = new Map();
           
           // Create empty months for the chart (last 3 months)
@@ -71,27 +75,28 @@ const Analytics = () => {
             const monthKey = format(monthDate, "MMM yyyy");
             applicationsMap.set(monthKey, 0);
           }
-          
+
+          // Process jobs for department data (using location as a proxy for department)
           jobsData?.forEach(job => {
-            // Count by department
-            const dept = job.department || 'Unspecified';
+            // Count by location (as a proxy for department)
+            const dept = job.location || 'Unspecified';
             departmentMap.set(dept, (departmentMap.get(dept) || 0) + 1);
+          });
+          
+          // Process applications
+          applicationsData?.forEach(app => {
+            // Count application statuses
+            if (app.pipeline_stage) {
+              statusMap.set(app.pipeline_stage, (statusMap.get(app.pipeline_stage) || 0) + 1);
+            }
             
-            // Process applications
-            job.applications?.forEach(app => {
-              // Count application statuses
-              if (app.pipeline_stage) {
-                statusMap.set(app.pipeline_stage, (statusMap.get(app.pipeline_stage) || 0) + 1);
+            // Count applications by month
+            if (app.application_date) {
+              const monthKey = format(new Date(app.application_date), "MMM yyyy");
+              if (applicationsMap.has(monthKey)) {
+                applicationsMap.set(monthKey, applicationsMap.get(monthKey) + 1);
               }
-              
-              // Count applications by month
-              if (app.application_date) {
-                const monthKey = format(new Date(app.application_date), "MMM yyyy");
-                if (applicationsMap.has(monthKey)) {
-                  applicationsMap.set(monthKey, applicationsMap.get(monthKey) + 1);
-                }
-              }
-            });
+            }
           });
           
           // Convert applications by month to array for chart
