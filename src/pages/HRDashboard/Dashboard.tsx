@@ -2,7 +2,7 @@
 import React from "react";
 import { 
   ArrowUpRight, Briefcase, Calendar, Check, ChevronRight, 
-  CpuIcon, MoreHorizontal, Plus, Users
+  CpuIcon, MoreHorizontal, Plus, Users, Bell
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
