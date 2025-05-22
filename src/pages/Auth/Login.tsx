@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { UserRole } from "@/types/auth";
 import { motion } from "framer-motion";
 import QwikZenLogo from "@/components/ui/QwikZenLogo";
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, Shield } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -173,6 +174,8 @@ const Login = () => {
                 <br />
                 - Use any email with "organization" or ending with "@org.com" to login as an organization
                 <br />
+                - Use any email with "admin" or ending with "@admin.com" to login as an admin
+                <br />
                 - Use any other email to login as a student/freelancer
               </p>
             </div>
@@ -225,7 +228,7 @@ const Login = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="account-type">Account Type</Label>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 flex-wrap">
                       <div className="flex items-center space-x-2">
                         <input
                           type="radio"
@@ -249,6 +252,23 @@ const Login = () => {
                           className="h-4 w-4 border-gray-300 text-modern-blue-600 focus:ring-modern-blue-500"
                         />
                         <Label htmlFor="organization" className="text-sm font-normal">Organization/HR</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          id="admin"
+                          name="accountType"
+                          value="admin"
+                          checked={userRole === "admin"}
+                          onChange={() => setUserRole("admin")}
+                          className="h-4 w-4 border-gray-300 text-modern-blue-600 focus:ring-modern-blue-500"
+                        />
+                        <Label htmlFor="admin" className="text-sm font-normal">
+                          <div className="flex items-center">
+                            <Shield className="h-4 w-4 text-red-500 mr-1" />
+                            Admin
+                          </div>
+                        </Label>
                       </div>
                     </div>
                   </div>

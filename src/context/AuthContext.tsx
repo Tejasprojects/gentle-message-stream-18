@@ -81,7 +81,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 // Using 'SIGNED_IN' and 'TOKEN_REFRESHED' as these are valid auth event types
                 if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
                   console.log("Signed in event detected, redirecting to dashboard");
-                  const dashboardPath = userData.role === 'organization' ? '/organization-home' : '/student-home';
+                  let dashboardPath = '/student-home';
+                  
+                  // Determine dashboard path based on user role
+                  if (userData.role === 'organization') {
+                    dashboardPath = '/organization-home';
+                  } else if (userData.role === 'admin') {
+                    dashboardPath = '/everyone'; // Admin users go to Everyone page by default
+                  }
+                  
                   navigate(dashboardPath, { replace: true });
                 }
               } else {
@@ -136,7 +144,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               // Check if we're on the login page and redirect if needed
               if (location.pathname === '/login' || location.pathname === '/register') {
                 console.log("Already logged in and on login/register page, redirecting to home");
-                const dashboardPath = userData.role === 'organization' ? '/organization-home' : '/student-home';
+                let dashboardPath = '/student-home';
+                
+                // Determine dashboard path based on user role
+                if (userData.role === 'organization') {
+                  dashboardPath = '/organization-home';
+                } else if (userData.role === 'admin') {
+                  dashboardPath = '/everyone'; // Admin users go to Everyone page by default
+                }
+                
                 navigate(dashboardPath, { replace: true });
               }
             } else {
@@ -195,14 +211,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setIsLoading(true);
       
-      // Register with Supabase - don't include role data here
+      // Determine if this is an admin registration from the email or role
+      const isAdmin = role === 'admin' || email.includes('admin') || email.endsWith('@admin.com');
+      const isOrganization = role === 'organization' || email.includes('organization') || email.endsWith('@org.com');
+      
+      // Set the final role based on email patterns or selected role
+      const finalRole: UserRole = isAdmin ? 'admin' : isOrganization ? 'organization' : 'student';
+      
+      // Register with Supabase
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: name,
-            role: role
+            role: finalRole
           }
         }
       });
@@ -218,7 +241,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Show success message
       toast({
         title: "Registration successful!",
-        description: "Welcome to QwiX CV",
+        description: `Welcome to QwiX CV as ${finalRole}`,
       });
       
       // The navigation will be handled by the auth state change listener
