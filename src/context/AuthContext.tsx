@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { User, UserRole } from "@/types/auth";
@@ -77,7 +76,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 setUser(userData);
 
                 // If this is a signup or login event, navigate to the dashboard
-                if (event === 'SIGNED_IN' || event === 'SIGNED_UP') {
+                if (event === 'SIGNED_IN') {
                   const dashboardPath = userData.role === 'organization' ? '/organization-home' : '/dashboard';
                   navigate(dashboardPath, { replace: true });
                 }
