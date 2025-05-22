@@ -1,410 +1,776 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Layout from "@/components/layout/Layout";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { 
+  Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle 
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { FileText, BookOpen, ArrowRight, Book, Route, Briefcase, Shield, MessageSquare, BarChart, Sparkles, Code, Rocket, TrendingUp, Star, Brain, Linkedin } from "lucide-react";
-import QwikzTeamBanner from "@/components/QwikzTeamBanner";
-
-const FeatureCard = ({ title, description, icon: Icon, path, points }: { 
-  title: string;
-  description: string;
-  icon: any;
-  path: string;
-  points: string[];
-}) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-    >
-      <Card className="overflow-hidden border-2 transition-all hover:shadow-md h-full">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 mb-2">
-            <Icon className="h-6 w-6 text-blue-600" />
-          </div>
-          <CardTitle>{title}</CardTitle>
-          <CardDescription>{description}</CardDescription>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <ul className="space-y-2 text-sm">
-            {points.map((point, index) => (
-              <li key={index} className="flex items-start">
-                <span className="mr-2 h-5 w-5 rounded-full bg-blue-500/20 text-blue-600 flex items-center justify-center">✓</span>
-                <span>{point}</span>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-        <CardFooter>
-          <Button asChild className="w-full">
-            <Link to={path}>
-              <span>Explore {title}</span>
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </CardFooter>
-      </Card>
-    </motion.div>
-  );
-};
-
-const FeatureSection = ({ title, description, features, bgClass }: { 
-  title: string; 
-  description: string;
-  features: any[];
-  bgClass: string;
-}) => {
-  return (
-    <section className={`py-16 ${bgClass}`}>
-      <div className="container mx-auto px-4">
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-3xl font-bold mb-3">{title}</h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">{description}</p>
-        </motion.div>
-        
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature, index) => (
-            <FeatureCard 
-              key={index}
-              title={feature.title}
-              description={feature.description}
-              icon={feature.icon}
-              path={feature.path}
-              points={feature.points}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  ArrowRight, BarChart2, Bell, BookOpen, BriefcaseBusiness, Calendar, ChevronDown, 
+  ChevronRight, Code, Cog, FileBadge, FileEdit, GraduationCap, HelpCircle, Home, 
+  Layers, Layout, Linkedin, LogOut, Menu, MessageSquare, PanelLeft, Route, Search, 
+  Settings, Shield, Target, Lightbulb, Brain, Award, Rocket, TrendingUp, Users, 
+  MessageCircle, BarChart, ActivitySquare, DollarSign, Clock, Filter, Sun
+} from "lucide-react";
 
 const StudentHome = () => {
-  // CV Tools
-  const cvTools = [
-    {
-      title: "Resume Builder",
-      description: "Create ATS-optimized resumes with AI guidance",
-      icon: FileText,
-      path: "/builder",
-      points: [
-        "AI-powered content suggestions",
-        "Section-by-section guidance",
-        "Multiple professional templates"
-      ]
-    },
-    {
-      title: "ATS Scanner",
-      description: "Optimize your resume for job applications",
-      icon: BarChart,
-      path: "/ats-scanner",
-      points: [
-        "Real-time resume scoring",
-        "Keyword optimization",
-        "Side-by-side comparison with job descriptions"
-      ]
-    },
-    {
-      title: "LinkedIn Optimizer",
-      description: "Enhance your LinkedIn profile visibility",
-      icon: Linkedin,
-      path: "/linkedin-optimizer",
-      points: [
-        "Profile optimization analysis",
-        "Keyword recommendation engine",
-        "Content suggestion for engagement"
-      ]
-    },
-    {
-      title: "Resume Compare",
-      description: "Compare multiple resume versions",
-      icon: FileText,
-      path: "/resume-compare",
-      points: [
-        "Side-by-side visual comparison",
-        "Impact analysis",
-        "Industry benchmark against peers"
-      ]
-    }
-  ];
+  const { user } = useAuth();
+  const { theme } = useTheme();
+  const isMobile = useIsMobile();
+  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+  const [expandedSections, setExpandedSections] = useState({
+    cvTools: true,
+    careerGuide: true,
+    learn: true,
+    blockchain: true
+  });
+
+  const toggleSection = (section) => {
+    setExpandedSections({
+      ...expandedSections,
+      [section]: !expandedSections[section]
+    });
+  };
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  // Format the current date
+  const today = new Date();
+  const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = today.toLocaleDateString('en-US', dateOptions);
   
-  // Career Tools
-  const careerTools = [
-    {
-      title: "Career Path Simulator",
-      description: "Visualize your future career trajectory",
-      icon: Route,
-      path: "/career-path-simulator",
-      points: [
-        "Career growth visualization",
-        "Skill development roadmaps",
-        "Personalized advancement strategies"
-      ]
-    },
-    {
-      title: "Interview Coach",
-      description: "Prepare for job interviews with AI",
-      icon: MessageSquare,
-      path: "/interview-coach",
-      points: [
-        "Practice with AI interviewer",
-        "Industry-specific question sets",
-        "Performance feedback and analysis"
-      ]
-    },
-    {
-      title: "Job Board",
-      description: "Find opportunities matched to your profile",
-      icon: Briefcase,
-      path: "/job-board",
-      points: [
-        "Resume-matched job recommendations",
-        "Application tracking system",
-        "Direct employer connections"
-      ]
-    },
-    {
-      title: "AI Job Switch Planner",
-      description: "Plan your career transition effectively",
-      icon: Sparkles,
-      path: "/ai-job-switch-planner",
-      points: [
-        "Switch feasibility calculation",
-        "Learning paths identification",
-        "Transition timeline planning"
-      ]
-    },
-    {
-      title: "AI Shadow Career Simulator",
-      description: "Experience different career paths virtually",
-      icon: Briefcase,
-      path: "/ai-shadow-career-simulator",
-      points: [
-        "Day-in-the-life simulations",
-        "Career challenge scenarios",
-        "Skill compatibility assessment"
-      ]
-    },
-    {
-      title: "AI Layoff Readiness Toolkit",
-      description: "Prepare for career uncertainties",
-      icon: Shield,
-      path: "/ai-layoff-readiness-toolkit",
-      points: [
-        "Job stability assessment",
-        "Emergency career planning",
-        "Market transferable skills identification"
-      ]
-    }
+  // Calculate greeting based on time of day
+  const hours = today.getHours();
+  let greeting = "Good morning";
+  if (hours >= 12 && hours < 18) {
+    greeting = "Good afternoon";
+  } else if (hours >= 18) {
+    greeting = "Good evening";
+  }
+
+  // Fake data for dashboard
+  const dashboardData = {
+    profileStrength: 85,
+    applications: 12,
+    interviews: 3,
+    responseRate: 65,
+    linkedInOptimization: 92,
+    skillsComplete: 78,
+    currentSkill: "Full Stack Dev",
+    skillProgress: 60,
+    nextSkill: "React Advanced",
+    marketDemand: "High",
+    salaryRange: "$75K - $95K",
+    hiringCompanies: 5,
+    applicationResponseRate: 75,
+    interviewSuccessRate: 85,
+    skillProgressRate: 60
+  };
+
+  // Recent activity data
+  const recentActivity = [
+    { action: "Applied to Senior Developer at TechCorp", time: "2 hours ago" },
+    { action: "Updated resume with new JavaScript certification", time: "1 day ago" },
+    { action: "Completed React assessment (Score: 92/100)", time: "2 days ago" },
+    { action: "Interview feedback received from DataFlow Inc", time: "3 days ago" },
+    { action: "Earned AWS Cloud Practitioner certificate", time: "5 days ago" }
   ];
 
-  // QwiX Learn Tools
-  const learnTools = [
-    {
-      title: "AI Coding Coach",
-      description: "Improve your coding skills with AI guidance",
-      icon: Code,
-      path: "/ai-coding-coach",
-      points: [
-        "Real-time code feedback",
-        "Algorithm optimization tips",
-        "Interview preparation exercises"
-      ]
-    },
-    {
-      title: "QwiXPro Builder",
-      description: "Create professional portfolios",
-      icon: Rocket,
-      path: "/qwixpro-builder",
-      points: [
-        "Dynamic project showcases",
-        "Integrated GitHub projects",
-        "Customizable design options"
-      ]
-    },
-    {
-      title: "Skill Gap Analysis",
-      description: "Identify and bridge your skill gaps",
-      icon: TrendingUp,
-      path: "/skill-gap-analysis",
-      points: [
-        "Current vs. required skills mapping",
-        "Personalized learning recommendations",
-        "Progress tracking dashboard"
-      ]
-    },
-    {
-      title: "Mindprint Assessment",
-      description: "Discover your ideal career path",
-      icon: Brain,
-      path: "/mindprint-assessment",
-      points: [
-        "Cognitive ability assessment",
-        "Personal values alignment",
-        "Career compatibility recommendations"
-      ]
-    },
+  // AI recommendations
+  const recommendations = [
+    "Update resume for Product Manager roles - 3 new matches",
+    "Practice behavioral questions - Interview in 2 days",
+    "Complete JavaScript assessment - Boost profile by 15%",
+    "Apply to 3 matching positions - 95%+ compatibility"
   ];
 
-  // Blockchain Tools
-  const blockchainTools = [
-    {
-      title: "QwiXCert",
-      description: "Blockchain-verified certifications",
-      icon: Shield,
-      path: "/certification-center",
-      points: [
-        "Tamper-proof certification storage",
-        "Verifiable credentials for employers",
-        "Certification assessment exams"
-      ]
-    },
-    {
-      title: "Blockchain Vault",
-      description: "Secure document storage using blockchain",
-      icon: Shield,
-      path: "/blockchain-vault",
-      points: [
-        "Tamper-proof document storage",
-        "Universal verification system",
-        "Decentralized security protocol"
-      ]
-    }
+  // Quick access tools
+  const quickAccessTools = [
+    { name: "Resume Builder", icon: FileEdit, path: "/builder", status: "Last: 2 days", action: "Launch Tool" },
+    { name: "Job Board", icon: BriefcaseBusiness, path: "/job-board", status: "3 new matches", action: "View Jobs" },
+    { name: "Interview Coach", icon: MessageSquare, path: "/interview-coach", status: "Next: Tomorrow", action: "Start Session" },
+    { name: "ATS Scanner", icon: Search, path: "/ats-scanner", status: "Scan pending", action: "Scan Resume" },
+    { name: "Skill Gap", icon: BarChart, path: "/skill-gap-analysis", status: "Assessment due", action: "Take Test" },
+    { name: "LinkedIn", icon: Linkedin, path: "/linkedin-optimizer", status: "Views: +25%", action: "Optimize" }
   ];
+
+  // Upcoming events
+  const upcomingEvents = [
+    { time: "2:00 PM", description: "Phone screen with Google (React Developer)", day: "Today" },
+    { time: "4:30 PM", description: "Complete LinkedIn skills assessment", day: "Today" },
+    { time: "10:00 AM", description: "Final interview with Microsoft (Cloud Engineer)", day: "Tomorrow" },
+    { time: "", description: "Application deadline: Senior Developer at Apple", day: "Tomorrow" }
+  ];
+
+  const navigationItems = {
+    main: [
+      { name: "Dashboard", icon: Home, path: "/dashboard" },
+      { name: "Job Search", icon: Search, path: "/job-search" },
+      { name: "Apply for Jobs", icon: FileEdit, path: "/apply" },
+      { name: "My Applications", icon: Target, path: "/my-applications", badge: "3" },
+      { name: "My Analytics", icon: BarChart2, path: "/analytics" },
+    ],
+    cvTools: [
+      { name: "Resume Builder", icon: FileEdit, path: "/builder" },
+      { name: "ATS Scanner", icon: Search, path: "/ats-scanner" },
+      { name: "LinkedIn Optimizer", icon: Linkedin, path: "/linkedin-optimizer" },
+      { name: "Resume Compare", icon: BarChart, path: "/resume-compare" },
+    ],
+    careerGuide: [
+      { name: "Career Path Simulator", icon: Route, path: "/career-path-simulator" },
+      { name: "Interview Coach", icon: MessageSquare, path: "/interview-coach" },
+      { name: "Job Board", icon: BriefcaseBusiness, path: "/job-board" },
+      { name: "AI Job Switch Planner", icon: Lightbulb, path: "/ai-job-switch-planner" },
+      { name: "AI Shadow Career Simulator", icon: Users, path: "/ai-shadow-career-simulator" },
+      { name: "AI Layoff Readiness Toolkit", icon: Shield, path: "/ai-layoff-readiness-toolkit" },
+    ],
+    learn: [
+      { name: "AI Coding Coach", icon: Code, path: "/ai-coding-coach" },
+      { name: "MahayudhPro Builder", icon: Rocket, path: "/qwixpro-builder" },
+      { name: "Skill Gap Analysis", icon: TrendingUp, path: "/skill-gap-analysis" },
+      { name: "Mindprint Assessment", icon: Brain, path: "/mindprint-assessment" },
+    ],
+    blockchain: [
+      { name: "MahayudhCert", icon: Award, path: "/certification-center" },
+      { name: "Blockchain Vault", icon: Shield, path: "/blockchain-vault" },
+    ],
+    support: [
+      { name: "Help Center", icon: HelpCircle, path: "/help" },
+      { name: "Settings", icon: Settings, path: "/settings" },
+      { name: "Contact", icon: MessageCircle, path: "/contact" },
+    ]
+  };
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <motion.div 
-          className="mb-8 text-center"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h1 className="text-4xl font-bold tracking-tight">Welcome to QwiXEd360°Suite</h1>
-          <p className="mt-3 text-xl text-muted-foreground">
-            Your AI-powered career development platform
-          </p>
-        </motion.div>
-        
-        {/* Hero Banner */}
-        <motion.div
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-modern-blue-600 to-soft-purple mb-12 text-white"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <div className="absolute inset-0 z-0 opacity-30">
-            <div className="absolute w-20 h-20 rounded-full bg-white/30 blur-xl top-1/4 left-1/4 animate-pulse"></div>
-            <div className="absolute w-32 h-32 rounded-full bg-white/20 blur-xl top-2/3 left-2/3 animate-pulse" style={{ animationDelay: '1s' }}></div>
+    <div className="min-h-screen bg-[#f8fafc] text-[#374151] font-inter">
+      {/* Overlay for mobile sidebar */}
+      {sidebarOpen && isMobile && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40" 
+          onClick={toggleSidebar}
+        />
+      )}
+      
+      {/* Top Navigation Bar */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div className="flex h-16 items-center justify-between px-4">
+          <div className="flex items-center">
+            <button 
+              onClick={toggleSidebar}
+              className="p-2 rounded-md text-gray-500 hover:bg-gray-100 mr-2"
+            >
+              <Menu size={24} />
+            </button>
+            <div className="text-xl font-bold bg-gradient-to-r from-[#4f46e5] to-[#1e3a8a] bg-clip-text text-transparent">
+              Mahayudh
+            </div>
           </div>
           
-          <div className="relative z-10 p-8 md:p-12">
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Empower Your Career Journey</h2>
-              <p className="text-lg text-white/90 mb-6">
-                QwiXEd360°Suite combines AI, blockchain, and precision tools to help you excel in your professional journey.
-                From resumes to readiness, our platform is built to solve the real challenges job seekers face every day.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button asChild size="lg" className="bg-white text-modern-blue-600 hover:bg-white/90">
-                  <Link to="/builder">Get Started</Link>
+          <div className="flex items-center md:w-1/3">
+            <div className="relative w-full hidden md:block">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              <Input
+                placeholder="Search jobs, tools, insights..."
+                className="w-full pl-10 focus:ring-[#4f46e5] focus:border-[#4f46e5]"
+              />
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <button className="p-2 rounded-full text-gray-500 hover:bg-gray-100 relative">
+              <Bell size={20} />
+              <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-[#ef4444]"></span>
+            </button>
+            
+            <Avatar className="h-9 w-9 border border-gray-200">
+              <AvatarImage src={user?.profilePicture} />
+              <AvatarFallback className="bg-[#4f46e5] text-white">
+                {user?.name?.charAt(0) || "U"}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
+      </header>
+      
+      <div className="flex">
+        {/* Left Sidebar */}
+        <aside 
+          className={`bg-white border-r border-gray-200 fixed inset-y-0 mt-16 pt-5 flex flex-col z-20 transition-all duration-300 
+          ${sidebarOpen ? 'left-0 w-72' : '-left-72 w-72'} 
+          ${isMobile ? 'shadow-xl' : ''}`}
+        >
+          {/* User Profile Section */}
+          <div className="px-4 pb-6 border-b border-gray-100">
+            <div className="flex flex-col items-center text-center">
+              <Avatar className="h-16 w-16 mb-3 border-2 border-[#4f46e5]/20">
+                <AvatarImage src={user?.profilePicture} alt={user?.name} />
+                <AvatarFallback className="text-lg bg-[#4f46e5] text-white">
+                  {user?.name?.charAt(0) || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <h3 className="font-semibold text-lg">{user?.name || "John Smith"}</h3>
+              <div className="text-sm text-[#4f46e5] font-medium mb-3">
+                <Badge variant="outline" className="border-[#4f46e5]/30 bg-[#4f46e5]/5 text-[#4f46e5]">
+                  Actively Job Searching
+                </Badge>
+              </div>
+              
+              <div className="w-full mb-4">
+                <div className="flex justify-between text-sm mb-1">
+                  <span>Profile Strength</span>
+                  <span className="font-medium">{dashboardData.profileStrength}%</span>
+                </div>
+                <Progress value={dashboardData.profileStrength} className="h-2 bg-gray-100" indicatorClassName="bg-[#4f46e5]" />
+              </div>
+              
+              <div className="flex gap-2 w-full">
+                <Button variant="outline" size="sm" className="flex-1 text-xs">
+                  Edit Profile
                 </Button>
-                <Button asChild size="lg" variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
-                  <Link to="/about">Learn More</Link>
+                <Button variant="outline" size="sm" className="flex-1 text-xs">
+                  Settings
                 </Button>
               </div>
             </div>
           </div>
-        </motion.div>
-        
-        <QwikzTeamBanner />
-        
-        {/* CV Tools Section */}
-        <FeatureSection
-          title="CV Tools: Craft Your Professional Image"
-          description="Our suite of CV and profile optimization tools designed to help you stand out in the job market with AI-powered assistance."
-          features={cvTools}
-          bgClass="bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/10 dark:to-transparent rounded-xl"
-        />
-        
-        {/* Career Tools Section */}
-        <FeatureSection
-          title="QwiX Career Guide: Navigate Your Professional Journey"
-          description="Tools to help you plan, visualize, and optimize your career path with AI-driven insights and practical guidance."
-          features={careerTools}
-          bgClass="bg-gradient-to-b from-purple-50 to-white dark:from-purple-900/10 dark:to-transparent rounded-xl"
-        />
-        
-        {/* QwiX Learn Section */}
-        <FeatureSection
-          title="QwiX Learn: Upskill with Intelligence"
-          description="Advanced learning tools that analyze your skill gaps and provide tailored learning paths to keep you competitive in your field."
-          features={learnTools}
-          bgClass="bg-gradient-to-b from-green-50 to-white dark:from-green-900/10 dark:to-transparent rounded-xl"
-        />
-        
-        {/* Blockchain Tools */}
-        <FeatureSection
-          title="Blockchain Security: Protect Your Professional Identity"
-          description="Leverage the power of blockchain to secure and verify your professional credentials and documents with tamper-proof technology."
-          features={blockchainTools}
-          bgClass="bg-gradient-to-b from-amber-50 to-white dark:from-amber-900/10 dark:to-transparent rounded-xl"
-        />
-
-        <div className="mt-16 mb-8 bg-gray-50 p-8 rounded-2xl">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold">Built by Visionaries, Not Corporates</h2>
-            <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-              QwiXEd360°Suite is a flagship innovation by QwikZen Group India – A zero-investment, 
-              mission-driven startup founded by Dhadi Sai Praneeth Reddy, a student innovator who blends AI, 
-              sacred knowledge, and real-world needs into intelligent systems that make a difference.
-            </p>
-          </div>
           
-          <div className="flex justify-center">
-            <div className="flex flex-col items-center max-w-md">
-              <div className="w-32 h-32 rounded-full mb-4 overflow-hidden border-4 border-modern-blue-200 shadow-xl">
-                <img 
-                  src="/lovable-uploads/f5d06c81-a24b-4c51-8bf0-c6fd139438e3.png" 
-                  alt="Dhadi Sai Praneeth Reddy" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-bold">Dhadi Sai Praneeth Reddy</h3>
-              <p className="text-modern-blue-600 mb-2">Founder & CTO</p>
-              <p className="text-center text-muted-foreground mb-4">
-                Visionary technologist combining AI expertise with a passion for creating solutions 
-                that address real-world career challenges.
-              </p>
+          {/* Navigation Menu */}
+          <nav className="flex-1 overflow-y-auto pt-4 px-3">
+            <div className="space-y-1">
+              {navigationItems.main.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-gray-700"
+                >
+                  <div className="flex items-center">
+                    <item.icon className="mr-3 h-5 w-5 text-gray-500" />
+                    {item.name}
+                  </div>
+                  {item.badge && (
+                    <Badge className="bg-[#4f46e5]">{item.badge}</Badge>
+                  )}
+                </Link>
+              ))}
             </div>
+            
+            {/* CV Tools Section */}
+            <div className="mt-6">
+              <button
+                onClick={() => toggleSection('cvTools')}
+                className="flex items-center justify-between w-full px-3 py-2 text-sm font-semibold text-gray-600"
+              >
+                <span>CV TOOLS</span>
+                <ChevronDown size={16} className={`transition-transform ${expandedSections.cvTools ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {expandedSections.cvTools && (
+                <div className="space-y-1 mt-1">
+                  {navigationItems.cvTools.map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.path}
+                      className="flex items-center px-8 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-gray-600"
+                    >
+                      <item.icon className="mr-3 h-4 w-4 text-gray-500" />
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Career Guide Section */}
+            <div className="mt-2">
+              <button
+                onClick={() => toggleSection('careerGuide')}
+                className="flex items-center justify-between w-full px-3 py-2 text-sm font-semibold text-gray-600"
+              >
+                <span>CAREER GUIDE</span>
+                <ChevronDown size={16} className={`transition-transform ${expandedSections.careerGuide ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {expandedSections.careerGuide && (
+                <div className="space-y-1 mt-1">
+                  {navigationItems.careerGuide.map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.path}
+                      className="flex items-center px-8 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-gray-600"
+                    >
+                      <item.icon className="mr-3 h-4 w-4 text-gray-500" />
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Learn Section */}
+            <div className="mt-2">
+              <button
+                onClick={() => toggleSection('learn')}
+                className="flex items-center justify-between w-full px-3 py-2 text-sm font-semibold text-gray-600"
+              >
+                <span>MAHAYUDH LEARN</span>
+                <ChevronDown size={16} className={`transition-transform ${expandedSections.learn ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {expandedSections.learn && (
+                <div className="space-y-1 mt-1">
+                  {navigationItems.learn.map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.path}
+                      className="flex items-center px-8 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-gray-600"
+                    >
+                      <item.icon className="mr-3 h-4 w-4 text-gray-500" />
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Blockchain Section */}
+            <div className="mt-2">
+              <button
+                onClick={() => toggleSection('blockchain')}
+                className="flex items-center justify-between w-full px-3 py-2 text-sm font-semibold text-gray-600"
+              >
+                <span>BLOCKCHAIN SECURITY</span>
+                <ChevronDown size={16} className={`transition-transform ${expandedSections.blockchain ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {expandedSections.blockchain && (
+                <div className="space-y-1 mt-1">
+                  {navigationItems.blockchain.map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.path}
+                      className="flex items-center px-8 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-gray-600"
+                    >
+                      <item.icon className="mr-3 h-4 w-4 text-gray-500" />
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Support Section */}
+            <div className="mt-6 border-t border-gray-100 pt-4">
+              <div className="space-y-1">
+                {navigationItems.support.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    className="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-gray-600"
+                  >
+                    <item.icon className="mr-3 h-5 w-5 text-gray-500" />
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </nav>
+          
+          {/* Logout Button */}
+          <div className="p-4 border-t border-gray-100">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start text-gray-600 hover:text-[#ef4444] hover:border-[#ef4444]/30"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
           </div>
-        </div>
-
-        <div className="mt-12 text-center">
-          <h2 className="text-2xl font-bold mb-2">Ready to boost your career?</h2>
-          <p className="text-muted-foreground mb-6">
-            Explore all our tools designed to help you succeed in your professional journey
-          </p>
-          <Button asChild size="lg">
-            <Link to="/dashboard">
-              Go to Dashboard
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
+        </aside>
+        
+        {/* Main Content */}
+        <main 
+          className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-72' : 'ml-0'}`}
+        >
+          <div className="container mx-auto p-6">
+            {/* Header Section */}
+            <div className="mb-8">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-[#1e3a8a]">
+                    {greeting}, {user?.name?.split(' ')[0] || "John"}! <span className="text-gray-500 text-lg">Ready to advance your career? 🌅</span>
+                  </h1>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Today: {formattedDate} | Last login: 2 hours ago
+                  </p>
+                </div>
+                
+                <div className="relative mt-4 md:mt-0 md:w-1/3 md:hidden">
+                  <div className="flex">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                    <Input
+                      placeholder="Search jobs, tools, insights..."
+                      className="w-full pl-10 focus:ring-[#4f46e5] focus:border-[#4f46e5] pr-20"
+                    />
+                    <Button variant="outline" size="icon" className="absolute right-1 top-1/2 transform -translate-y-1/2">
+                      <Filter size={16} />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Dashboard Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {/* Job Search Status Card */}
+              <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
+                <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-transparent">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
+                      <BarChart2 className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                      Job Search Status
+                    </CardTitle>
+                    <span className="p-1.5 rounded-full bg-blue-100">
+                      <ActivitySquare size={16} className="text-[#4f46e5]" />
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Applications</span>
+                      <span className="font-medium">{dashboardData.applications} this month</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Interviews</span>
+                      <span className="font-medium">{dashboardData.interviews} scheduled</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Response Rate</span>
+                      <span className="font-medium text-[#10b981]">{dashboardData.responseRate}% <span className="text-xs">↗</span></span>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" size="sm" className="w-full text-[#4f46e5] border-[#4f46e5]/30 hover:bg-[#4f46e5]/10">
+                    View All Applications
+                    <ChevronRight size={16} className="ml-1" />
+                  </Button>
+                </CardFooter>
+              </Card>
+              
+              {/* Profile Strength Card */}
+              <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
+                <CardHeader className="pb-2 bg-gradient-to-r from-purple-50 to-transparent">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
+                      <Users className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                      Profile Strength
+                    </CardTitle>
+                    <span className="p-1.5 rounded-full bg-purple-100">
+                      <Award size={16} className="text-[#4f46e5]" />
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Resume Score</span>
+                      <span className="font-medium">{dashboardData.profileStrength}/100</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">LinkedIn</span>
+                      <span className="font-medium">{dashboardData.linkedInOptimization}% optimized</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Skills</span>
+                      <span className="font-medium">{dashboardData.skillsComplete}% complete</span>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" size="sm" className="w-full text-[#4f46e5] border-[#4f46e5]/30 hover:bg-[#4f46e5]/10">
+                    Improve Profile
+                    <ChevronRight size={16} className="ml-1" />
+                  </Button>
+                </CardFooter>
+              </Card>
+              
+              {/* Skill Development Card */}
+              <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
+                <CardHeader className="pb-2 bg-gradient-to-r from-green-50 to-transparent">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
+                      <GraduationCap className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                      Skill Development
+                    </CardTitle>
+                    <span className="p-1.5 rounded-full bg-green-100">
+                      <BookOpen size={16} className="text-[#10b981]" />
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Current</span>
+                      <span className="font-medium">{dashboardData.currentSkill}</span>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">Progress</span>
+                        <span className="font-medium">{dashboardData.skillProgress}%</span>
+                      </div>
+                      <Progress value={dashboardData.skillProgress} className="h-2 bg-gray-100" indicatorClassName="bg-[#10b981]" />
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Next</span>
+                      <span className="font-medium">{dashboardData.nextSkill}</span>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" size="sm" className="w-full text-[#10b981] border-[#10b981]/30 hover:bg-[#10b981]/10">
+                    Continue Learning
+                    <ChevronRight size={16} className="ml-1" />
+                  </Button>
+                </CardFooter>
+              </Card>
+              
+              {/* Career Insights Card */}
+              <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
+                <CardHeader className="pb-2 bg-gradient-to-r from-amber-50 to-transparent">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
+                      <Lightbulb className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                      Career Insights
+                    </CardTitle>
+                    <span className="p-1.5 rounded-full bg-amber-100">
+                      <TrendingUp size={16} className="text-[#f59e0b]" />
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Market Demand</span>
+                      <span className="font-medium flex items-center">{dashboardData.marketDemand} <span className="text-[#ef4444] ml-1">🔥</span></span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Salary</span>
+                      <span className="font-medium">{dashboardData.salaryRange}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Companies</span>
+                      <span className="font-medium">{dashboardData.hiringCompanies} hiring now</span>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" size="sm" className="w-full text-[#f59e0b] border-[#f59e0b]/30 hover:bg-[#f59e0b]/10">
+                    View Insights
+                    <ChevronRight size={16} className="ml-1" />
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+            
+            {/* Recent Activity Timeline */}
+            <Card className="mb-8 border border-gray-200">
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
+                  <ActivitySquare className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                  Recent Activity
+                </CardTitle>
+                <Button variant="ghost" size="sm" className="text-[#4f46e5]">
+                  View All
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentActivity.map((activity, index) => (
+                    <div key={index} className="flex items-start">
+                      <div className="mr-3 relative">
+                        <div className="h-3 w-3 rounded-full bg-[#4f46e5] ring-4 ring-[#4f46e5]/10"></div>
+                        {index < recentActivity.length - 1 && (
+                          <div className="absolute h-full w-px bg-gray-200 top-3 left-1.5"></div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start">
+                          <p className="text-sm">{activity.action}</p>
+                          <span className="text-xs text-gray-500">{activity.time}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* AI Recommendations Panel */}
+            <Card className="mb-8 border border-gray-200 bg-gradient-to-r from-[#4f46e5]/5 to-white overflow-hidden">
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
+                  <Lightbulb className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                  Personalized Recommendations
+                </CardTitle>
+                <Button variant="ghost" size="sm" className="text-[#4f46e5]">
+                  See All
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {recommendations.map((rec, index) => (
+                    <div key={index} className="flex items-start">
+                      <div className="text-[#4f46e5] mr-2">•</div>
+                      <p className="text-sm">{rec}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Quick Access Tools */}
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold text-[#1e3a8a] mb-4 flex items-center">
+                <Rocket className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                Quick Access Tools
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {quickAccessTools.map((tool, index) => (
+                  <Card key={index} className="border border-gray-200 hover:border-[#4f46e5]/30 hover:shadow-md transition-all">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center">
+                          <span className="p-2 rounded-md bg-[#4f46e5]/10 mr-3">
+                            <tool.icon size={18} className="text-[#4f46e5]" />
+                          </span>
+                          <h3 className="font-medium">{tool.name}</h3>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-500 mb-4">{tool.status}</p>
+                      <Button 
+                        asChild
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full text-[#4f46e5] border-[#4f46e5]/30 hover:bg-[#4f46e5]/10"
+                      >
+                        <Link to={tool.path}>
+                          {tool.action}
+                          <ArrowRight size={14} className="ml-1" />
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+            
+            {/* Progress Tracking Charts */}
+            <Card className="mb-8 border border-gray-200">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
+                  <BarChart className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                  Progress Analytics
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <div className="text-center mb-2">
+                      <h3 className="text-sm font-medium">Application Response Rate</h3>
+                      <div className="flex items-center justify-center gap-2 mt-1">
+                        <span className="text-2xl font-bold">{dashboardData.applicationResponseRate}%</span>
+                        <Badge className="bg-[#10b981]">+15%</Badge>
+                      </div>
+                    </div>
+                    <Progress value={dashboardData.applicationResponseRate} className="h-2 bg-gray-100" indicatorClassName="bg-[#4f46e5]" />
+                    <p className="text-xs text-center mt-1 text-gray-500">from last month</p>
+                  </div>
+                  
+                  <div>
+                    <div className="text-center mb-2">
+                      <h3 className="text-sm font-medium">Interview Success Rate</h3>
+                      <div className="flex items-center justify-center gap-2 mt-1">
+                        <span className="text-2xl font-bold">{dashboardData.interviewSuccessRate}%</span>
+                        <Badge className="bg-[#10b981]">Above Avg</Badge>
+                      </div>
+                    </div>
+                    <Progress value={dashboardData.interviewSuccessRate} className="h-2 bg-gray-100" indicatorClassName="bg-[#4f46e5]" />
+                    <p className="text-xs text-center mt-1 text-gray-500">better than average</p>
+                  </div>
+                  
+                  <div>
+                    <div className="text-center mb-2">
+                      <h3 className="text-sm font-medium">Skill Progress</h3>
+                      <div className="flex items-center justify-center gap-2 mt-1">
+                        <span className="text-2xl font-bold">{dashboardData.skillProgressRate}%</span>
+                        <Badge variant="outline" className="border-[#4f46e5]/30 bg-[#4f46e5]/5 text-[#4f46e5]">
+                          Full Stack
+                        </Badge>
+                      </div>
+                    </div>
+                    <Progress value={dashboardData.skillProgressRate} className="h-2 bg-gray-100" indicatorClassName="bg-[#10b981]" />
+                    <p className="text-xs text-center mt-1 text-gray-500">{dashboardData.currentSkill}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Upcoming Events & Reminders */}
+            <Card className="border border-gray-200">
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
+                  <Calendar className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                  Upcoming Events
+                </CardTitle>
+                <Button variant="ghost" size="sm" className="text-[#4f46e5]">
+                  View Calendar
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* Group events by day */}
+                  {["Today", "Tomorrow"].map((day) => (
+                    <div key={day}>
+                      <h3 className="font-medium text-sm mb-2">{day}:</h3>
+                      <div className="space-y-3">
+                        {upcomingEvents
+                          .filter((event) => event.day === day)
+                          .map((event, index) => (
+                            <div key={index} className="flex items-start">
+                              {event.time ? (
+                                <div className="min-w-16 text-sm font-medium text-gray-600 mr-3">
+                                  {event.time}
+                                </div>
+                              ) : (
+                                <div className="min-w-16 flex items-center mr-3">
+                                  <Clock size={14} className="text-[#f59e0b] mr-1" />
+                                  <span className="text-xs text-[#f59e0b]">Deadline</span>
+                                </div>
+                              )}
+                              <p className="text-sm">{event.description}</p>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
       </div>
-    </Layout>
+    </div>
   );
 };
 
