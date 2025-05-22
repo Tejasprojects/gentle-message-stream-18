@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -46,11 +45,11 @@ const StudentHome = () => {
 
   // Format the current date with proper types for DateTimeFormatOptions
   const today = new Date();
-  const dateOptions = { 
-    weekday: 'long' as const, 
-    year: 'numeric' as const, 
-    month: 'long' as const, 
-    day: 'numeric' as const 
+  const dateOptions: Intl.DateTimeFormatOptions = { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
   };
   const formattedDate = today.toLocaleDateString('en-US', dateOptions);
   
@@ -117,6 +116,7 @@ const StudentHome = () => {
     { time: "", description: "Application deadline: Senior Developer at Apple", day: "Tomorrow" }
   ];
 
+  // Updated navigation items with proper links
   const navigationItems = {
     main: [
       { name: "Dashboard", icon: Home, path: "/dashboard" },
@@ -256,14 +256,14 @@ const StudentHome = () => {
                 <Link
                   key={item.name}
                   to={item.path}
-                  className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md hover:bg-[#0077ff]/5 hover:text-[#0077ff] text-gray-700"
+                  className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md hover:bg-[#1e3a8a]/5 hover:text-[#1e3a8a] text-gray-700"
                 >
                   <div className="flex items-center">
                     <item.icon className="mr-3 h-5 w-5 text-gray-500" />
                     {item.name}
                   </div>
                   {item.badge && (
-                    <Badge className="bg-[#0077ff]">{item.badge}</Badge>
+                    <Badge className="bg-[#4f46e5]">{item.badge}</Badge>
                   )}
                 </Link>
               ))}

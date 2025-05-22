@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,6 +7,10 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/layout/Layout";
 import Dashboard from "@/pages/Dashboard";
 import StudentHome from "@/pages/StudentHome";
+import JobSearch from "@/pages/JobSearch";
+import ApplyJobs from "@/pages/ApplyJobs";
+import MyApplications from "@/pages/MyApplications";
+import MyAnalytics from "@/pages/MyAnalytics";
 import Login from "@/pages/Auth/Login";
 import Register from "@/pages/Auth/Register";
 import ForgotPassword from "@/pages/Auth/ForgotPassword";
@@ -104,6 +107,43 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['student', 'admin']}>
                     <StudentHome />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* New Student Navigation Routes */}
+              <Route 
+                path="/job-search" 
+                element={
+                  <ProtectedRoute allowedRoles={['student', 'admin']}>
+                    <JobSearch />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/apply" 
+                element={
+                  <ProtectedRoute allowedRoles={['student', 'admin']}>
+                    <ApplyJobs />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/my-applications" 
+                element={
+                  <ProtectedRoute allowedRoles={['student', 'admin']}>
+                    <MyApplications />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/analytics" 
+                element={
+                  <ProtectedRoute allowedRoles={['student', 'admin']}>
+                    <MyAnalytics />
                   </ProtectedRoute>
                 } 
               />
