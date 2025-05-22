@@ -48,6 +48,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     return location.pathname === path;
   };
 
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    if (mobileOpen) setMobileOpen(false);
+  };
+
   return (
     <div className="flex min-h-screen h-screen bg-gray-100 dark:bg-gray-900">
       {/* Mobile sidebar overlay */}
@@ -121,12 +126,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                       : "text-gray-300 hover:text-white hover:bg-gray-700",
                     collapsed ? "px-2" : "px-4"
                   )}
-                  onClick={() => {
-                    navigate(item.path);
-                    if (mobileOpen) setMobileOpen(false);
-                  }}
-                  as={Link}
-                  to={item.path}
+                  onClick={() => handleNavigation(item.path)}
                 >
                   <item.icon size={20} />
                   {!collapsed && <span className="ml-3">{item.name}</span>}
@@ -144,12 +144,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     : "text-gray-300 hover:text-white hover:bg-gray-700",
                   collapsed ? "px-2" : "px-4"
                 )}
-                onClick={() => {
-                  navigate("/hr-dashboard/profile");
-                  if (mobileOpen) setMobileOpen(false);
-                }}
-                as={Link}
-                to="/hr-dashboard/profile"
+                onClick={() => handleNavigation("/hr-dashboard/profile")}
               >
                 <Avatar className="h-5 w-5">
                   <AvatarFallback className="text-xs bg-gray-600">
