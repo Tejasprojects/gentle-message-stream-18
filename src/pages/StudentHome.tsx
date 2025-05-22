@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -166,7 +167,7 @@ const StudentHome = () => {
       )}
       
       {/* Top Navigation Bar */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
         <div className="flex h-16 items-center justify-between px-4">
           <div className="flex items-center">
             <button 
@@ -175,7 +176,7 @@ const StudentHome = () => {
             >
               <Menu size={24} />
             </button>
-            <div className="text-xl font-bold bg-gradient-to-r from-[#4f46e5] to-[#1e3a8a] bg-clip-text text-transparent">
+            <div className="text-xl font-bold bg-gradient-to-r from-[#0077ff] to-[#0055cb] bg-clip-text text-transparent">
               Mahayudh
             </div>
           </div>
@@ -185,7 +186,7 @@ const StudentHome = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
               <Input
                 placeholder="Search jobs, tools, insights..."
-                className="w-full pl-10 focus:ring-[#4f46e5] focus:border-[#4f46e5]"
+                className="w-full pl-10 focus:ring-[#0077ff] focus:border-[#0077ff]"
               />
             </div>
           </div>
@@ -198,7 +199,7 @@ const StudentHome = () => {
             
             <Avatar className="h-9 w-9 border border-gray-200">
               <AvatarImage src={user?.profilePicture} />
-              <AvatarFallback className="bg-[#4f46e5] text-white">
+              <AvatarFallback className="bg-[#0077ff] text-white">
                 {user?.name?.charAt(0) || "U"}
               </AvatarFallback>
             </Avatar>
@@ -214,17 +215,17 @@ const StudentHome = () => {
           ${isMobile ? 'shadow-xl' : ''}`}
         >
           {/* User Profile Section */}
-          <div className="px-4 pb-6 border-b border-gray-100">
+          <div className="px-4 pb-6 mb-2 border-b border-gray-100">
             <div className="flex flex-col items-center text-center">
-              <Avatar className="h-16 w-16 mb-3 border-2 border-[#4f46e5]/20">
+              <Avatar className="h-16 w-16 mb-3 border-2 border-[#0077ff]/20">
                 <AvatarImage src={user?.profilePicture} alt={user?.name} />
-                <AvatarFallback className="text-lg bg-[#4f46e5] text-white">
+                <AvatarFallback className="text-lg bg-[#0077ff] text-white">
                   {user?.name?.charAt(0) || "U"}
                 </AvatarFallback>
               </Avatar>
               <h3 className="font-semibold text-lg">{user?.name || "John Smith"}</h3>
-              <div className="text-sm text-[#4f46e5] font-medium mb-3">
-                <Badge variant="outline" className="border-[#4f46e5]/30 bg-[#4f46e5]/5 text-[#4f46e5]">
+              <div className="text-sm text-[#0077ff] font-medium mb-3">
+                <Badge variant="outline" className="border-[#0077ff]/30 bg-[#0077ff]/5 text-[#0077ff]">
                   Actively Job Searching
                 </Badge>
               </div>
@@ -234,14 +235,14 @@ const StudentHome = () => {
                   <span>Profile Strength</span>
                   <span className="font-medium">{dashboardData.profileStrength}%</span>
                 </div>
-                <Progress value={dashboardData.profileStrength} className="h-2 bg-gray-100" indicatorClassName="bg-[#4f46e5]" />
+                <Progress value={dashboardData.profileStrength} className="h-2 bg-gray-100" indicatorClassName="bg-[#0077ff]" />
               </div>
               
               <div className="flex gap-2 w-full">
-                <Button variant="outline" size="sm" className="flex-1 text-xs">
+                <Button variant="outline" size="sm" className="flex-1 text-xs border-[#0077ff]/30 text-[#0077ff] hover:bg-[#0077ff]/5">
                   Edit Profile
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1 text-xs">
+                <Button variant="outline" size="sm" className="flex-1 text-xs border-[#0077ff]/30 text-[#0077ff] hover:bg-[#0077ff]/5">
                   Settings
                 </Button>
               </div>
@@ -249,20 +250,20 @@ const StudentHome = () => {
           </div>
           
           {/* Navigation Menu */}
-          <nav className="flex-1 overflow-y-auto pt-4 px-3">
+          <nav className="flex-1 overflow-y-auto px-3">
             <div className="space-y-1">
               {navigationItems.main.map((item) => (
                 <Link
                   key={item.name}
                   to={item.path}
-                  className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-gray-700"
+                  className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md hover:bg-[#0077ff]/5 hover:text-[#0077ff] text-gray-700"
                 >
                   <div className="flex items-center">
                     <item.icon className="mr-3 h-5 w-5 text-gray-500" />
                     {item.name}
                   </div>
                   {item.badge && (
-                    <Badge className="bg-[#4f46e5]">{item.badge}</Badge>
+                    <Badge className="bg-[#0077ff]">{item.badge}</Badge>
                   )}
                 </Link>
               ))}
@@ -284,7 +285,7 @@ const StudentHome = () => {
                     <Link
                       key={item.name}
                       to={item.path}
-                      className="flex items-center px-8 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-gray-600"
+                      className="flex items-center px-8 py-2 text-sm font-medium rounded-md hover:bg-[#0077ff]/5 hover:text-[#0077ff] text-gray-600"
                     >
                       <item.icon className="mr-3 h-4 w-4 text-gray-500" />
                       {item.name}
@@ -310,7 +311,7 @@ const StudentHome = () => {
                     <Link
                       key={item.name}
                       to={item.path}
-                      className="flex items-center px-8 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-gray-600"
+                      className="flex items-center px-8 py-2 text-sm font-medium rounded-md hover:bg-[#0077ff]/5 hover:text-[#0077ff] text-gray-600"
                     >
                       <item.icon className="mr-3 h-4 w-4 text-gray-500" />
                       {item.name}
@@ -336,7 +337,7 @@ const StudentHome = () => {
                     <Link
                       key={item.name}
                       to={item.path}
-                      className="flex items-center px-8 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-gray-600"
+                      className="flex items-center px-8 py-2 text-sm font-medium rounded-md hover:bg-[#0077ff]/5 hover:text-[#0077ff] text-gray-600"
                     >
                       <item.icon className="mr-3 h-4 w-4 text-gray-500" />
                       {item.name}
@@ -362,7 +363,7 @@ const StudentHome = () => {
                     <Link
                       key={item.name}
                       to={item.path}
-                      className="flex items-center px-8 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-gray-600"
+                      className="flex items-center px-8 py-2 text-sm font-medium rounded-md hover:bg-[#0077ff]/5 hover:text-[#0077ff] text-gray-600"
                     >
                       <item.icon className="mr-3 h-4 w-4 text-gray-500" />
                       {item.name}
@@ -379,7 +380,7 @@ const StudentHome = () => {
                   <Link
                     key={item.name}
                     to={item.path}
-                    className="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-100 text-gray-600"
+                    className="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-[#0077ff]/5 hover:text-[#0077ff] text-gray-600"
                   >
                     <item.icon className="mr-3 h-5 w-5 text-gray-500" />
                     {item.name}
@@ -410,7 +411,7 @@ const StudentHome = () => {
             <div className="mb-8">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-[#1e3a8a]">
+                  <h1 className="text-2xl font-bold text-[#0055cb]">
                     {greeting}, {user?.name?.split(' ')[0] || "John"}! <span className="text-gray-500 text-lg">Ready to advance your career? 🌅</span>
                   </h1>
                   <p className="text-sm text-gray-500 mt-1">
@@ -423,7 +424,7 @@ const StudentHome = () => {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                     <Input
                       placeholder="Search jobs, tools, insights..."
-                      className="w-full pl-10 focus:ring-[#4f46e5] focus:border-[#4f46e5] pr-20"
+                      className="w-full pl-10 focus:ring-[#0077ff] focus:border-[#0077ff] pr-20"
                     />
                     <Button variant="outline" size="icon" className="absolute right-1 top-1/2 transform -translate-y-1/2">
                       <Filter size={16} />
@@ -436,15 +437,15 @@ const StudentHome = () => {
             {/* Dashboard Overview Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {/* Job Search Status Card */}
-              <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
+              <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow bg-white">
                 <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-transparent">
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
-                      <BarChart2 className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                    <CardTitle className="text-lg font-semibold text-[#0055cb] flex items-center">
+                      <BarChart2 className="mr-2 h-5 w-5 text-[#0077ff]" />
                       Job Search Status
                     </CardTitle>
                     <span className="p-1.5 rounded-full bg-blue-100">
-                      <ActivitySquare size={16} className="text-[#4f46e5]" />
+                      <ActivitySquare size={16} className="text-[#0077ff]" />
                     </span>
                   </div>
                 </CardHeader>
@@ -465,7 +466,7 @@ const StudentHome = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" size="sm" className="w-full text-[#4f46e5] border-[#4f46e5]/30 hover:bg-[#4f46e5]/10">
+                  <Button variant="outline" size="sm" className="w-full text-[#0077ff] border-[#0077ff]/30 hover:bg-[#0077ff]/10">
                     View All Applications
                     <ChevronRight size={16} className="ml-1" />
                   </Button>
@@ -473,15 +474,15 @@ const StudentHome = () => {
               </Card>
               
               {/* Profile Strength Card */}
-              <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
+              <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow bg-white">
                 <CardHeader className="pb-2 bg-gradient-to-r from-purple-50 to-transparent">
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
-                      <Users className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                    <CardTitle className="text-lg font-semibold text-[#0055cb] flex items-center">
+                      <Users className="mr-2 h-5 w-5 text-[#0077ff]" />
                       Profile Strength
                     </CardTitle>
                     <span className="p-1.5 rounded-full bg-purple-100">
-                      <Award size={16} className="text-[#4f46e5]" />
+                      <Award size={16} className="text-[#0077ff]" />
                     </span>
                   </div>
                 </CardHeader>
@@ -502,7 +503,7 @@ const StudentHome = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" size="sm" className="w-full text-[#4f46e5] border-[#4f46e5]/30 hover:bg-[#4f46e5]/10">
+                  <Button variant="outline" size="sm" className="w-full text-[#0077ff] border-[#0077ff]/30 hover:bg-[#0077ff]/10">
                     Improve Profile
                     <ChevronRight size={16} className="ml-1" />
                   </Button>
@@ -510,11 +511,11 @@ const StudentHome = () => {
               </Card>
               
               {/* Skill Development Card */}
-              <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
+              <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow bg-white">
                 <CardHeader className="pb-2 bg-gradient-to-r from-green-50 to-transparent">
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
-                      <GraduationCap className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                    <CardTitle className="text-lg font-semibold text-[#0055cb] flex items-center">
+                      <GraduationCap className="mr-2 h-5 w-5 text-[#0077ff]" />
                       Skill Development
                     </CardTitle>
                     <span className="p-1.5 rounded-full bg-green-100">
@@ -550,11 +551,11 @@ const StudentHome = () => {
               </Card>
               
               {/* Career Insights Card */}
-              <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
+              <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow bg-white">
                 <CardHeader className="pb-2 bg-gradient-to-r from-amber-50 to-transparent">
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
-                      <Lightbulb className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                    <CardTitle className="text-lg font-semibold text-[#0055cb] flex items-center">
+                      <Lightbulb className="mr-2 h-5 w-5 text-[#0077ff]" />
                       Career Insights
                     </CardTitle>
                     <span className="p-1.5 rounded-full bg-amber-100">
@@ -588,13 +589,13 @@ const StudentHome = () => {
             </div>
             
             {/* Recent Activity Timeline */}
-            <Card className="mb-8 border border-gray-200">
+            <Card className="mb-8 border border-gray-200 shadow-sm bg-white">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
-                  <ActivitySquare className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                <CardTitle className="text-lg font-semibold text-[#0055cb] flex items-center">
+                  <ActivitySquare className="mr-2 h-5 w-5 text-[#0077ff]" />
                   Recent Activity
                 </CardTitle>
-                <Button variant="ghost" size="sm" className="text-[#4f46e5]">
+                <Button variant="ghost" size="sm" className="text-[#0077ff]">
                   View All
                 </Button>
               </CardHeader>
@@ -603,7 +604,7 @@ const StudentHome = () => {
                   {recentActivity.map((activity, index) => (
                     <div key={index} className="flex items-start">
                       <div className="mr-3 relative">
-                        <div className="h-3 w-3 rounded-full bg-[#4f46e5] ring-4 ring-[#4f46e5]/10"></div>
+                        <div className="h-3 w-3 rounded-full bg-[#0077ff] ring-4 ring-[#0077ff]/10"></div>
                         {index < recentActivity.length - 1 && (
                           <div className="absolute h-full w-px bg-gray-200 top-3 left-1.5"></div>
                         )}
@@ -621,13 +622,13 @@ const StudentHome = () => {
             </Card>
             
             {/* AI Recommendations Panel */}
-            <Card className="mb-8 border border-gray-200 bg-gradient-to-r from-[#4f46e5]/5 to-white overflow-hidden">
+            <Card className="mb-8 border border-gray-200 bg-gradient-to-r from-[#0077ff]/5 to-white overflow-hidden shadow-sm">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
-                  <Lightbulb className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                <CardTitle className="text-lg font-semibold text-[#0055cb] flex items-center">
+                  <Lightbulb className="mr-2 h-5 w-5 text-[#0077ff]" />
                   Personalized Recommendations
                 </CardTitle>
-                <Button variant="ghost" size="sm" className="text-[#4f46e5]">
+                <Button variant="ghost" size="sm" className="text-[#0077ff]">
                   See All
                 </Button>
               </CardHeader>
@@ -635,7 +636,7 @@ const StudentHome = () => {
                 <div className="space-y-3">
                   {recommendations.map((rec, index) => (
                     <div key={index} className="flex items-start">
-                      <div className="text-[#4f46e5] mr-2">•</div>
+                      <div className="text-[#0077ff] mr-2">•</div>
                       <p className="text-sm">{rec}</p>
                     </div>
                   ))}
@@ -645,18 +646,18 @@ const StudentHome = () => {
             
             {/* Quick Access Tools */}
             <div className="mb-8">
-              <h2 className="text-lg font-semibold text-[#1e3a8a] mb-4 flex items-center">
-                <Rocket className="mr-2 h-5 w-5 text-[#4f46e5]" />
+              <h2 className="text-lg font-semibold text-[#0055cb] mb-4 flex items-center">
+                <Rocket className="mr-2 h-5 w-5 text-[#0077ff]" />
                 Quick Access Tools
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {quickAccessTools.map((tool, index) => (
-                  <Card key={index} className="border border-gray-200 hover:border-[#4f46e5]/30 hover:shadow-md transition-all">
+                  <Card key={index} className="border border-gray-200 hover:border-[#0077ff]/30 hover:shadow-md transition-all bg-white">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center">
-                          <span className="p-2 rounded-md bg-[#4f46e5]/10 mr-3">
-                            <tool.icon size={18} className="text-[#4f46e5]" />
+                          <span className="p-2 rounded-md bg-[#0077ff]/10 mr-3">
+                            <tool.icon size={18} className="text-[#0077ff]" />
                           </span>
                           <h3 className="font-medium">{tool.name}</h3>
                         </div>
@@ -666,7 +667,7 @@ const StudentHome = () => {
                         asChild
                         variant="outline" 
                         size="sm" 
-                        className="w-full text-[#4f46e5] border-[#4f46e5]/30 hover:bg-[#4f46e5]/10"
+                        className="w-full text-[#0077ff] border-[#0077ff]/30 hover:bg-[#0077ff]/10"
                       >
                         <Link to={tool.path}>
                           {tool.action}
@@ -680,10 +681,10 @@ const StudentHome = () => {
             </div>
             
             {/* Progress Tracking Charts */}
-            <Card className="mb-8 border border-gray-200">
+            <Card className="mb-8 border border-gray-200 shadow-sm bg-white">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
-                  <BarChart className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                <CardTitle className="text-lg font-semibold text-[#0055cb] flex items-center">
+                  <BarChart className="mr-2 h-5 w-5 text-[#0077ff]" />
                   Progress Analytics
                 </CardTitle>
               </CardHeader>
@@ -697,7 +698,7 @@ const StudentHome = () => {
                         <Badge className="bg-[#10b981]">+15%</Badge>
                       </div>
                     </div>
-                    <Progress value={dashboardData.applicationResponseRate} className="h-2 bg-gray-100" indicatorClassName="bg-[#4f46e5]" />
+                    <Progress value={dashboardData.applicationResponseRate} className="h-2 bg-gray-100" indicatorClassName="bg-[#0077ff]" />
                     <p className="text-xs text-center mt-1 text-gray-500">from last month</p>
                   </div>
                   
@@ -709,7 +710,7 @@ const StudentHome = () => {
                         <Badge className="bg-[#10b981]">Above Avg</Badge>
                       </div>
                     </div>
-                    <Progress value={dashboardData.interviewSuccessRate} className="h-2 bg-gray-100" indicatorClassName="bg-[#4f46e5]" />
+                    <Progress value={dashboardData.interviewSuccessRate} className="h-2 bg-gray-100" indicatorClassName="bg-[#0077ff]" />
                     <p className="text-xs text-center mt-1 text-gray-500">better than average</p>
                   </div>
                   
@@ -718,7 +719,7 @@ const StudentHome = () => {
                       <h3 className="text-sm font-medium">Skill Progress</h3>
                       <div className="flex items-center justify-center gap-2 mt-1">
                         <span className="text-2xl font-bold">{dashboardData.skillProgressRate}%</span>
-                        <Badge variant="outline" className="border-[#4f46e5]/30 bg-[#4f46e5]/5 text-[#4f46e5]">
+                        <Badge variant="outline" className="border-[#0077ff]/30 bg-[#0077ff]/5 text-[#0077ff]">
                           Full Stack
                         </Badge>
                       </div>
@@ -731,13 +732,13 @@ const StudentHome = () => {
             </Card>
             
             {/* Upcoming Events & Reminders */}
-            <Card className="border border-gray-200">
+            <Card className="border border-gray-200 shadow-sm bg-white">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                <CardTitle className="text-lg font-semibold text-[#1e3a8a] flex items-center">
-                  <Calendar className="mr-2 h-5 w-5 text-[#4f46e5]" />
+                <CardTitle className="text-lg font-semibold text-[#0055cb] flex items-center">
+                  <Calendar className="mr-2 h-5 w-5 text-[#0077ff]" />
                   Upcoming Events
                 </CardTitle>
-                <Button variant="ghost" size="sm" className="text-[#4f46e5]">
+                <Button variant="ghost" size="sm" className="text-[#0077ff]">
                   View Calendar
                 </Button>
               </CardHeader>
