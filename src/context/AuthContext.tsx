@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { User, UserRole } from "@/types/auth";
@@ -131,18 +132,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setIsLoading(true);
       
-      // First, check if user exists in profiles table
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', email)
-        .single();
-      
-      if (profileError || !profileData) {
-        throw new Error("Account not found. Please register first.");
-      }
-      
-      // Proceed with login if profile exists
+      // First, authenticate with Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -178,46 +168,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setIsLoading(true);
       
-      // Check if profile already exists
-      const { data: existingProfile, error: profileCheckError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', email)
-        .single();
-      
-      if (existingProfile) {
-        throw new Error("This email is already registered. Please use a different email or login.");
-      }
-      
-      // Register with Supabase - don't include role data here to avoid enum validation issues
+      // Register with Supabase - don't include role data here
       const { data, error } = await supabase.auth.signUp({
         email,
-        password
+        password,
+        options: {
+          data: {
+            full_name: name,
+            role: role
+          }
+        }
       });
       
       if (error) {
         throw error;
       }
       
-      if (data.user) {
-        // Directly insert the role from the frontend - no mapping needed now
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            full_name: name,
-            email: email,
-            role: role,  // Now directly using the role from the frontend
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          });
-        
-        if (insertError) {
-          console.error("Error creating profile:", insertError);
-          // Try to clean up auth user if profile creation fails
-          await supabase.auth.admin?.deleteUser(data.user.id);
-          throw new Error("Failed to create user profile. Please try again.");
-        }
+      if (!data?.user?.id) {
+        throw new Error("Registration failed. Please try again.");
       }
       
       // Show success message
@@ -268,17 +236,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Forgot password
   const forgotPassword = async (email: string) => {
     try {
-      // Check if profile exists
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', email)
-        .single();
-      
-      if (profileError || !profileData) {
-        throw new Error("Account not found. Please register first.");
-      }
-      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: window.location.origin + '/reset-password',
       });
