@@ -374,6 +374,7 @@ export type Database = {
       }
       hr_members: {
         Row: {
+          bio: string | null
           company_id: string
           created_at: string
           department: string | null
@@ -386,12 +387,14 @@ export type Database = {
           phone: string | null
           profile_photo_url: string | null
           role: Database["public"]["Enums"]["hr_member_role_option"] | null
+          settings: Json | null
           specializations: string[] | null
           status: Database["public"]["Enums"]["hr_member_status_option"] | null
           updated_at: string
           user_profile_id: string | null
         }
         Insert: {
+          bio?: string | null
           company_id: string
           created_at?: string
           department?: string | null
@@ -404,12 +407,14 @@ export type Database = {
           phone?: string | null
           profile_photo_url?: string | null
           role?: Database["public"]["Enums"]["hr_member_role_option"] | null
+          settings?: Json | null
           specializations?: string[] | null
           status?: Database["public"]["Enums"]["hr_member_status_option"] | null
           updated_at?: string
           user_profile_id?: string | null
         }
         Update: {
+          bio?: string | null
           company_id?: string
           created_at?: string
           department?: string | null
@@ -422,6 +427,7 @@ export type Database = {
           phone?: string | null
           profile_photo_url?: string | null
           role?: Database["public"]["Enums"]["hr_member_role_option"] | null
+          settings?: Json | null
           specializations?: string[] | null
           status?: Database["public"]["Enums"]["hr_member_status_option"] | null
           updated_at?: string

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -61,8 +60,7 @@ const Profile = () => {
             hire_date: data.hire_date || "",
             role: data.role || "",
             specializations: data.specializations || [],
-            // Handle potentially missing bio field
-            bio: data.bio || ""
+            bio: data.bio || "" // Now using the new bio field
           });
         }
       } catch (error) {
@@ -115,7 +113,7 @@ const Profile = () => {
         return;
       }
       
-      // Update the profile
+      // Update the profile, now including bio field
       const { error: updateError } = await supabase
         .from('hr_members')
         .update({
