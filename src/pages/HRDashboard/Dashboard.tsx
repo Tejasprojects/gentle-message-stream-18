@@ -1,19 +1,85 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
-import { Briefcase, Users, Calendar, FileText, BarChart } from "lucide-react";
+import { Briefcase, Users, Calendar, FileText } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const [stats, setStats] = useState([
+    { title: "Active Job Postings", value: "0", icon: Briefcase },
+    { title: "Total Applicants", value: "0", icon: Users },
+    { title: "Scheduled Interviews", value: "0", icon: Calendar },
+    { title: "Offer Letters Sent", value: "0", icon: FileText },
+  ]);
+  const [recentApplications, setRecentApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const stats = [
-    { title: "Active Job Postings", value: "12", icon: Briefcase },
-    { title: "Total Applicants", value: "164", icon: Users },
-    { title: "Scheduled Interviews", value: "48", icon: Calendar },
-    { title: "Offer Letters Sent", value: "8", icon: FileText },
-  ];
+  useEffect(() => {
+    async function fetchDashboardData() {
+      setLoading(true);
+      try {
+        // Fetch active job postings count
+        const { count: jobCount, error: jobError } = await supabase
+          .from('jobs')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'Active');
+
+        if (jobError) console.error("Error fetching jobs:", jobError);
+
+        // Fetch total applicants count
+        const { count: applicantCount, error: applicantError } = await supabase
+          .from('applications')
+          .select('*', { count: 'exact', head: true });
+
+        if (applicantError) console.error("Error fetching applicants:", applicantError);
+
+        // Fetch scheduled interviews count
+        const { count: interviewCount, error: interviewError } = await supabase
+          .from('interviews')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'Scheduled');
+
+        if (interviewError) console.error("Error fetching interviews:", interviewError);
+
+        // Update stats with actual counts
+        setStats([
+          { title: "Active Job Postings", value: jobCount?.toString() || "0", icon: Briefcase },
+          { title: "Total Applicants", value: applicantCount?.toString() || "0", icon: Users },
+          { title: "Scheduled Interviews", value: interviewCount?.toString() || "0", icon: Calendar },
+          { title: "Offer Letters Sent", value: "8", icon: FileText }, // Keeping this hardcoded for now as we don't have a specific table for offers
+        ]);
+
+        // Fetch recent applications with candidate names
+        const { data: applications, error: applicationsError } = await supabase
+          .from('applications')
+          .select(`
+            id,
+            application_date,
+            candidates (
+              first_name,
+              last_name
+            )
+          `)
+          .order('application_date', { ascending: false })
+          .limit(4);
+
+        if (applicationsError) {
+          console.error("Error fetching recent applications:", applicationsError);
+        } else {
+          setRecentApplications(applications || []);
+        }
+      } catch (error) {
+        console.error("Error in fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
 
   return (
     <div className="container mx-auto py-6 space-y-8">
@@ -30,7 +96,7 @@ const Dashboard = () => {
             <CardContent className="p-6 flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                <h2 className="text-3xl font-bold">{stat.value}</h2>
+                <h2 className="text-3xl font-bold">{loading ? "..." : stat.value}</h2>
               </div>
               <div className="rounded-full bg-primary/10 p-3 text-primary">
                 <stat.icon className="h-6 w-6" />
@@ -55,14 +121,26 @@ const Dashboard = () => {
               <CardDescription>Latest candidates who applied for open positions</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {['John Doe', 'Sarah Smith', 'Michael Johnson', 'Emily Brown'].map(name => (
-                  <div key={name} className="flex items-center justify-between border-b pb-2">
-                    <span>{name}</span>
-                    <span className="text-xs text-muted-foreground">2 days ago</span>
-                  </div>
-                ))}
-              </div>
+              {loading ? (
+                <div className="text-center py-4">Loading recent applications...</div>
+              ) : recentApplications.length > 0 ? (
+                <div className="space-y-4">
+                  {recentApplications.map((app: any) => (
+                    <div key={app.id} className="flex items-center justify-between border-b pb-2">
+                      <span>
+                        {app.candidates ? 
+                          `${app.candidates.first_name} ${app.candidates.last_name}` : 
+                          "Unknown Candidate"}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(app.application_date).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4">No recent applications found.</div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

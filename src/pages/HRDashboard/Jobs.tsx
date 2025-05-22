@@ -1,62 +1,53 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Briefcase, Plus, Filter, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { supabase } from "@/integrations/supabase/client";
 
 const Jobs = () => {
-  // Sample job data
-  const jobs = [
-    { 
-      id: 1, 
-      title: 'Senior React Developer', 
-      status: 'Active', 
-      applications: 48, 
-      postedDate: '2025-05-10', 
-      department: 'Engineering',
-      location: 'Remote' 
-    },
-    { 
-      id: 2, 
-      title: 'Product Manager', 
-      status: 'Active', 
-      applications: 36, 
-      postedDate: '2025-05-12', 
-      department: 'Product',
-      location: 'New Delhi, India' 
-    },
-    { 
-      id: 3, 
-      title: 'UI/UX Designer', 
-      status: 'Active', 
-      applications: 27, 
-      postedDate: '2025-05-14', 
-      department: 'Design',
-      location: 'Hybrid, Bengaluru' 
-    },
-    { 
-      id: 4, 
-      title: 'Data Scientist', 
-      status: 'Draft', 
-      applications: 0, 
-      postedDate: '—', 
-      department: 'Analytics',
-      location: 'Mumbai, India' 
-    },
-    { 
-      id: 5, 
-      title: 'DevOps Engineer', 
-      status: 'Closed', 
-      applications: 45, 
-      postedDate: '2025-04-05', 
-      department: 'Engineering',
-      location: 'Remote' 
-    },
-  ];
+  const [jobs, setJobs] = useState([]);
+  const [totalJobs, setTotalJobs] = useState(0);
+  const [activeJobs, setActiveJobs] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const getStatusBadgeClass = (status: string) => {
+  useEffect(() => {
+    async function fetchJobs() {
+      setLoading(true);
+      try {
+        // Get all jobs for the table
+        const { data: jobsData, error: jobsError } = await supabase
+          .from('jobs')
+          .select(`
+            *,
+            applications(id),
+            hr_members(first_name, last_name)
+          `)
+          .order('created_at', { ascending: false });
+
+        if (jobsError) {
+          console.error("Error fetching jobs:", jobsError);
+        } else {
+          setJobs(jobsData || []);
+          setTotalJobs(jobsData?.length || 0);
+          
+          // Count active jobs
+          const active = jobsData?.filter(job => job.status === 'Active').length || 0;
+          setActiveJobs(active);
+        }
+      } catch (error) {
+        console.error("Error in fetching jobs data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchJobs();
+  }, []);
+
+  const getStatusBadgeClass = (status) => {
     switch (status) {
       case 'Active':
         return 'bg-green-100 text-green-800 dark:bg-green-800/20 dark:text-green-400';
@@ -113,11 +104,11 @@ const Jobs = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Jobs</p>
-                  <p className="text-2xl font-bold text-gray-800 dark:text-white">24</p>
+                  <p className="text-2xl font-bold text-gray-800 dark:text-white">{loading ? "..." : totalJobs}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
-                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">18</p>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{loading ? "..." : activeJobs}</p>
                 </div>
               </div>
             </CardContent>
@@ -127,40 +118,50 @@ const Jobs = () => {
         {/* Jobs Table */}
         <Card className="bg-white dark:bg-gray-800">
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Job Title</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Applications</TableHead>
-                    <TableHead>Department</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Posted Date</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {jobs.map((job) => (
-                    <TableRow key={job.id}>
-                      <TableCell className="font-medium">{job.title}</TableCell>
-                      <TableCell>
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(job.status)}`}>
-                          {job.status}
-                        </span>
-                      </TableCell>
-                      <TableCell>{job.applications}</TableCell>
-                      <TableCell>{job.department}</TableCell>
-                      <TableCell>{job.location}</TableCell>
-                      <TableCell>{job.postedDate}</TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm">View</Button>
-                      </TableCell>
+            {loading ? (
+              <div className="text-center py-10">Loading jobs data...</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Job Title</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Applications</TableHead>
+                      <TableHead>Department</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Posted Date</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {jobs.length > 0 ? jobs.map((job) => (
+                      <TableRow key={job.id}>
+                        <TableCell className="font-medium">{job.title}</TableCell>
+                        <TableCell>
+                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(job.status)}`}>
+                            {job.status}
+                          </span>
+                        </TableCell>
+                        <TableCell>{job.applications?.length || 0}</TableCell>
+                        <TableCell>{job.department || "General"}</TableCell>
+                        <TableCell>{job.location || "Remote"}</TableCell>
+                        <TableCell>{new Date(job.posted_date).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm">View</Button>
+                        </TableCell>
+                      </TableRow>
+                    )) : (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-6">
+                          No jobs found. Create a new job to get started.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
