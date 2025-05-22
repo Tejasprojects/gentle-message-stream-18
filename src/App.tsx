@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -42,6 +43,8 @@ import Contact from "@/pages/Contact";
 // HR Dashboard imports
 import HRDashboardIndex from "@/pages/HRDashboard";
 import HRDashboardJobs from "@/pages/HRDashboard/Jobs";
+import CreateJob from "@/pages/HRDashboard/CreateJob";
+import JobDetails from "@/pages/HRDashboard/JobDetails";
 import HRDashboardCandidates from "@/pages/HRDashboard/Candidates";
 import HRDashboardAIAgents from "@/pages/HRDashboard/AIAgents";
 import HRDashboardInterviews from "@/pages/HRDashboard/Interviews";

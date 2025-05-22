@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Briefcase, Plus, Filter, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { supabase } from "@/integrations/supabase/client";
 
 const Jobs = () => {
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [totalJobs, setTotalJobs] = useState(0);
   const [activeJobs, setActiveJobs] = useState(0);
@@ -47,6 +49,14 @@ const Jobs = () => {
     fetchJobs();
   }, []);
 
+  const handleCreateJob = () => {
+    navigate('/hr-dashboard/jobs/create');
+  };
+
+  const handleViewJob = (jobId) => {
+    navigate(`/hr-dashboard/jobs/${jobId}`);
+  };
+
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case 'Open':
@@ -74,7 +84,7 @@ const Jobs = () => {
               Manage and monitor all job postings
             </p>
           </div>
-          <Button className="bg-[#3b82f6] hover:bg-blue-700">
+          <Button className="bg-[#3b82f6] hover:bg-blue-700" onClick={handleCreateJob}>
             <Plus className="mr-1.5 h-4 w-4" /> Create New Job
           </Button>
         </div>
@@ -148,7 +158,7 @@ const Jobs = () => {
                         <TableCell>{job.location || "Remote"}</TableCell>
                         <TableCell>{new Date(job.posted_date).toLocaleDateString()}</TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="sm">View</Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleViewJob(job.id)}>View</Button>
                         </TableCell>
                       </TableRow>
                     )) : (
