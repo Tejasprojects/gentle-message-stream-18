@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -44,9 +43,14 @@ const StudentHome = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Format the current date
+  // Format the current date with proper types for DateTimeFormatOptions
   const today = new Date();
-  const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const dateOptions = { 
+    weekday: 'long' as const, 
+    year: 'numeric' as const, 
+    month: 'long' as const, 
+    day: 'numeric' as const 
+  };
   const formattedDate = today.toLocaleDateString('en-US', dateOptions);
   
   // Calculate greeting based on time of day

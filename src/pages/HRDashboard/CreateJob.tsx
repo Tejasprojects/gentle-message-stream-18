@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +11,9 @@ import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Loader2 } from "lucide-react";
 
+// Define the job type as a union type to match Supabase's expected values
+type JobType = "Full-time" | "Part-time" | "Contract" | "Temporary" | "Internship";
+
 const CreateJob = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -22,7 +24,7 @@ const CreateJob = () => {
     requirements: "",
     salary_range: "",
     location: "",
-    job_type: "Full-time",
+    job_type: "Full-time" as JobType, // Type assertion to ensure it matches the union type
     application_deadline: ""
   });
 
@@ -79,7 +81,7 @@ const CreateJob = () => {
         return;
       }
       
-      // Create the job
+      // Create the job with correctly typed job_type field
       const { data: newJob, error: jobError } = await supabase
         .from('jobs')
         .insert({
@@ -88,7 +90,7 @@ const CreateJob = () => {
           requirements: jobData.requirements,
           salary_range: jobData.salary_range,
           location: jobData.location,
-          job_type: jobData.job_type,
+          job_type: jobData.job_type, // This is now properly typed as JobType
           application_deadline: jobData.application_deadline || null,
           company_id: hrMember.company_id,
           assigned_hr_id: hrMember.id,
