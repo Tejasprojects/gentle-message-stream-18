@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -45,6 +46,12 @@ import AuthLayout from "./pages/Auth/AuthLayout";
 import BlockchainVault from "./pages/BlockchainVault";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
+
+// HR Dashboard imports
+import HRDashboardIndex from "@/pages/HRDashboard";
+import HRDashboardJobs from "@/pages/HRDashboard/Jobs";
+import HRDashboardCandidates from "@/pages/HRDashboard/Candidates";
+import HRDashboardAIAgents from "@/pages/HRDashboard/AIAgents";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -112,6 +119,24 @@ function App() {
                 } 
               />
 
+              {/* HR Dashboard Routes */}
+              <Route
+                path="/hr-dashboard"
+                element={<HRDashboardIndex />}
+              />
+              <Route
+                path="/hr-dashboard/jobs"
+                element={<HRDashboardJobs />}
+              />
+              <Route
+                path="/hr-dashboard/candidates"
+                element={<HRDashboardCandidates />}
+              />
+              <Route
+                path="/hr-dashboard/ai-agents"
+                element={<HRDashboardAIAgents />}
+              />
+              
               {/* Protected user/student routes */}
               <Route 
                 path="/dashboard" 
