@@ -1,8 +1,9 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Briefcase, Calendar, ChevronLeft, ChevronRight, Cog, Home, 
   BarChart, LogOut, Users, Bell, Search, Menu, X, FileText,
@@ -33,12 +34,7 @@ type NavSection = {
 const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    "CV TOOLS": true,
-    "CAREER GUIDE": true,
-    "MAHAYUDH LEARN": true,
-    "BLOCKCHAIN SECURITY": true
-  });
+  const [activeSection, setActiveSection] = useState<string | null>(null);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,10 +48,7 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
   };
 
   const toggleSection = (section: string) => {
-    setOpenSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
+    setActiveSection(prev => prev === section ? null : section);
   };
 
   const handleLogout = async () => {
@@ -181,42 +174,46 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
           </button>
         </div>
 
-        {/* Nav Items */}
-        <nav className="flex-grow py-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-800">
-          <ul className="space-y-0.5 px-3">
+        {/* Nav Items with ScrollArea */}
+        <ScrollArea className="flex-grow py-2">
+          <div className="px-3 space-y-0.5">
             {navSections.map((section, sectionIndex) => (
               <React.Fragment key={section.title || `section-${sectionIndex}`}>
                 {section.title && (
-                  <li className={cn("pt-3 pb-1", collapsed ? "hidden" : "")}>
-                    <div className="flex items-center justify-between px-2">
+                  <div className={cn("pt-3 pb-1", collapsed ? "hidden" : "")}>
+                    <button
+                      onClick={() => toggleSection(section.title || '')}
+                      className="flex items-center justify-between w-full px-2 group"
+                    >
                       <span className="text-xs font-semibold text-gray-400">
                         {section.title}
                       </span>
-                      <button
-                        onClick={() => toggleSection(section.title)}
-                        className="p-0.5 rounded hover:bg-gray-700 text-gray-400"
-                      >
-                        <ChevronRight
-                          size={14}
-                          className={cn(
-                            "transition-transform",
-                            openSections[section.title] ? "transform rotate-90" : ""
-                          )}
-                        />
-                      </button>
-                    </div>
-                  </li>
+                      <ChevronRight
+                        size={14}
+                        className={cn(
+                          "text-gray-400 transition-transform duration-200 ease-in-out group-hover:text-gray-300",
+                          activeSection === section.title ? "transform rotate-90" : ""
+                        )}
+                      />
+                    </button>
+                  </div>
                 )}
                 
-                {(!section.title || openSections[section.title]) && section.items.map((item) => (
-                  <li key={item.name}>
+                {(!section.title || activeSection === section.title) && section.items.map((item) => (
+                  <div 
+                    key={item.name} 
+                    className={cn(
+                      "transition-all duration-200 ease-in-out",
+                      section.title && activeSection !== section.title ? "h-0 opacity-0 overflow-hidden" : "opacity-100"
+                    )}
+                  >
                     <Button
                       variant={isActive(item.path) ? "secondary" : "ghost"}
                       className={cn(
                         "w-full justify-start relative",
                         isActive(item.path)
-                          ? "bg-gray-700 text-white"
-                          : "text-gray-300 hover:text-white hover:bg-gray-700",
+                          ? "bg-blue-600/20 text-blue-500 border-l-2 border-blue-500"
+                          : "text-gray-300 hover:text-white hover:bg-gray-700/50",
                         collapsed ? "px-2" : "px-4"
                       )}
                       onClick={() => {
@@ -230,7 +227,7 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
                           <span className="ml-3">{item.name}</span>
                           {item.badge && (
                             <Badge 
-                              className="ml-auto bg-blue-500 hover:bg-blue-600" 
+                              className="ml-auto bg-blue-500 hover:bg-blue-600 text-white" 
                               variant="secondary"
                             >
                               {item.badge}
@@ -240,27 +237,27 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
                       )}
                       {collapsed && item.badge && (
                         <Badge 
-                          className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                          variant="destructive"
+                          className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-blue-500 text-white"
+                          variant="secondary"
                         >
                           {item.badge}
                         </Badge>
                       )}
                     </Button>
-                  </li>
+                  </div>
                 ))}
 
                 {/* Separator after main nav and before first section, and after the last item */}
                 {(sectionIndex === 0 || sectionIndex === navSections.length - 2) && (
-                  <li className="py-2 px-2">
+                  <div className="py-2 px-2">
                     <div className="h-px bg-gray-700" />
-                  </li>
+                  </div>
                 )}
               </React.Fragment>
             ))}
 
             {/* Logout button at the end */}
-            <li>
+            <div>
               <Button
                 variant="ghost"
                 className={cn(
@@ -273,17 +270,17 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
                 <LogOut size={20} />
                 {!collapsed && <span className="ml-3">Logout</span>}
               </Button>
-            </li>
+            </div>
 
             {/* Profile at the bottom outside the sections */}
-            <li className="mt-4">
+            <div className="mt-4">
               <Button
                 variant={isActive("/profile") ? "secondary" : "ghost"}
                 className={cn(
                   "w-full justify-start",
                   isActive("/profile")
-                    ? "bg-gray-700 text-white"
-                    : "text-gray-300 hover:text-white hover:bg-gray-700",
+                    ? "bg-blue-600/20 text-blue-500 border-l-2 border-blue-500"
+                    : "text-gray-300 hover:text-white hover:bg-gray-700/50",
                   collapsed ? "px-2" : "px-4"
                 )}
                 onClick={() => {
@@ -298,9 +295,9 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
                 </Avatar>
                 {!collapsed && <span className="ml-3">Profile</span>}
               </Button>
-            </li>
-          </ul>
-        </nav>
+            </div>
+          </div>
+        </ScrollArea>
 
         {/* User Profile (in collapsed state move to the bottom) */}
         {!collapsed && (
