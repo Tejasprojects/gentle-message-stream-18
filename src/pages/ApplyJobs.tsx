@@ -3,68 +3,45 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ArrowUpRight, Briefcase, Building, FileText, MapPin, Search } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Link } from "react-router-dom";
+import { useJobListings } from "@/hooks/useJobListings";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const ApplyJobs = () => {
   const { toast } = useToast();
   const [jobTitle, setJobTitle] = useState("");
   const [location, setLocation] = useState("");
   const [resumeOption, setResumeOption] = useState("");
+  const { jobListings, loading, refetch } = useJobListings();
+  const { user } = useAuth();
   
-  // Sample job data - in a real app, this would come from an API
-  const recommendedJobs = [
-    {
-      id: "job-1",
-      title: "Senior Frontend Developer",
-      company: "TechCorp",
-      location: "San Francisco, CA (Remote)",
-      description: "We're looking for a Senior Frontend Developer with React expertise to join our growing team...",
-      postedDate: "2 days ago",
-      salary: "$120K - $150K",
-      match: 95
-    },
-    {
-      id: "job-2",
-      title: "Full Stack Engineer",
-      company: "InnovateTech",
-      location: "New York, NY (Hybrid)",
-      description: "Join our engineering team to build scalable web applications using modern technologies...",
-      postedDate: "1 week ago",
-      salary: "$110K - $135K",
-      match: 87
-    },
-    {
-      id: "job-3",
-      title: "React Developer",
-      company: "SoftSolutions",
-      location: "Austin, TX (Remote)",
-      description: "Looking for a React Developer to create responsive user interfaces and implement new features...",
-      postedDate: "3 days ago",
-      salary: "$90K - $120K",
-      match: 82
-    }
-  ];
+  // Filter jobs based on search criteria
+  const filteredJobs = jobListings.filter(job => {
+    const titleMatch = job.title.toLowerCase().includes(jobTitle.toLowerCase());
+    const locationMatch = !location || (job.location && job.location.toLowerCase().includes(location.toLowerCase()));
+    return titleMatch && locationMatch;
+  });
 
-  // Mock resume options
+  // Sample resume options - in a real app, these would come from the database
   const resumes = [
     { id: "resume-1", name: "Software_Engineer_Resume.pdf", lastUpdated: "2025-05-01" },
     { id: "resume-2", name: "John_Doe_Tech_Resume.pdf", lastUpdated: "2025-04-15" }
   ];
 
   const handleSearch = () => {
-    // In a real app, this would trigger a search API call
     toast({
       title: "Search initiated",
       description: `Searching for "${jobTitle}" jobs in "${location || 'all locations'}"`,
     });
+    // In a real app, this would trigger a more sophisticated search
   };
 
-  const handleApply = (jobId) => {
-    // In a real app, this would submit an application
+  const handleApply = async (jobId) => {
     if (!resumeOption) {
       toast({
         title: "Resume required",
@@ -74,10 +51,64 @@ const ApplyJobs = () => {
       return;
     }
     
-    toast({
-      title: "Application submitted",
-      description: `Your application has been submitted for job #${jobId}`,
-    });
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please log in to apply for jobs",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Find the job from the list
+      const job = jobListings.find(j => j.id === jobId);
+      
+      if (!job) {
+        toast({
+          title: "Error",
+          description: "Job not found",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Insert application into database
+      const { data, error } = await supabase
+        .from('job_applications')
+        .insert([
+          {
+            user_id: user.id,
+            job_title: job.title,
+            company: job.company,
+            location: job.location,
+            status: 'Applied',
+            progress: 20,
+          }
+        ]);
+        
+      if (error) {
+        console.error("Error submitting application:", error);
+        toast({
+          title: "Application failed",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      toast({
+        title: "Application submitted",
+        description: `Your application for ${job.title} at ${job.company} has been submitted`,
+      });
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      toast({
+        title: "Application failed",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -119,69 +150,87 @@ const ApplyJobs = () => {
         </CardContent>
       </Card>
       
-      {/* Recommended Jobs */}
-      <h2 className="text-xl font-semibold mb-4">Recommended for You</h2>
-      <div className="space-y-6">
-        {recommendedJobs.map((job) => (
-          <Card key={job.id} className="overflow-hidden hover:shadow-md transition-shadow">
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{job.title}</CardTitle>
-                  <CardDescription className="flex items-center">
-                    <Building className="h-4 w-4 mr-1" /> {job.company}
-                  </CardDescription>
+      {/* Job Listings */}
+      <h2 className="text-xl font-semibold mb-4">Available Jobs</h2>
+      
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600">Loading jobs...</span>
+        </div>
+      ) : filteredJobs.length > 0 ? (
+        <div className="space-y-6">
+          {filteredJobs.map((job) => (
+            <Card key={job.id} className="overflow-hidden hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-lg">{job.title}</CardTitle>
+                    <CardDescription className="flex items-center">
+                      <Building className="h-4 w-4 mr-1" /> {job.company}
+                    </CardDescription>
+                  </div>
+                  <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-sm font-medium">
+                    Match
+                  </div>
                 </div>
-                <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-sm font-medium">
-                  {job.match}% Match
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {job.location && (
+                    <div className="flex items-center text-gray-500 text-sm">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      {job.location}
+                    </div>
+                  )}
+                  {job.salary_range && (
+                    <div className="flex items-center text-gray-500 text-sm">
+                      <Briefcase className="h-4 w-4 mr-1" />
+                      {job.salary_range}
+                    </div>
+                  )}
+                  <p className="text-sm text-gray-600 mt-2">{job.description}</p>
+                  
+                  <div className="pt-3">
+                    <Label htmlFor={`resume-${job.id}`}>Select Resume</Label>
+                    <Select onValueChange={setResumeOption}>
+                      <SelectTrigger id={`resume-${job.id}`} className="mt-1">
+                        <SelectValue placeholder="Choose a resume" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {resumes.map(resume => (
+                          <SelectItem key={resume.id} value={resume.id}>
+                            <div className="flex items-center">
+                              <FileText className="h-4 w-4 mr-2" />
+                              {resume.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center text-gray-500 text-sm">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  {job.location}
+              </CardContent>
+              <CardFooter className="flex justify-between border-t pt-4">
+                <div className="text-sm text-gray-500">
+                  Posted {new Date(job.posted_date).toLocaleDateString()}
                 </div>
-                <div className="flex items-center text-gray-500 text-sm">
-                  <Briefcase className="h-4 w-4 mr-1" />
-                  {job.salary}
+                <div className="flex space-x-2">
+                  <Button variant="outline" className="text-blue-600">
+                    View Details
+                    <ArrowUpRight className="ml-1 h-4 w-4" />
+                  </Button>
+                  <Button onClick={() => handleApply(job.id)}>Apply Now</Button>
                 </div>
-                <p className="text-sm text-gray-600 mt-2">{job.description}</p>
-                
-                <div className="pt-3">
-                  <Label htmlFor={`resume-${job.id}`}>Select Resume</Label>
-                  <Select onValueChange={setResumeOption}>
-                    <SelectTrigger id={`resume-${job.id}`} className="mt-1">
-                      <SelectValue placeholder="Choose a resume" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {resumes.map(resume => (
-                        <SelectItem key={resume.id} value={resume.id}>
-                          <div className="flex items-center">
-                            <FileText className="h-4 w-4 mr-2" />
-                            {resume.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-between border-t pt-4">
-              <div className="text-sm text-gray-500">Posted {job.postedDate}</div>
-              <div className="flex space-x-2">
-                <Button variant="outline" className="text-blue-600">
-                  View Details
-                  <ArrowUpRight className="ml-1 h-4 w-4" />
-                </Button>
-                <Button onClick={() => handleApply(job.id)}>Apply Now</Button>
-              </div>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12 text-gray-500">
+          No jobs found matching your criteria. Try adjusting your search.
+        </div>
+      )}
     </div>
   );
 };

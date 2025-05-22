@@ -1,11 +1,32 @@
-
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Line, AreaChart, PieChart, ResponsiveContainer, XAxis, YAxis, Bar, Tooltip, Legend, Area, Pie, Cell } from "recharts";
 import { CalendarDays, BarChart2, PieChart as PieChartIcon, TrendingUp, Clock } from "lucide-react";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { useAuth } from "@/context/AuthContext";
+import { updateUserAnalytics } from "@/services/analyticsService";
 
 const MyAnalytics = () => {
+  const { analytics, loading, refetch } = useAnalytics();
+  const { user } = useAuth();
+
+  // Update analytics when the component loads
+  useEffect(() => {
+    const updateAnalytics = async () => {
+      if (user) {
+        try {
+          await updateUserAnalytics(user.id);
+          refetch();
+        } catch (error) {
+          console.error("Failed to update analytics:", error);
+        }
+      }
+    };
+
+    updateAnalytics();
+  }, [user]);
+
   // Sample data for analytics
   const applicationData = [
     { month: "Jan", applications: 3, interviews: 1, offers: 0 },
@@ -51,9 +72,54 @@ const MyAnalytics = () => {
   // Colors for the charts
   const COLORS = ["#4f46e5", "#3b82f6", "#0ea5e9", "#06b6d4", "#0ea5e9"];
 
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+        <span className="ml-3 text-gray-600">Loading analytics...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-6 max-w-7xl">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">My Analytics</h1>
+
+      {/* Analytics summary cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">Applications</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analytics?.applications_count || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">Interviews</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analytics?.interviews_count || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">Offers</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analytics?.offers_count || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">Response Rate</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analytics?.response_rate || 0}%</div>
+          </CardContent>
+        </Card>
+      </div>
 
       <Tabs defaultValue="overview" className="w-full">
         <TabsList>

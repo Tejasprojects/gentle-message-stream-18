@@ -14,6 +14,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { useApplications } from "@/hooks/useApplications";
 
 interface StudentDashboardLayoutProps {
   children: React.ReactNode;
@@ -38,6 +39,7 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { applicationCount } = useApplications();
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
@@ -62,7 +64,7 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
         { name: "Dashboard", icon: Home, path: "/student-home" },
         { name: "Job Search", icon: Search, path: "/job-search" },
         { name: "Apply for Jobs", icon: FileText, path: "/apply" },
-        { name: "My Applications", icon: Mail, path: "/my-applications", badge: 3 },
+        { name: "My Applications", icon: Mail, path: "/my-applications", badge: applicationCount || 0 },
         { name: "My Analytics", icon: BarChart, path: "/analytics" },
       ]
     },
@@ -174,8 +176,8 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
           </button>
         </div>
 
-        {/* Nav Items with ScrollArea */}
-        <ScrollArea className="flex-grow py-2">
+        {/* Nav Items with ScrollArea - making scroll invisible */}
+        <ScrollArea className="flex-grow py-2 scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
           <div className="px-3 space-y-0.5">
             {navSections.map((section, sectionIndex) => (
               <React.Fragment key={section.title || `section-${sectionIndex}`}>
@@ -225,7 +227,7 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
                       {!collapsed && (
                         <>
                           <span className="ml-3">{item.name}</span>
-                          {item.badge && (
+                          {item.badge && item.badge > 0 && (
                             <Badge 
                               className="ml-auto bg-blue-500 hover:bg-blue-600 text-white" 
                               variant="secondary"
@@ -235,7 +237,7 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
                           )}
                         </>
                       )}
-                      {collapsed && item.badge && (
+                      {collapsed && item.badge && item.badge > 0 && (
                         <Badge 
                           className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-blue-500 text-white"
                           variant="secondary"

@@ -516,6 +516,96 @@ export type Database = {
           },
         ]
       }
+      job_applications: {
+        Row: {
+          company: string
+          created_at: string
+          date_applied: string
+          feedback: string | null
+          id: string
+          job_title: string
+          location: string | null
+          next_step: string | null
+          progress: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company: string
+          created_at?: string
+          date_applied?: string
+          feedback?: string | null
+          id?: string
+          job_title: string
+          location?: string | null
+          next_step?: string | null
+          progress?: number | null
+          status: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          date_applied?: string
+          feedback?: string | null
+          id?: string
+          job_title?: string
+          location?: string | null
+          next_step?: string | null
+          progress?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      job_listings: {
+        Row: {
+          company: string
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean | null
+          job_type: string | null
+          location: string | null
+          posted_date: string
+          requirements: string | null
+          salary_range: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          company: string
+          created_at?: string
+          description: string
+          id?: string
+          is_active?: boolean | null
+          job_type?: string | null
+          location?: string | null
+          posted_date?: string
+          requirements?: string | null
+          salary_range?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean | null
+          job_type?: string | null
+          location?: string | null
+          posted_date?: string
+          requirements?: string | null
+          salary_range?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       jobs: {
         Row: {
           application_deadline: string | null
@@ -677,6 +767,36 @@ export type Database = {
           parsed_content?: string | null
           title?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_analytics: {
+        Row: {
+          applications_count: number | null
+          id: string
+          interviews_count: number | null
+          offers_count: number | null
+          response_rate: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          applications_count?: number | null
+          id?: string
+          interviews_count?: number | null
+          offers_count?: number | null
+          response_rate?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          applications_count?: number | null
+          id?: string
+          interviews_count?: number | null
+          offers_count?: number | null
+          response_rate?: number | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
