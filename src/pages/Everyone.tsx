@@ -39,16 +39,17 @@ const Everyone = () => {
   // Fetch all users - Modified to ensure we get all users
   const fetchUsers = async () => {
     setLoading(true);
+    setError(null); // Clear any previous errors
     try {
-      console.log("Fetching users...");
+      console.log("Fetching users from profiles table...");
       
-      // Use a more reliable approach to get all profiles
+      // Get all profiles without using single()
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      console.log("Fetch result:", { data: profileData, error: profileError });
+      console.log("Fetch profiles result:", { data: profileData?.length || 0, error: profileError });
       
       if (profileError) {
         throw profileError;
