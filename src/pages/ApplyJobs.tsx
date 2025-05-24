@@ -1,18 +1,16 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpRight, Briefcase, Building, MapPin, Search, DollarSign, Calendar, Clock, Filter, Users, TrendingUp, Star } from "lucide-react";
+import { ArrowUpRight, Briefcase, Building, MapPin, Search, DollarSign, Calendar, Clock, Filter, Users, TrendingUp, Star, Globe, Award, Target, Zap } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useJobListings } from "@/hooks/useJobListings";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
 import ResumeDropzone from "@/components/ui/ResumeDropzone";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ApplyJobs = () => {
   const { toast } = useToast();
@@ -78,13 +76,13 @@ const ApplyJobs = () => {
   const currentJobs = categorizedJobs[activeCategory as keyof typeof categorizedJobs] || [];
 
   const categories = [
-    { id: "all", name: "All Jobs", icon: Briefcase, count: categorizedJobs.all.length },
-    { id: "technology", name: "Technology", icon: Users, count: categorizedJobs.technology.length },
-    { id: "design", name: "Design", icon: Star, count: categorizedJobs.design.length },
-    { id: "marketing", name: "Marketing", icon: TrendingUp, count: categorizedJobs.marketing.length },
-    { id: "sales", name: "Sales", icon: ArrowUpRight, count: categorizedJobs.sales.length },
-    { id: "hr", name: "HR", icon: Users, count: categorizedJobs.hr.length },
-    { id: "finance", name: "Finance", icon: DollarSign, count: categorizedJobs.finance.length }
+    { id: "all", name: "All Positions", icon: Globe, count: categorizedJobs.all.length, gradient: "from-slate-600 to-slate-800" },
+    { id: "technology", name: "Technology", icon: Zap, count: categorizedJobs.technology.length, gradient: "from-blue-600 to-indigo-700" },
+    { id: "design", name: "Design", icon: Star, count: categorizedJobs.design.length, gradient: "from-purple-600 to-pink-600" },
+    { id: "marketing", name: "Marketing", icon: TrendingUp, count: categorizedJobs.marketing.length, gradient: "from-green-600 to-emerald-700" },
+    { id: "sales", name: "Sales", icon: Target, count: categorizedJobs.sales.length, gradient: "from-orange-600 to-red-600" },
+    { id: "hr", name: "Human Resources", icon: Users, count: categorizedJobs.hr.length, gradient: "from-teal-600 to-cyan-700" },
+    { id: "finance", name: "Finance", icon: DollarSign, count: categorizedJobs.finance.length, gradient: "from-yellow-600 to-amber-700" }
   ];
 
   const handleSearch = () => {
@@ -143,7 +141,6 @@ const ApplyJobs = () => {
         return;
       }
       
-      // Insert application into database with resume information
       const { data: applicationData, error: applicationError } = await supabase
         .from('job_applications')
         .insert([
@@ -173,7 +170,6 @@ const ApplyJobs = () => {
         return;
       }
 
-      // Create notification for HR members
       const { data: hrMembers } = await supabase
         .from('hr_members')
         .select('user_profile_id')
@@ -198,7 +194,6 @@ const ApplyJobs = () => {
         description: `Your application for ${job.title} at ${job.company_name || 'Unknown Company'} has been submitted`,
       });
 
-      // Remove the selected resume for this job after successful application
       setSelectedResumes(prev => {
         const updated = { ...prev };
         delete updated[jobId];
@@ -216,246 +211,368 @@ const ApplyJobs = () => {
 
   return (
     <StudentDashboardLayout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white">
-          <div className="max-w-7xl mx-auto px-4 py-16">
-            <div className="text-center">
-              <h1 className="text-5xl font-bold mb-4">Find Your Dream Job</h1>
-              <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                Discover amazing opportunities and take the next step in your career journey
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+        {/* Premium Hero Section */}
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900" />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20" />
+          
+          <div className="relative max-w-7xl mx-auto px-6 py-24">
+            <div className="text-center space-y-8">
+              <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white/90 text-sm font-medium">
+                <Award className="w-4 h-4 mr-2 text-yellow-400" />
+                Premium Job Opportunities
+              </div>
+              
+              <h1 className="text-6xl md:text-7xl font-bold text-white leading-tight">
+                Discover Your
+                <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  Next Career
+                </span>
+              </h1>
+              
+              <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+                Access exclusive opportunities from top companies worldwide. Join thousands of professionals who've advanced their careers through our premium platform.
               </p>
               
-              {/* Search Bar */}
-              <div className="max-w-4xl mx-auto bg-white rounded-2xl p-2 shadow-2xl">
-                <div className="flex flex-col md:flex-row gap-2">
-                  <div className="flex-1 relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <Input
-                      placeholder="Job title, skills, or keywords"
-                      className="pl-12 h-14 border-0 text-lg bg-gray-50 rounded-xl"
-                      value={jobTitle}
-                      onChange={(e) => setJobTitle(e.target.value)}
-                    />
+              {/* Advanced Search Interface */}
+              <div className="max-w-5xl mx-auto mt-12">
+                <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                    <div className="md:col-span-5 space-y-2">
+                      <Label className="text-sm font-semibold text-slate-700 flex items-center">
+                        <Briefcase className="w-4 h-4 mr-2 text-blue-600" />
+                        Job Title or Keywords
+                      </Label>
+                      <div className="relative">
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                        <Input
+                          placeholder="Software Engineer, Product Manager..."
+                          className="pl-12 h-14 border-0 bg-slate-50 text-lg font-medium rounded-xl focus:ring-2 focus:ring-blue-500 transition-all"
+                          value={jobTitle}
+                          onChange={(e) => setJobTitle(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="md:col-span-4 space-y-2">
+                      <Label className="text-sm font-semibold text-slate-700 flex items-center">
+                        <MapPin className="w-4 h-4 mr-2 text-green-600" />
+                        Location
+                      </Label>
+                      <div className="relative">
+                        <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                        <Input
+                          placeholder="San Francisco, Remote, Global..."
+                          className="pl-12 h-14 border-0 bg-slate-50 text-lg font-medium rounded-xl focus:ring-2 focus:ring-green-500 transition-all"
+                          value={location}
+                          onChange={(e) => setLocation(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="md:col-span-3">
+                      <Button 
+                        onClick={handleSearch}
+                        className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+                      >
+                        <Search className="w-5 h-5 mr-2" />
+                        Search Jobs
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex-1 relative">
-                    <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <Input
-                      placeholder="City, state, or remote"
-                      className="pl-12 h-14 border-0 text-lg bg-gray-50 rounded-xl"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                    />
-                  </div>
-                  <Button 
-                    onClick={handleSearch}
-                    className="h-14 px-8 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg font-semibold rounded-xl"
-                  >
-                    Search Jobs
-                  </Button>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          {/* Categories */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Browse by Category</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-              {categories.map((category) => {
-                const IconComponent = category.icon;
-                return (
-                  <button
-                    key={category.id}
-                    onClick={() => setActiveCategory(category.id)}
-                    className={`p-4 rounded-xl border-2 transition-all duration-200 text-center hover:shadow-lg ${
-                      activeCategory === category.id
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
-                    }`}
-                  >
-                    <IconComponent className="h-8 w-8 mx-auto mb-2" />
-                    <p className="font-medium text-sm">{category.name}</p>
-                    <Badge 
-                      variant={activeCategory === category.id ? "default" : "secondary"}
-                      className="mt-1"
-                    >
-                      {category.count}
-                    </Badge>
-                  </button>
-                );
-              })}
-            </div>
+        {/* Premium Categories Section */}
+        <div className="max-w-7xl mx-auto px-6 py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-slate-900 mb-4">Explore by Category</h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              Find opportunities tailored to your expertise across various industries
+            </p>
           </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-6">
+            {categories.map((category) => {
+              const IconComponent = category.icon;
+              return (
+                <button
+                  key={category.id}
+                  onClick={() => setActiveCategory(category.id)}
+                  className={`group relative p-6 rounded-2xl transition-all duration-500 transform hover:scale-[1.05] hover:-translate-y-2 ${
+                    activeCategory === category.id
+                      ? 'bg-gradient-to-br ' + category.gradient + ' text-white shadow-2xl'
+                      : 'bg-white hover:bg-slate-50 text-slate-700 shadow-lg hover:shadow-xl border border-slate-200'
+                  }`}
+                >
+                  <div className="text-center space-y-4">
+                    <div className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                      activeCategory === category.id
+                        ? 'bg-white/20 backdrop-blur-sm'
+                        : 'bg-slate-100 group-hover:bg-slate-200'
+                    }`}>
+                      <IconComponent className={`w-8 h-8 transition-all duration-300 ${
+                        activeCategory === category.id ? 'text-white' : 'text-slate-600 group-hover:text-slate-800'
+                      }`} />
+                    </div>
+                    
+                    <div>
+                      <h3 className="font-bold text-sm mb-2">{category.name}</h3>
+                      <Badge 
+                        className={`transition-all duration-300 ${
+                          activeCategory === category.id
+                            ? 'bg-white/20 text-white border-white/30'
+                            : 'bg-slate-100 text-slate-600 border-slate-200 group-hover:bg-slate-200'
+                        }`}
+                      >
+                        {category.count} jobs
+                      </Badge>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-          {/* Job Listings */}
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {categories.find(c => c.id === activeCategory)?.name} ({currentJobs.length})
+        {/* Premium Job Listings */}
+        <div className="max-w-7xl mx-auto px-6 pb-16">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-slate-900">
+                {categories.find(c => c.id === activeCategory)?.name} Opportunities
               </h2>
-              <div className="flex gap-2">
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                  {currentJobs.filter(job => job.status === 'Open').length} Open Positions
-                </Badge>
-              </div>
+              <p className="text-slate-600 mt-2">{currentJobs.length} premium positions available</p>
             </div>
             
-            {loading ? (
-              <div className="flex items-center justify-center py-20">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mx-auto mb-4"></div>
-                  <span className="text-lg text-gray-600">Loading amazing opportunities...</span>
+            <div className="flex items-center space-x-4">
+              <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 px-4 py-2">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></div>
+                {currentJobs.filter(job => job.status === 'Open').length} Active
+              </Badge>
+              <Button variant="outline" className="border-slate-300 hover:bg-slate-50">
+                <Filter className="w-4 h-4 mr-2" />
+                Advanced Filters
+              </Button>
+            </div>
+          </div>
+          
+          {loading ? (
+            <div className="flex items-center justify-center py-32">
+              <div className="text-center space-y-4">
+                <div className="relative w-20 h-20 mx-auto">
+                  <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
+                  <div className="absolute inset-0 border-4 border-blue-600 rounded-full animate-spin border-t-transparent"></div>
                 </div>
+                <h3 className="text-xl font-semibold text-slate-700">Finding Perfect Opportunities</h3>
+                <p className="text-slate-500">Searching through thousands of premium positions...</p>
               </div>
-            ) : currentJobs.length > 0 ? (
-              <div className="grid gap-6">
-                {currentJobs.map((job) => (
-                  <Card key={job.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-white rounded-2xl overflow-hidden">
-                    <CardHeader className="pb-4 bg-gradient-to-r from-gray-50 to-blue-50">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                            {job.title}
-                          </CardTitle>
-                          <CardDescription className="flex items-center mt-2 text-lg">
-                            <Building className="h-5 w-5 mr-2 text-blue-500" /> 
-                            <span className="font-medium text-gray-700">{job.company_name || 'Company'}</span>
-                          </CardDescription>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                            {job.experience_level || 'All Levels'}
-                          </Badge>
-                          <Badge variant="outline" className="border-blue-200 text-blue-700">
-                            {job.employment_type || 'Full-time'}
-                          </Badge>
+            </div>
+          ) : currentJobs.length > 0 ? (
+            <div className="space-y-8">
+              {currentJobs.map((job) => (
+                <Card key={job.id} className="group bg-white hover:bg-slate-50/50 border-0 shadow-lg hover:shadow-2xl transition-all duration-500 rounded-3xl overflow-hidden transform hover:-translate-y-1">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+                  
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50/30 p-8">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 space-y-4">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">
+                            {job.company_name?.[0] || 'C'}
+                          </div>
+                          <div>
+                            <CardTitle className="text-2xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                              {job.title}
+                            </CardTitle>
+                            <CardDescription className="flex items-center mt-2 text-lg">
+                              <Building className="w-5 h-5 mr-2 text-blue-500" /> 
+                              <span className="font-semibold text-slate-700">{job.company_name || 'Premium Company'}</span>
+                            </CardDescription>
+                          </div>
                         </div>
                       </div>
-                    </CardHeader>
-                    
-                    <CardContent className="p-6">
-                      <div className="space-y-6">
-                        {/* Job Details Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                          {job.location && (
-                            <div className="flex items-center text-gray-600 bg-gray-50 p-3 rounded-lg">
-                              <MapPin className="h-5 w-5 mr-3 text-blue-500" />
-                              <span className="font-medium">{job.location}</span>
+                      
+                      <div className="flex flex-col space-y-3">
+                        <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 px-4 py-2">
+                          {job.experience_level || 'All Levels'}
+                        </Badge>
+                        <Badge className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-0 px-4 py-2">
+                          {job.employment_type || 'Full-time'}
+                        </Badge>
+                        {job.salary_range && (
+                          <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 px-4 py-2">
+                            {job.salary_range}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="p-8">
+                    <div className="space-y-8">
+                      {/* Job Details Grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {job.location && (
+                          <div className="flex items-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center mr-4">
+                              <MapPin className="w-5 h-5 text-white" />
                             </div>
-                          )}
-                          {job.salary_range && (
-                            <div className="flex items-center text-gray-600 bg-gray-50 p-3 rounded-lg">
-                              <DollarSign className="h-5 w-5 mr-3 text-green-500" />
-                              <span className="font-medium">{job.salary_range}</span>
-                            </div>
-                          )}
-                          {job.department && (
-                            <div className="flex items-center text-gray-600 bg-gray-50 p-3 rounded-lg">
-                              <Briefcase className="h-5 w-5 mr-3 text-purple-500" />
-                              <span className="font-medium">{job.department}</span>
-                            </div>
-                          )}
-                          {job.application_deadline && (
-                            <div className="flex items-center text-gray-600 bg-gray-50 p-3 rounded-lg">
-                              <Calendar className="h-5 w-5 mr-3 text-red-500" />
-                              <span className="font-medium">Due {new Date(job.application_deadline).toLocaleDateString()}</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Job Description */}
-                        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl">
-                          <p className="text-gray-700 leading-relaxed">{job.description}</p>
-                        </div>
-                        
-                        {/* Skills */}
-                        {job.skills_required && job.skills_required.length > 0 && (
-                          <div>
-                            <h4 className="font-semibold text-gray-900 mb-3">Required Skills</h4>
-                            <div className="flex flex-wrap gap-2">
-                              {job.skills_required.slice(0, 6).map((skill, index) => (
-                                <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800 hover:bg-blue-200">
-                                  {skill}
-                                </Badge>
-                              ))}
-                              {job.skills_required.length > 6 && (
-                                <Badge variant="secondary" className="bg-gray-100 text-gray-600">
-                                  +{job.skills_required.length - 6} more
-                                </Badge>
-                              )}
+                            <div>
+                              <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Location</p>
+                              <p className="font-bold text-slate-800">{job.location}</p>
                             </div>
                           </div>
                         )}
                         
-                        {/* Resume Upload Section */}
-                        <div className="bg-white border-2 border-dashed border-blue-200 rounded-xl p-6">
-                          <Label htmlFor={`resume-${job.id}`} className="text-lg font-semibold text-gray-900 mb-3 block">
-                            Upload Your Resume
-                          </Label>
-                          <ResumeDropzone
-                            onFileUploaded={(filePath, fileName) => handleResumeUpload(job.id, filePath, fileName)}
-                            selectedFile={selectedResumes[job.id] || null}
-                          />
+                        {job.department && (
+                          <div className="flex items-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+                            <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center mr-4">
+                              <Briefcase className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide">Department</p>
+                              <p className="font-bold text-slate-800">{job.department}</p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {job.application_deadline && (
+                          <div className="flex items-center p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border border-orange-100">
+                            <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center mr-4">
+                              <Calendar className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-semibold text-orange-600 uppercase tracking-wide">Deadline</p>
+                              <p className="font-bold text-slate-800">{new Date(job.application_deadline).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-100">
+                          <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center mr-4">
+                            <Clock className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-green-600 uppercase tracking-wide">Posted</p>
+                            <p className="font-bold text-slate-800">{job.posted_date ? new Date(job.posted_date).toLocaleDateString() : 'Recently'}</p>
+                          </div>
                         </div>
                       </div>
-                    </CardContent>
-                    
-                    <CardFooter className="flex justify-between items-center border-t bg-gray-50 px-6 py-4">
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Clock className="h-4 w-4 mr-2" />
-                        Posted {job.posted_date ? new Date(job.posted_date).toLocaleDateString() : 'Recently'}
+                      
+                      {/* Job Description */}
+                      <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 p-6 rounded-2xl border border-slate-100">
+                        <h4 className="font-bold text-lg text-slate-900 mb-3">Position Overview</h4>
+                        <p className="text-slate-700 leading-relaxed text-lg">{job.description}</p>
                       </div>
-                      <div className="flex space-x-3">
-                        <Button variant="outline" className="border-blue-200 text-blue-600 hover:bg-blue-50">
+                      
+                      {/* Skills */}
+                      {job.skills_required && job.skills_required.length > 0 && (
+                        <div>
+                          <h4 className="font-bold text-lg text-slate-900 mb-4">Required Expertise</h4>
+                          <div className="flex flex-wrap gap-3">
+                            {job.skills_required.slice(0, 8).map((skill, index) => (
+                              <Badge 
+                                key={index} 
+                                className="bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 border-slate-300 hover:from-slate-200 hover:to-slate-300 px-4 py-2 text-sm font-medium transition-all duration-300 hover:scale-105"
+                              >
+                                {skill}
+                              </Badge>
+                            ))}
+                            {job.skills_required.length > 8 && (
+                              <Badge className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 border-blue-200 px-4 py-2">
+                                +{job.skills_required.length - 8} more skills
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Resume Upload Section */}
+                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-dashed border-blue-200 rounded-2xl p-8">
+                        <div className="text-center mb-6">
+                          <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Award className="w-8 h-8 text-white" />
+                          </div>
+                          <Label className="text-xl font-bold text-slate-900 mb-2 block">
+                            Submit Your Application
+                          </Label>
+                          <p className="text-slate-600">Upload your resume to apply for this premium position</p>
+                        </div>
+                        <ResumeDropzone
+                          onFileUploaded={(filePath, fileName) => handleResumeUpload(job.id, filePath, fileName)}
+                          selectedFile={selectedResumes[job.id] || null}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                  
+                  <CardFooter className="bg-slate-50 border-t border-slate-100 px-8 py-6">
+                    <div className="flex justify-between items-center w-full">
+                      <div className="flex items-center space-x-4">
+                        <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 px-3 py-1">
+                          Premium Opportunity
+                        </Badge>
+                        <span className="text-sm text-slate-500 flex items-center">
+                          <Users className="w-4 h-4 mr-1" />
+                          High demand position
+                        </span>
+                      </div>
+                      
+                      <div className="flex space-x-4">
+                        <Button 
+                          variant="outline" 
+                          className="border-slate-300 text-slate-700 hover:bg-slate-100 px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-[1.02]"
+                        >
                           View Details
-                          <ArrowUpRight className="ml-2 h-4 w-4" />
+                          <ArrowUpRight className="ml-2 w-4 h-4" />
                         </Button>
                         <Button 
                           onClick={() => handleApply(job.id)}
-                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6"
+                          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
                         >
                           Apply Now
                         </Button>
                       </div>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card className="text-center py-16 border-0 shadow-lg bg-white rounded-2xl">
-                <CardContent>
-                  <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Briefcase className="h-12 w-12 text-blue-500" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">No jobs found</h3>
-                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                    {jobTitle || location ? 
-                      "No jobs match your search criteria. Try adjusting your filters or explore other categories." :
-                      "No job openings are currently available in this category. Check back later for new opportunities."
-                    }
-                  </p>
-                  {(jobTitle || location) && (
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        setJobTitle("");
-                        setLocation("");
-                        setActiveCategory("all");
-                        refetch();
-                      }}
-                      className="border-blue-200 text-blue-600 hover:bg-blue-50"
-                    >
-                      Clear Filters & View All Jobs
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-          </div>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="text-center py-20 border-0 shadow-xl bg-gradient-to-br from-white to-slate-50 rounded-3xl">
+              <CardContent>
+                <div className="w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-8">
+                  <Briefcase className="w-16 h-16 text-blue-500" />
+                </div>
+                <h3 className="text-3xl font-bold text-slate-900 mb-4">No Opportunities Found</h3>
+                <p className="text-xl text-slate-600 mb-8 max-w-lg mx-auto">
+                  {jobTitle || location ? 
+                    "We couldn't find any positions matching your criteria. Try adjusting your search or explore other categories." :
+                    "No opportunities are currently available in this category. New premium positions are added daily."
+                  }
+                </p>
+                {(jobTitle || location) && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setJobTitle("");
+                      setLocation("");
+                      setActiveCategory("all");
+                      refetch();
+                    }}
+                    className="border-blue-300 text-blue-600 hover:bg-blue-50 px-8 py-3 rounded-xl font-semibold"
+                  >
+                    Clear Search & View All Opportunities
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </StudentDashboardLayout>
