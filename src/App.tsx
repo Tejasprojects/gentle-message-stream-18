@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -162,6 +163,22 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['organization', 'admin']}>
                     <HRDashboardJobs />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/hr-dashboard/jobs/create"
+                element={
+                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
+                    <CreateJob />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/hr-dashboard/jobs/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['organization', 'admin']}>
+                    <JobDetails />
                   </ProtectedRoute>
                 }
               />
