@@ -227,6 +227,29 @@ const ResumeBuilder = () => {
       });
   };
 
+  // Create resume data object for AI analysis
+  const resumeData = {
+    personalInfo: {
+      ...personalInfo,
+      jobTitle: personalInfo.name ? "Professional" : "" // Default job title if not specified
+    },
+    experience: experience.map(exp => ({
+      jobTitle: exp.title,
+      companyName: exp.company,
+      description: exp.description
+    })),
+    education: education.map(edu => ({
+      degree: edu.degree,
+      school: edu.institution
+    })),
+    projects: projects.map(proj => ({
+      title: proj.name,
+      description: proj.description,
+      technologies: [] // Add technologies if available
+    })),
+    skills: skills.map(skill => skill.name)
+  };
+
   return (
     <div className="min-h-screen bg-[#f9fafb] dark:bg-gray-900">
       {/* Header */}
@@ -674,7 +697,7 @@ const ResumeBuilder = () => {
               </TabsContent>
 
               <TabsContent value="ai" className="space-y-6">
-                <AIResumeAnalysis />
+                <AIResumeAnalysis resumeData={resumeData} />
               </TabsContent>
             </Tabs>
           </div>
