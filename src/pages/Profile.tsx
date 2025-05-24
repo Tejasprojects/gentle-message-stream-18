@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
@@ -91,6 +90,7 @@ const Profile = () => {
             analytics={analytics}
             isOwner={isOwner}
             onEdit={() => setEditProfileOpen(true)}
+            onProfileUpdate={refetch}
           />
 
           {/* Main Content */}
@@ -130,13 +130,12 @@ const Profile = () => {
                 />
 
                 {/* Resume Section */}
-                {isOwner && (
-                  <ResumeSection
-                    resumeFiles={resumeFiles}
-                    analytics={analytics}
-                    isOwner={isOwner}
-                  />
-                )}
+                <ResumeSection
+                  resumeFiles={resumeFiles}
+                  analytics={analytics}
+                  isOwner={isOwner}
+                  onUpdate={refetch}
+                />
               </div>
             </div>
           </div>

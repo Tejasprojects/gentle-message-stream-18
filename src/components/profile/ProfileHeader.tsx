@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import type { UserProfile, ProfileAnalytics } from '@/types/profile';
 
 interface ProfileHeaderProps {
@@ -13,16 +15,20 @@ interface ProfileHeaderProps {
   analytics: ProfileAnalytics | null;
   isOwner: boolean;
   onEdit: () => void;
+  onProfileUpdate?: () => void;
 }
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ 
   profile, 
   analytics,
   isOwner, 
-  onEdit 
+  onEdit,
+  onProfileUpdate 
 }) => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [showVideo, setShowVideo] = useState(false);
+  const [uploading, setUploading] = useState(false);
   
   const getInitials = (name?: string) => {
     if (!name) return 'U';
@@ -37,43 +43,142 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     console.log('Message clicked');
   };
 
-  const handleCoverPhotoEdit = () => {
+  const uploadToSupabase = async (file: File, path: string) => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const filePath = `${user?.id}/${path}/${fileName}`;
+
+    const { data, error } = await supabase.storage
+      .from('profile-assets')
+      .upload(filePath, file);
+
+    if (error) throw error;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('profile-assets')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
+  const updateProfileField = async (field: string, value: string) => {
+    const { error } = await supabase
+      .from('user_profiles')
+      .upsert({
+        user_id: user?.id,
+        [field]: value,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id'
+      });
+
+    if (error) throw error;
+  };
+
+  const handleCoverPhotoEdit = async () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*,video/*';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        console.log('Cover file selected:', file.name);
-        // TODO: Implement file upload logic
+        try {
+          setUploading(true);
+          const isVideo = file.type.startsWith('video/');
+          const url = await uploadToSupabase(file, isVideo ? 'cover-videos' : 'cover-photos');
+          
+          await updateProfileField(isVideo ? 'cover_video_url' : 'cover_photo_url', url);
+          
+          toast({
+            title: "Cover updated",
+            description: `Cover ${isVideo ? 'video' : 'photo'} uploaded successfully.`
+          });
+          
+          if (onProfileUpdate) {
+            onProfileUpdate();
+          }
+        } catch (error) {
+          console.error('Error uploading cover:', error);
+          toast({
+            title: "Upload failed",
+            description: "Failed to upload cover. Please try again.",
+            variant: "destructive"
+          });
+        } finally {
+          setUploading(false);
+        }
       }
     };
     input.click();
   };
 
-  const handleProfilePhotoEdit = () => {
+  const handleProfilePhotoEdit = async () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        console.log('Profile photo selected:', file.name);
-        // TODO: Implement file upload logic
+        try {
+          setUploading(true);
+          const url = await uploadToSupabase(file, 'profile-photos');
+          
+          await updateProfileField('profile_photo_url', url);
+          
+          toast({
+            title: "Profile photo updated",
+            description: "Profile photo uploaded successfully."
+          });
+          
+          if (onProfileUpdate) {
+            onProfileUpdate();
+          }
+        } catch (error) {
+          console.error('Error uploading profile photo:', error);
+          toast({
+            title: "Upload failed",
+            description: "Failed to upload profile photo. Please try again.",
+            variant: "destructive"
+          });
+        } finally {
+          setUploading(false);
+        }
       }
     };
     input.click();
   };
 
-  const handleVideoUpload = () => {
+  const handleVideoUpload = async () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'video/*';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        console.log('Video file selected:', file.name);
-        // TODO: Implement video upload logic
+        try {
+          setUploading(true);
+          const url = await uploadToSupabase(file, 'cover-videos');
+          
+          await updateProfileField('cover_video_url', url);
+          
+          toast({
+            title: "Cover video updated",
+            description: "Cover video uploaded successfully."
+          });
+          
+          if (onProfileUpdate) {
+            onProfileUpdate();
+          }
+        } catch (error) {
+          console.error('Error uploading video:', error);
+          toast({
+            title: "Upload failed",
+            description: "Failed to upload video. Please try again.",
+            variant: "destructive"
+          });
+        } finally {
+          setUploading(false);
+        }
       }
     };
     input.click();
@@ -126,18 +231,20 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 size="sm"
                 className="bg-white/90 hover:bg-white text-gray-800"
                 onClick={handleVideoUpload}
+                disabled={uploading}
               >
                 <Upload className="h-4 w-4 mr-2" />
-                Video
+                {uploading ? 'Uploading...' : 'Video'}
               </Button>
               <Button
                 variant="secondary"
                 size="sm"
                 className="bg-white/90 hover:bg-white text-gray-800"
                 onClick={handleCoverPhotoEdit}
+                disabled={uploading}
               >
                 <Camera className="h-4 w-4 mr-2" />
-                Edit Cover
+                {uploading ? 'Uploading...' : 'Edit Cover'}
               </Button>
             </>
           )}
@@ -172,6 +279,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   size="sm"
                   className="absolute bottom-2 right-2 h-8 w-8 rounded-full p-0 bg-blue-600 hover:bg-blue-700"
                   onClick={handleProfilePhotoEdit}
+                  disabled={uploading}
                 >
                   <Camera className="h-4 w-4" />
                 </Button>
