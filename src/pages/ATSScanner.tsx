@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
@@ -10,6 +11,7 @@ import { toast } from "@/components/ui/use-toast";
 import * as THREE from "three";
 import { getJobRecommendations } from "@/utils/jobBoardApi";
 import { JobListing } from "@/types/job";
+import { supabase } from "@/integrations/supabase/client";
 
 const ATSScanner = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -181,6 +183,60 @@ const ATSScanner = () => {
       fileInputRef.current.value = '';
     }
   };
+
+  const saveATSResultToDatabase = async (scoreData: ATSScoreData, fileName: string, fileSize: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to save your ATS scan results.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('ats_scan_results')
+        .insert({
+          user_id: user.id,
+          file_name: fileName,
+          file_size: fileSize,
+          overall_score: scoreData.overallScore,
+          keyword_score: scoreData.keywordScore,
+          format_score: scoreData.formatScore,
+          content_score: scoreData.contentScore,
+          suggestions: scoreData.suggestions,
+          job_match: scoreData.jobMatch,
+          scan_date: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error saving ATS result:", error);
+        toast({
+          title: "Save failed",
+          description: "Failed to save ATS scan results to database.",
+          variant: "destructive"
+        });
+      } else {
+        console.log("ATS result saved successfully:", data);
+        toast({
+          title: "Results saved",
+          description: "Your ATS scan results have been saved to your profile.",
+        });
+      }
+    } catch (error) {
+      console.error("Error in saveATSResultToDatabase:", error);
+      toast({
+        title: "Save failed",
+        description: "An unexpected error occurred while saving results.",
+        variant: "destructive"
+      });
+    }
+  };
   
   const analyzeResume = async () => {
     if (!file) {
@@ -230,9 +286,11 @@ const ATSScanner = () => {
         setAtsScore(score);
         setIsAnalyzing(false);
         
+        // Save to database
+        await saveATSResultToDatabase(score, file.name, file.size);
+        
         setIsLoadingJobs(true);
         try {
-          // Fix: Pass the correct arguments to getJobRecommendations
           const skills = mockResumeData.skills.technical.split(', ');
           const jobTitle = mockResumeData.personalInfo.jobTitle;
           const location = mockResumeData.personalInfo.location;
@@ -369,7 +427,6 @@ const ATSScanner = () => {
         {/* Results Section */}
         {atsScore && (
           <div className="space-y-6">
-            {/* Fix: Pass the correct props to ATSScoreDisplay */}
             <ATSScoreDisplay 
               scoreData={atsScore}
               isLoading={false}
@@ -395,15 +452,13 @@ const ATSScanner = () => {
                       <div key={job.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                         <div className="flex justify-between items-start mb-2">
                           <h4 className="font-medium">{job.title}</h4>
-                          {/* Fix: Use a default match percentage since it's not in JobListing type */}
                           <span className="text-sm text-gray-500">85% match</span>
                         </div>
                         <p className="text-sm text-gray-600 mb-2">{job.company}</p>
                         <p className="text-sm text-gray-500 mb-3">{job.location}</p>
                         <div className="flex justify-between items-center">
-                          {/* Fix: Use salary from JobListing type instead of salaryRange */}
                           <span className="text-sm font-medium text-green-600">
-                            {job.salary || "Salary not specified"}
+                            {job.salary_range || "Salary not specified"}
                           </span>
                           <Button size="sm" variant="outline">
                             View Job
