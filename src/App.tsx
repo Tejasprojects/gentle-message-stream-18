@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/context/AuthContext";
 import { BlockchainProvider } from "@/context/BlockchainContext";
@@ -83,8 +82,8 @@ function App() {
         <AuthProvider>
           <BlockchainProvider>
             <Routes>
-              {/* Auth routes with special layout */}
-              <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
+              {/* Auth routes - redirect old login to new login */}
+              <Route path="/login" element={<Navigate to="/new-login" replace />} />
               <Route path="/new-login" element={<NewLogin />} />
               <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
               <Route path="/forgot-password" element={<AuthLayout><ForgotPassword /></AuthLayout>} />
