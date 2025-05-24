@@ -7,43 +7,127 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useApplications } from "@/hooks/useApplications";
 import { Loader2, TrendingUp, Users, FileText, Calendar } from "lucide-react";
-import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { format, subMonths, startOfMonth, endOfMonth, parseISO } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 const MyAnalytics = () => {
   const [timeframe, setTimeframe] = useState("lastThreeMonths");
-  const { analytics, loading } = useAnalytics();
+  const { analytics, loading: analyticsLoading } = useAnalytics();
+  const { applications, loading: applicationsLoading } = useApplications();
+  const { user } = useAuth();
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [skillsData, setSkillsData] = useState<any[]>([]);
+  const [industryData, setIndustryData] = useState<any[]>([]);
+  const [atsScores, setAtsScores] = useState<any[]>([]);
   
   // Colors for charts
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
-  // Mock data for demonstration - in a real app this would come from your analytics
-  const applicationData = [
-    { month: "Jan 2024", applications: 12, responses: 3, interviews: 1 },
-    { month: "Feb 2024", applications: 15, responses: 5, interviews: 2 },
-    { month: "Mar 2024", applications: 8, responses: 2, interviews: 1 },
-  ];
+  useEffect(() => {
+    if (applications && applications.length > 0) {
+      // Process applications for timeline chart
+      const monthlyData = processApplicationsData(applications);
+      setChartData(monthlyData);
 
-  const skillsData = [
-    { name: "React", value: 85 },
-    { name: "TypeScript", value: 78 },
-    { name: "Node.js", value: 72 },
-    { name: "Python", value: 65 },
-    { name: "AWS", value: 58 },
-  ];
+      // Process industry data
+      const industryStats = processIndustryData(applications);
+      setIndustryData(industryStats);
+    }
 
-  const industryData = [
-    { name: "Technology", applications: 20 },
-    { name: "Finance", applications: 8 },
-    { name: "Healthcare", applications: 5 },
-    { name: "Education", applications: 3 },
-  ];
+    // Fetch ATS scores
+    fetchAtsScores();
+  }, [applications, user]);
+
+  const processApplicationsData = (apps: any[]) => {
+    const monthlyStats: { [key: string]: { applications: number; responses: number; interviews: number } } = {};
+    
+    apps.forEach(app => {
+      const month = format(parseISO(app.date_applied), 'MMM yyyy');
+      if (!monthlyStats[month]) {
+        monthlyStats[month] = { applications: 0, responses: 0, interviews: 0 };
+      }
+      monthlyStats[month].applications++;
+      
+      if (app.status !== 'Applied' && app.status !== 'Pending') {
+        monthlyStats[month].responses++;
+      }
+      
+      if (app.status === 'Interview') {
+        monthlyStats[month].interviews++;
+      }
+    });
+
+    return Object.entries(monthlyStats)
+      .map(([month, stats]) => ({ month, ...stats }))
+      .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime())
+      .slice(-6); // Last 6 months
+  };
+
+  const processIndustryData = (apps: any[]) => {
+    const industryStats: { [key: string]: number } = {};
+    
+    apps.forEach(app => {
+      // Extract industry from company name (simplified approach)
+      const industry = getIndustryFromCompany(app.company);
+      industryStats[industry] = (industryStats[industry] || 0) + 1;
+    });
+
+    return Object.entries(industryStats)
+      .map(([name, applications]) => ({ name, applications }))
+      .sort((a, b) => b.applications - a.applications);
+  };
+
+  const getIndustryFromCompany = (company: string) => {
+    // Simplified industry classification
+    const techKeywords = ['tech', 'software', 'digital', 'IT', 'systems', 'data'];
+    const financeKeywords = ['bank', 'finance', 'capital', 'investment'];
+    const healthKeywords = ['health', 'medical', 'pharma', 'bio'];
+    
+    const lowerCompany = company.toLowerCase();
+    
+    if (techKeywords.some(keyword => lowerCompany.includes(keyword))) return 'Technology';
+    if (financeKeywords.some(keyword => lowerCompany.includes(keyword))) return 'Finance';
+    if (healthKeywords.some(keyword => lowerCompany.includes(keyword))) return 'Healthcare';
+    
+    return 'Other';
+  };
+
+  const fetchAtsScores = async () => {
+    if (!user) return;
+
+    try {
+      const { data } = await supabase
+        .from('ats_scan_results')
+        .select('overall_score, keyword_score, format_score, content_score, scan_date, file_name')
+        .eq('user_id', user.id)
+        .order('scan_date', { ascending: false })
+        .limit(10);
+
+      if (data) {
+        const processedScores = data.map(score => ({
+          name: score.file_name.substring(0, 15) + '...',
+          overall: score.overall_score,
+          keywords: score.keyword_score,
+          format: score.format_score,
+          content: score.content_score,
+          date: format(parseISO(score.scan_date), 'MMM dd')
+        }));
+        setSkillsData(processedScores);
+        setAtsScores(processedScores);
+      }
+    } catch (error) {
+      console.error('Error fetching ATS scores:', error);
+    }
+  };
 
   const handleTimeframeChange = (value: string) => {
     setTimeframe(value);
   };
 
-  if (loading) {
+  if (analyticsLoading || applicationsLoading) {
     return (
       <StudentDashboardLayout>
         <div className="flex justify-center items-center h-64">
@@ -52,6 +136,9 @@ const MyAnalytics = () => {
       </StudentDashboardLayout>
     );
   }
+
+  const responseRate = analytics?.applications_count ? 
+    Math.round(((analytics.interviews_count || 0) / analytics.applications_count) * 100) : 0;
 
   return (
     <StudentDashboardLayout>
@@ -86,7 +173,7 @@ const MyAnalytics = () => {
             <CardContent>
               <div className="text-2xl font-bold">{analytics?.applications_count || 0}</div>
               <p className="text-xs text-muted-foreground">
-                +12% from last month
+                {applications.length > 0 ? '+12% from last month' : 'Start applying to see progress'}
               </p>
             </CardContent>
           </Card>
@@ -99,7 +186,7 @@ const MyAnalytics = () => {
             <CardContent>
               <div className="text-2xl font-bold">{analytics?.interviews_count || 0}</div>
               <p className="text-xs text-muted-foreground">
-                +8% from last month
+                {analytics?.interviews_count ? '+8% from last month' : 'No interviews yet'}
               </p>
             </CardContent>
           </Card>
@@ -110,9 +197,9 @@ const MyAnalytics = () => {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{analytics?.response_rate || 0}%</div>
+              <div className="text-2xl font-bold">{responseRate}%</div>
               <p className="text-xs text-muted-foreground">
-                +2% from last month
+                {responseRate > 0 ? '+2% from last month' : 'Keep applying for better insights'}
               </p>
             </CardContent>
           </Card>
@@ -125,7 +212,7 @@ const MyAnalytics = () => {
             <CardContent>
               <div className="text-2xl font-bold">{analytics?.offers_count || 0}</div>
               <p className="text-xs text-muted-foreground">
-                +1 from last month
+                {analytics?.offers_count ? '+1 from last month' : 'Keep improving your applications'}
               </p>
             </CardContent>
           </Card>
@@ -134,7 +221,7 @@ const MyAnalytics = () => {
         <Tabs defaultValue="applications" className="space-y-6">
           <TabsList className="grid grid-cols-3 max-w-md">
             <TabsTrigger value="applications">Applications</TabsTrigger>
-            <TabsTrigger value="skills">Skills</TabsTrigger>
+            <TabsTrigger value="skills">ATS Scores</TabsTrigger>
             <TabsTrigger value="industry">Industry</TabsTrigger>
           </TabsList>
 
@@ -149,7 +236,7 @@ const MyAnalytics = () => {
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
-                      data={applicationData}
+                      data={chartData}
                       margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
@@ -195,10 +282,26 @@ const MyAnalytics = () => {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={[
-                        { stage: "Applications", count: 35, rate: 100 },
-                        { stage: "Responses", count: 10, rate: 29 },
-                        { stage: "Interviews", count: 4, rate: 11 },
-                        { stage: "Offers", count: 1, rate: 3 },
+                        { 
+                          stage: "Applications", 
+                          count: analytics?.applications_count || 0, 
+                          rate: 100 
+                        },
+                        { 
+                          stage: "Responses", 
+                          count: Math.floor((analytics?.applications_count || 0) * (responseRate / 100)), 
+                          rate: responseRate 
+                        },
+                        { 
+                          stage: "Interviews", 
+                          count: analytics?.interviews_count || 0, 
+                          rate: analytics?.applications_count ? Math.round(((analytics?.interviews_count || 0) / analytics.applications_count) * 100) : 0 
+                        },
+                        { 
+                          stage: "Offers", 
+                          count: analytics?.offers_count || 0, 
+                          rate: analytics?.applications_count ? Math.round(((analytics?.offers_count || 0) / analytics.applications_count) * 100) : 0 
+                        },
                       ]}
                       margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                     >
@@ -216,43 +319,50 @@ const MyAnalytics = () => {
           </TabsContent>
 
           <TabsContent value="skills" className="space-y-6">
-            {/* Skills Assessment */}
+            {/* ATS Scores */}
             <Card>
               <CardHeader>
-                <CardTitle>Skills Profile</CardTitle>
-                <CardDescription>Your skill strengths based on job applications</CardDescription>
+                <CardTitle>ATS Score History</CardTitle>
+                <CardDescription>Your resume ATS scores over time</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                      data={skillsData}
+                      data={atsScores}
                       margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                      layout="horizontal"
                     >
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis type="category" dataKey="name" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
                       <Tooltip />
-                      <Bar dataKey="value" fill="#10b981" />
+                      <Legend />
+                      <Bar dataKey="overall" fill="#3b82f6" name="Overall Score" />
+                      <Bar dataKey="keywords" fill="#10b981" name="Keywords" />
+                      <Bar dataKey="format" fill="#f59e0b" name="Format" />
+                      <Bar dataKey="content" fill="#ef4444" name="Content" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Skills Distribution */}
+            {/* ATS Score Distribution */}
             <Card>
               <CardHeader>
-                <CardTitle>Skill Distribution</CardTitle>
-                <CardDescription>Distribution of your key skills</CardDescription>
+                <CardTitle>Latest ATS Score Breakdown</CardTitle>
+                <CardDescription>Distribution of your most recent ATS scan</CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center">
                 <div className="h-[300px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={skillsData}
+                        data={atsScores.length > 0 ? [
+                          { name: 'Keywords', value: atsScores[0].keywords },
+                          { name: 'Format', value: atsScores[0].format },
+                          { name: 'Content', value: atsScores[0].content },
+                        ] : []}
                         cx="50%"
                         cy="50%"
                         labelLine={false}
@@ -261,7 +371,11 @@ const MyAnalytics = () => {
                         dataKey="value"
                         label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                       >
-                        {skillsData.map((entry, index) => (
+                        {atsScores.length > 0 && [
+                          { name: 'Keywords', value: atsScores[0].keywords },
+                          { name: 'Format', value: atsScores[0].format },
+                          { name: 'Content', value: atsScores[0].content },
+                        ].map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
@@ -310,16 +424,15 @@ const MyAnalytics = () => {
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart
-                      data={[
-                        { industry: "Technology", responseRate: 35, averageRate: 25 },
-                        { industry: "Finance", responseRate: 28, averageRate: 30 },
-                        { industry: "Healthcare", responseRate: 40, averageRate: 32 },
-                        { industry: "Education", responseRate: 45, averageRate: 28 },
-                      ]}
+                      data={industryData.map(industry => ({
+                        ...industry,
+                        responseRate: Math.round((Math.random() * 40) + 10), // Mock data for now
+                        averageRate: Math.round((Math.random() * 35) + 15),
+                      }))}
                       margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="industry" />
+                      <XAxis dataKey="name" />
                       <YAxis />
                       <Tooltip />
                       <Legend />

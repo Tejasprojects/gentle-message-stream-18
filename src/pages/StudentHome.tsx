@@ -1,24 +1,65 @@
-
 import React from "react";
 import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Briefcase, Calendar, CheckCircle, Award, ArrowRight } from "lucide-react";
+import { FileText, Briefcase, Calendar, CheckCircle, Award, ArrowRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
+import { useRecentActivity } from "@/hooks/useRecentActivity";
+import { format } from "date-fns";
 
 const StudentHome = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = React.useState("overview");
+  const { stats, loading: statsLoading } = useDashboardStats();
+  const { activity, loading: activityLoading } = useRecentActivity();
 
-  // Sample data for dashboard stats
-  const stats = [
-    { title: "Resume Score", value: "78%", icon: FileText },
-    { title: "Jobs Applied", value: "12", icon: Briefcase },
-    { title: "Interviews", value: "3", icon: Calendar },
-    { title: "Certifications", value: "2", icon: Award },
+  // Stats configuration with real data
+  const statsConfig = [
+    { 
+      title: "Resume Score", 
+      value: statsLoading ? "..." : `${stats.resumeScore}%`, 
+      icon: FileText 
+    },
+    { 
+      title: "Jobs Applied", 
+      value: statsLoading ? "..." : stats.jobsApplied.toString(), 
+      icon: Briefcase 
+    },
+    { 
+      title: "Interviews", 
+      value: statsLoading ? "..." : stats.interviews.toString(), 
+      icon: Calendar 
+    },
+    { 
+      title: "Certifications", 
+      value: statsLoading ? "..." : stats.certifications.toString(), 
+      icon: Award 
+    },
   ];
+
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), 'MMM dd, yyyy');
+    } catch {
+      return 'Invalid date';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'interview':
+        return 'text-blue-600 bg-blue-100';
+      case 'offer':
+        return 'text-green-600 bg-green-100';
+      case 'rejected':
+        return 'text-red-600 bg-red-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
+    }
+  };
 
   return (
     <StudentDashboardLayout>
@@ -29,17 +70,21 @@ const StudentHome = () => {
             <p className="text-muted-foreground">Welcome back, {user?.name || 'Student'}</p>
           </div>
           <div className="flex gap-2 mt-4 md:mt-0">
-            <Button variant="outline">
-              <FileText className="h-4 w-4 mr-2" /> View Resumes
+            <Button variant="outline" asChild>
+              <Link to="/builder">
+                <FileText className="h-4 w-4 mr-2" /> View Resumes
+              </Link>
             </Button>
-            <Button>
-              <Briefcase className="h-4 w-4 mr-2" /> Find Jobs
+            <Button asChild>
+              <Link to="/job-board">
+                <Briefcase className="h-4 w-4 mr-2" /> Find Jobs
+              </Link>
             </Button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat) => (
+          {statsConfig.map((stat) => (
             <Card key={stat.title} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6 flex items-center justify-between">
                 <div>
@@ -70,44 +115,77 @@ const StudentHome = () => {
                   <CardDescription>Your most recent job applications</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {['Senior Frontend Developer at TechCorp', 'UX Designer at Creative Studios', 'Full Stack Engineer at DataSystems'].map(job => (
-                      <div key={job} className="flex items-center justify-between border-b pb-2">
-                        <span>{job}</span>
-                        <span className="text-xs text-muted-foreground">2 days ago</span>
-                      </div>
-                    ))}
-                    <Button variant="ghost" size="sm" className="w-full" asChild>
-                      <Link to="/my-applications">
-                        View all applications
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </div>
+                  {activityLoading ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                  ) : activity.applications.length > 0 ? (
+                    <div className="space-y-4">
+                      {activity.applications.slice(0, 3).map((app) => (
+                        <div key={app.id} className="flex items-center justify-between border-b pb-2">
+                          <div>
+                            <span className="font-medium">{app.job_title}</span>
+                            <p className="text-sm text-muted-foreground">{app.company}</p>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xs text-muted-foreground">{formatDate(app.date_applied)}</span>
+                            <div className={`text-xs px-2 py-1 rounded-full ${getStatusColor(app.status)} mt-1`}>
+                              {app.status}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <Button variant="ghost" size="sm" className="w-full" asChild>
+                        <Link to="/my-applications">
+                          View all applications
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No applications yet</p>
+                      <Button variant="outline" size="sm" className="mt-2" asChild>
+                        <Link to="/apply">Apply for Jobs</Link>
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
                   <CardTitle>Upcoming Interviews</CardTitle>
-                  <CardDescription>Scheduled interviews for this week</CardDescription>
+                  <CardDescription>Applications in interview stage</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {['Wed, 10:00 AM - Technical Interview with TechCorp', 
-                      'Thu, 2:30 PM - Design Challenge with Creative Studios'].map(interview => (
-                      <div key={interview} className="flex items-center justify-between border-b pb-2">
-                        <span>{interview}</span>
-                        <Button variant="outline" size="sm">Prepare</Button>
-                      </div>
-                    ))}
-                    <Button variant="ghost" size="sm" className="w-full" asChild>
-                      <Link to="/interview-coach">
-                        Practice for interviews
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </div>
+                  {activityLoading ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                  ) : activity.interviews.length > 0 ? (
+                    <div className="space-y-4">
+                      {activity.interviews.map((interview) => (
+                        <div key={interview.id} className="flex items-center justify-between border-b pb-2">
+                          <div>
+                            <span className="font-medium">{interview.job_title}</span>
+                            <p className="text-sm text-muted-foreground">{interview.company}</p>
+                          </div>
+                          <Button variant="outline" size="sm">Prepare</Button>
+                        </div>
+                      ))}
+                      <Button variant="ghost" size="sm" className="w-full" asChild>
+                        <Link to="/interview-coach">
+                          Practice for interviews
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No interviews scheduled</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -149,44 +227,45 @@ const StudentHome = () => {
                 <CardDescription>Track the status of your job applications</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="relative overflow-x-auto">
-                  <table className="w-full text-sm text-left">
-                    <thead className="text-xs uppercase bg-gray-50 dark:bg-gray-700">
-                      <tr>
-                        <th scope="col" className="px-6 py-3">Position</th>
-                        <th scope="col" className="px-6 py-3">Company</th>
-                        <th scope="col" className="px-6 py-3">Applied Date</th>
-                        <th scope="col" className="px-6 py-3">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <td className="px-6 py-4">Senior Frontend Developer</td>
-                        <td className="px-6 py-4">TechCorp</td>
-                        <td className="px-6 py-4">May 20, 2025</td>
-                        <td className="px-6 py-4">
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Interview</span>
-                        </td>
-                      </tr>
-                      <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <td className="px-6 py-4">UX Designer</td>
-                        <td className="px-6 py-4">Creative Studios</td>
-                        <td className="px-6 py-4">May 18, 2025</td>
-                        <td className="px-6 py-4">
-                          <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Assessment</span>
-                        </td>
-                      </tr>
-                      <tr className="bg-white dark:bg-gray-800">
-                        <td className="px-6 py-4">Full Stack Engineer</td>
-                        <td className="px-6 py-4">DataSystems</td>
-                        <td className="px-6 py-4">May 15, 2025</td>
-                        <td className="px-6 py-4">
-                          <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">Applied</span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                {activityLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : activity.applications.length > 0 ? (
+                  <div className="relative overflow-x-auto">
+                    <table className="w-full text-sm text-left">
+                      <thead className="text-xs uppercase bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                          <th scope="col" className="px-6 py-3">Position</th>
+                          <th scope="col" className="px-6 py-3">Company</th>
+                          <th scope="col" className="px-6 py-3">Applied Date</th>
+                          <th scope="col" className="px-6 py-3">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {activity.applications.map((app, index) => (
+                          <tr key={app.id} className={`${index !== activity.applications.length - 1 ? 'border-b' : ''} bg-white dark:bg-gray-800 dark:border-gray-700`}>
+                            <td className="px-6 py-4">{app.job_title}</td>
+                            <td className="px-6 py-4">{app.company}</td>
+                            <td className="px-6 py-4">{formatDate(app.date_applied)}</td>
+                            <td className="px-6 py-4">
+                              <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(app.status)}`}>
+                                {app.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No applications yet</p>
+                    <Button className="mt-4" asChild>
+                      <Link to="/apply">Start Applying</Link>
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -198,47 +277,42 @@ const StudentHome = () => {
                 <CardDescription>Your upcoming interviews and preparation resources</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-medium">Technical Interview - TechCorp</h3>
-                        <p className="text-sm text-muted-foreground">Wednesday, May 25, 2025 • 10:00 AM</p>
-                      </div>
-                      <div className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Upcoming</div>
-                    </div>
-                    <p className="text-sm mb-4">Prepare to discuss your experience with React, TypeScript, and system design.</p>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        Add to Calendar
-                      </Button>
-                      <Button size="sm">
-                        Practice with AI Coach
-                      </Button>
-                    </div>
+                {activityLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin" />
                   </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-medium">Design Challenge - Creative Studios</h3>
-                        <p className="text-sm text-muted-foreground">Thursday, May 26, 2025 • 2:30 PM</p>
+                ) : activity.interviews.length > 0 ? (
+                  <div className="space-y-6">
+                    {activity.interviews.map((interview) => (
+                      <div key={interview.id} className="border rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-medium">{interview.job_title} - {interview.company}</h3>
+                            <p className="text-sm text-muted-foreground">Applied: {formatDate(interview.date_applied)}</p>
+                          </div>
+                          <div className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Interview Stage</div>
+                        </div>
+                        <p className="text-sm mb-4">Prepare for your interview with our AI coach.</p>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            <Calendar className="h-4 w-4 mr-1" />
+                            Schedule
+                          </Button>
+                          <Button size="sm" asChild>
+                            <Link to="/interview-coach">Practice with AI Coach</Link>
+                          </Button>
+                        </div>
                       </div>
-                      <div className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Upcoming</div>
-                    </div>
-                    <p className="text-sm mb-4">You'll be given a design problem to solve in real-time. Prepare your portfolio and case studies.</p>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        Add to Calendar
-                      </Button>
-                      <Button size="sm">
-                        Practice with AI Coach
-                      </Button>
-                    </div>
+                    ))}
                   </div>
-                </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No interviews scheduled yet</p>
+                    <Button className="mt-4" asChild>
+                      <Link to="/interview-coach">Practice Interview Skills</Link>
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
