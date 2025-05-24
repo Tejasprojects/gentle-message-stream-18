@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import type { UserProfile } from '@/types/profile';
 
 interface EditProfileModalProps {
@@ -25,6 +26,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
 }) => {
   const { user } = useAuth();
   const { updateProfile } = useProfile();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -40,6 +42,24 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
     current_position: profile?.current_position || ''
   });
 
+  // Update form data when profile changes
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        professional_headline: profile.professional_headline || '',
+        headline_tagline: profile.headline_tagline || '',
+        location: profile.location || '',
+        website_url: profile.website_url || '',
+        about_summary: profile.about_summary || '',
+        phone: profile.phone || '',
+        industry: profile.industry || '',
+        years_experience: profile.years_experience || 0,
+        current_company: profile.current_company || '',
+        current_position: profile.current_position || ''
+      });
+    }
+  }, [profile]);
+
   const industries = [
     'Technology', 'Healthcare', 'Finance', 'Education', 'Manufacturing',
     'Retail', 'Construction', 'Real Estate', 'Transportation', 'Media',
@@ -52,13 +72,26 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
     
     try {
       await updateProfile(formData);
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      });
       onUpdate();
       onClose();
     } catch (error) {
       console.error('Error updating profile:', error);
+      toast({
+        title: "Error updating profile",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleInputChange = (field: string, value: string | number) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   if (!isOpen) return null;
@@ -81,7 +114,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               <Input
                 id="headline"
                 value={formData.professional_headline}
-                onChange={(e) => setFormData(prev => ({ ...prev, professional_headline: e.target.value }))}
+                onChange={(e) => handleInputChange('professional_headline', e.target.value)}
                 placeholder="Full Stack Developer | React Expert"
               />
             </div>
@@ -90,7 +123,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               <Input
                 id="tagline"
                 value={formData.headline_tagline}
-                onChange={(e) => setFormData(prev => ({ ...prev, headline_tagline: e.target.value }))}
+                onChange={(e) => handleInputChange('headline_tagline', e.target.value)}
                 placeholder="Building the future, one line at a time"
               />
             </div>
@@ -103,7 +136,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               <Input
                 id="position"
                 value={formData.current_position}
-                onChange={(e) => setFormData(prev => ({ ...prev, current_position: e.target.value }))}
+                onChange={(e) => handleInputChange('current_position', e.target.value)}
                 placeholder="Senior Software Engineer"
               />
             </div>
@@ -112,7 +145,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               <Input
                 id="company"
                 value={formData.current_company}
-                onChange={(e) => setFormData(prev => ({ ...prev, current_company: e.target.value }))}
+                onChange={(e) => handleInputChange('current_company', e.target.value)}
                 placeholder="Google"
               />
             </div>
@@ -124,14 +157,18 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               <Label htmlFor="industry">Industry</Label>
               <Select 
                 value={formData.industry} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, industry: value }))}
+                onValueChange={(value) => handleInputChange('industry', value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-white border-gray-300 text-gray-900">
                   <SelectValue placeholder="Select industry" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border border-gray-200 shadow-lg z-[200]">
                   {industries.map((industry) => (
-                    <SelectItem key={industry} value={industry}>
+                    <SelectItem 
+                      key={industry} 
+                      value={industry}
+                      className="text-gray-900 hover:bg-gray-100 focus:bg-gray-100"
+                    >
                       {industry}
                     </SelectItem>
                   ))}
@@ -142,14 +179,18 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               <Label htmlFor="experience">Years of Experience</Label>
               <Select 
                 value={formData.years_experience?.toString() || ''} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, years_experience: parseInt(value) }))}
+                onValueChange={(value) => handleInputChange('years_experience', parseInt(value))}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-white border-gray-300 text-gray-900">
                   <SelectValue placeholder="Select years" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border border-gray-200 shadow-lg z-[200]">
                   {Array.from({ length: 21 }, (_, i) => (
-                    <SelectItem key={i} value={i.toString()}>
+                    <SelectItem 
+                      key={i} 
+                      value={i.toString()}
+                      className="text-gray-900 hover:bg-gray-100 focus:bg-gray-100"
+                    >
                       {i === 0 ? 'Less than 1 year' : `${i}+ years`}
                     </SelectItem>
                   ))}
@@ -165,7 +206,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               <Input
                 id="location"
                 value={formData.location}
-                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                onChange={(e) => handleInputChange('location', e.target.value)}
                 placeholder="San Francisco Bay Area"
               />
             </div>
@@ -175,7 +216,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 id="phone"
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
                 placeholder="+1 (555) 123-4567"
               />
             </div>
@@ -188,7 +229,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               id="website"
               type="url"
               value={formData.website_url}
-              onChange={(e) => setFormData(prev => ({ ...prev, website_url: e.target.value }))}
+              onChange={(e) => handleInputChange('website_url', e.target.value)}
               placeholder="https://yourportfolio.com"
             />
           </div>
@@ -200,7 +241,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               id="about"
               rows={6}
               value={formData.about_summary}
-              onChange={(e) => setFormData(prev => ({ ...prev, about_summary: e.target.value }))}
+              onChange={(e) => handleInputChange('about_summary', e.target.value)}
               placeholder="Write a compelling professional summary that highlights your expertise, achievements, and career goals..."
               className="resize-none"
             />

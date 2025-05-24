@@ -38,15 +38,45 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   };
 
   const handleCoverPhotoEdit = () => {
-    console.log('Edit cover photo');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,video/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        console.log('Cover file selected:', file.name);
+        // TODO: Implement file upload logic
+      }
+    };
+    input.click();
   };
 
   const handleProfilePhotoEdit = () => {
-    console.log('Edit profile photo');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        console.log('Profile photo selected:', file.name);
+        // TODO: Implement file upload logic
+      }
+    };
+    input.click();
   };
 
   const handleVideoUpload = () => {
-    console.log('Upload video');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        console.log('Video file selected:', file.name);
+        // TODO: Implement video upload logic
+      }
+    };
+    input.click();
   };
 
   return (
@@ -220,19 +250,12 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
               {/* Stats Row */}
               <div className="flex items-center gap-6 text-sm text-gray-600">
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4" />
-                  <span className="font-medium text-blue-600">500+ connections</span>
-                </div>
                 {analytics && (
                   <div className="flex items-center gap-1">
                     <Eye className="h-4 w-4" />
                     <span>{analytics.profile_views} profile views today</span>
                   </div>
                 )}
-                <span className="text-blue-600 hover:underline cursor-pointer">
-                  15 mutual connections
-                </span>
               </div>
             </div>
           </div>

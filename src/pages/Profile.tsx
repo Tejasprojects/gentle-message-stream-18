@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import StudentDashboardLayout from '@/components/layout/StudentDashboardLayout';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
@@ -18,6 +18,7 @@ import { useAuth } from '@/context/AuthContext';
 
 const Profile = () => {
   const { userId } = useParams();
+  const location = useLocation();
   const { user } = useAuth();
   const { 
     profile, 
@@ -38,6 +39,37 @@ const Profile = () => {
   const [addExperienceOpen, setAddExperienceOpen] = useState(false);
   const [addSkillOpen, setAddSkillOpen] = useState(false);
   const [addCertificationOpen, setAddCertificationOpen] = useState(false);
+
+  // Prevent navigation when modals are open
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (editProfileOpen || addExperienceOpen || addSkillOpen || addCertificationOpen) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [editProfileOpen, addExperienceOpen, addSkillOpen, addCertificationOpen]);
+
+  // Prevent accidental navigation
+  useEffect(() => {
+    const preventNavigation = (e: PopStateEvent) => {
+      if (editProfileOpen || addExperienceOpen || addSkillOpen || addCertificationOpen) {
+        e.preventDefault();
+        // Close any open modal instead of navigating
+        setEditProfileOpen(false);
+        setAddExperienceOpen(false);
+        setAddSkillOpen(false);
+        setAddCertificationOpen(false);
+        window.history.pushState(null, '', location.pathname);
+      }
+    };
+
+    window.addEventListener('popstate', preventNavigation);
+    return () => window.removeEventListener('popstate', preventNavigation);
+  }, [editProfileOpen, addExperienceOpen, addSkillOpen, addCertificationOpen, location.pathname]);
 
   if (loading) {
     return (
@@ -111,30 +143,38 @@ const Profile = () => {
         </div>
 
         {/* Modals */}
-        <EditProfileModal
-          isOpen={editProfileOpen}
-          onClose={() => setEditProfileOpen(false)}
-          profile={profile}
-          onUpdate={refetch}
-        />
+        {editProfileOpen && (
+          <EditProfileModal
+            isOpen={editProfileOpen}
+            onClose={() => setEditProfileOpen(false)}
+            profile={profile}
+            onUpdate={refetch}
+          />
+        )}
 
-        <AddExperienceModal
-          isOpen={addExperienceOpen}
-          onClose={() => setAddExperienceOpen(false)}
-          onSuccess={refetch}
-        />
+        {addExperienceOpen && (
+          <AddExperienceModal
+            isOpen={addExperienceOpen}
+            onClose={() => setAddExperienceOpen(false)}
+            onSuccess={refetch}
+          />
+        )}
 
-        <AddSkillModal
-          isOpen={addSkillOpen}
-          onClose={() => setAddSkillOpen(false)}
-          onSuccess={refetch}
-        />
+        {addSkillOpen && (
+          <AddSkillModal
+            isOpen={addSkillOpen}
+            onClose={() => setAddSkillOpen(false)}
+            onSuccess={refetch}
+          />
+        )}
 
-        <AddCertificationModal
-          isOpen={addCertificationOpen}
-          onClose={() => setAddCertificationOpen(false)}
-          onSuccess={refetch}
-        />
+        {addCertificationOpen && (
+          <AddCertificationModal
+            isOpen={addCertificationOpen}
+            onClose={() => setAddCertificationOpen(false)}
+            onSuccess={refetch}
+          />
+        )}
       </div>
     </StudentDashboardLayout>
   );
