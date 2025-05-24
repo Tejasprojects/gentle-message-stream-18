@@ -1,320 +1,248 @@
 
 import React from "react";
-import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, FileText, BarChart2, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { CalendarDays, MapPin, Building, Eye, FileText } from "lucide-react";
 import { useApplications } from "@/hooks/useApplications";
+import { useNotifications } from "@/hooks/useNotifications";
+import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 const MyApplications = () => {
-  const { user } = useAuth();
   const { applications, loading } = useApplications();
+  const { notifications, unreadCount } = useNotifications();
+  const { toast } = useToast();
 
-  // Count applications by status
-  const statusCounts = applications.reduce((acc, app) => {
-    acc[app.status] = (acc[app.status] || 0) + 1;
-    return acc;
-  }, {});
+  const viewResume = async (filePath: string) => {
+    if (!filePath) return;
+    
+    try {
+      const { data, error } = await supabase.storage
+        .from('resumes')
+        .createSignedUrl(filePath, 60);
 
-  // Status badge color mapping
-  const statusColors = {
-    Applied: "bg-blue-100 text-blue-800",
-    Interview: "bg-green-100 text-green-800",
-    Rejected: "bg-gray-100 text-gray-800",
-    Offer: "bg-purple-100 text-purple-800"
+      if (error) {
+        throw error;
+      }
+
+      window.open(data.signedUrl, '_blank');
+    } catch (error) {
+      console.error("Error viewing resume:", error);
+      toast({
+        title: "Error",
+        description: "Failed to open resume",
+        variant: "destructive"
+      });
+    }
   };
 
-  // Status icon mapping
-  const statusIcons = {
-    Applied: <FileText className="h-4 w-4 mr-1" />,
-    Interview: <Calendar className="h-4 w-4 mr-1" />,
-    Rejected: <XCircle className="h-4 w-4 mr-1" />,
-    Offer: <CheckCircle className="h-4 w-4 mr-1" />
+  const getStatusBadge = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'pending':
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Pending Review</Badge>;
+      case 'reviewed':
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-800">Under Review</Badge>;
+      case 'accepted':
+        return <Badge className="bg-green-100 text-green-800">Accepted</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive">Rejected</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading applications...</span>
-      </div>
-    );
-  }
+  const getProgressValue = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'pending': return 25;
+      case 'reviewed': return 50;
+      case 'accepted': return 100;
+      case 'rejected': return 0;
+      default: return 20;
+    }
+  };
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">My Applications</h1>
+    <StudentDashboardLayout>
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">My Applications</h1>
+            <p className="text-muted-foreground">
+              Track your job applications and their progress
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Badge variant="outline" className="text-sm">
+              {applications.length} Total Applications
+            </Badge>
+            {unreadCount > 0 && (
+              <Badge className="bg-red-100 text-red-800">
+                {unreadCount} New Updates
+              </Badge>
+            )}
+          </div>
+        </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Total Applications</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{applications.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">In Process</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts["Applied"] || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Interviews</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts["Interview"] || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Response Rate</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {applications.length > 0
-                ? Math.round(
-                    ((statusCounts["Interview"] || 0) / applications.length) * 100
-                  ) + "%"
-                : "0%"}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Applications Tabs */}
-      <Tabs defaultValue="all" className="w-full">
-        <TabsList>
-          <TabsTrigger value="all">All Applications</TabsTrigger>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="interviews">Interviews</TabsTrigger>
-          <TabsTrigger value="rejected">Rejected</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="all" className="mt-4">
-          {applications.length > 0 ? (
-            <div className="space-y-4">
-              {applications.map((app) => (
-                <Card key={app.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between">
+        {/* Recent Notifications */}
+        {notifications.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Recent Updates</CardTitle>
+              <CardDescription>Latest notifications about your applications</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {notifications.slice(0, 3).map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`p-3 rounded-lg border ${
+                      notification.read ? 'bg-gray-50' : 'bg-blue-50 border-blue-200'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-lg">{app.job_title}</CardTitle>
-                        <CardDescription>{app.company}</CardDescription>
+                        <p className="font-medium text-sm">{notification.title}</p>
+                        <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
                       </div>
-                      <Badge className={statusColors[app.status] || "bg-gray-100"}>
-                        {statusIcons[app.status]}
-                        {app.status}
+                      <Badge
+                        variant={notification.type === 'success' ? 'default' : notification.type === 'error' ? 'destructive' : 'secondary'}
+                        className="text-xs"
+                      >
+                        {notification.type}
                       </Badge>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-sm space-y-2">
-                      <div className="flex items-center text-gray-500">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Applied: {new Date(app.date_applied).toLocaleDateString()}
-                      </div>
-                      
-                      {app.next_step && (
-                        <div className="flex items-center text-gray-700">
-                          <Clock className="h-4 w-4 mr-2" />
-                          Next: {app.next_step}
-                        </div>
-                      )}
-                      
-                      {app.feedback && (
-                        <div className="flex items-start mt-2 pt-2 border-t border-gray-100">
-                          <AlertCircle className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
-                          <span>Feedback: {app.feedback}</span>
-                        </div>
-                      )}
-                      
-                      <div className="mt-3">
-                        <div className="flex justify-between text-xs mb-1">
-                          <span>Progress</span>
-                          <span>{app.progress}%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full" 
-                            style={{ width: `${app.progress}%` }}
-                          ></div>
-                        </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {new Date(notification.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Applications List */}
+        <div className="space-y-4">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-600">Loading applications...</span>
+            </div>
+          ) : applications.length > 0 ? (
+            applications.map((application) => (
+              <Card key={application.id} className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg">{application.job_title}</CardTitle>
+                      <CardDescription className="flex items-center mt-1">
+                        <Building className="h-4 w-4 mr-1" />
+                        {application.company}
+                      </CardDescription>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      {getStatusBadge(application.application_status || application.status)}
+                      <div className="text-sm text-gray-500 flex items-center">
+                        <CalendarDays className="h-4 w-4 mr-1" />
+                        Applied {new Date(application.date_applied).toLocaleDateString()}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* Progress Bar */}
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Application Progress</span>
+                        <span>{getProgressValue(application.application_status || application.status)}%</span>
+                      </div>
+                      <Progress value={getProgressValue(application.application_status || application.status)} className="h-2" />
+                    </div>
+
+                    {/* Application Details */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      {application.location && (
+                        <div className="flex items-center text-gray-600">
+                          <MapPin className="h-4 w-4 mr-2" />
+                          {application.location}
+                        </div>
+                      )}
+                      
+                      {/* Resume Information */}
+                      {application.resume_file_name && (
+                        <div className="flex items-center text-gray-600">
+                          <FileText className="h-4 w-4 mr-2" />
+                          <Button
+                            variant="link"
+                            size="sm"
+                            onClick={() => viewResume(application.resume_file_path)}
+                            className="p-0 h-auto text-blue-600 hover:text-blue-800"
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            {application.resume_file_name}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* HR Notes (if any) */}
+                    {application.hr_notes && (
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <p className="text-sm font-medium text-gray-700 mb-1">HR Notes:</p>
+                        <p className="text-sm text-gray-600">{application.hr_notes}</p>
+                      </div>
+                    )}
+
+                    {/* Rating (if provided) */}
+                    {application.rating && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">HR Rating:</span>
+                        <div className="flex">
+                          {[1, 2, 3, 4, 5].map(star => (
+                            <span
+                              key={star}
+                              className={`text-sm ${
+                                star <= application.rating ? 'text-yellow-400' : 'text-gray-300'
+                              }`}
+                            >
+                              ★
+                            </span>
+                          ))}
+                        </div>
+                        <span className="text-sm text-gray-600">({application.rating}/5)</span>
+                      </div>
+                    )}
+
+                    {/* Next Steps */}
+                    {application.next_step && (
+                      <div className="bg-blue-50 rounded-lg p-3">
+                        <p className="text-sm font-medium text-blue-700 mb-1">Next Steps:</p>
+                        <p className="text-sm text-blue-600">{application.next_step}</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))
           ) : (
-            <div className="text-center py-12 text-gray-500">
-              No applications found. Start applying for jobs to see them here!
-            </div>
+            <Card>
+              <CardContent className="text-center py-12">
+                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No applications yet</h3>
+                <p className="text-gray-500 mb-4">
+                  You haven't submitted any job applications. Start exploring opportunities!
+                </p>
+                <Button>Browse Jobs</Button>
+              </CardContent>
+            </Card>
           )}
-        </TabsContent>
-        
-        <TabsContent value="active">
-          <div className="text-center py-12 text-gray-500">
-            {applications.filter(app => app.status === 'Applied').length > 0 ? (
-              <div className="space-y-4">
-                {applications
-                  .filter(app => app.status === 'Applied')
-                  .map((app) => (
-                    <Card key={app.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                      <CardHeader className="pb-2">
-                        <div className="flex justify-between">
-                          <div>
-                            <CardTitle className="text-lg">{app.job_title}</CardTitle>
-                            <CardDescription>{app.company}</CardDescription>
-                          </div>
-                          <Badge className={statusColors[app.status] || "bg-gray-100"}>
-                            {statusIcons[app.status]}
-                            {app.status}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        {/* Application details */}
-                        <div className="text-sm space-y-2">
-                          <div className="flex items-center text-gray-500">
-                            <Calendar className="h-4 w-4 mr-2" />
-                            Applied: {new Date(app.date_applied).toLocaleDateString()}
-                          </div>
-                          
-                          {app.next_step && (
-                            <div className="flex items-center text-gray-700">
-                              <Clock className="h-4 w-4 mr-2" />
-                              Next: {app.next_step}
-                            </div>
-                          )}
-                          
-                          <div className="mt-3">
-                            <div className="flex justify-between text-xs mb-1">
-                              <span>Progress</span>
-                              <span>{app.progress}%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div 
-                                className="bg-blue-600 h-2 rounded-full" 
-                                style={{ width: `${app.progress}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </div>
-            ) : (
-              "No active applications found."
-            )}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="interviews">
-          <div className="text-center py-12 text-gray-500">
-            {applications.filter(app => app.status === 'Interview').length > 0 ? (
-              <div className="space-y-4">
-                {applications
-                  .filter(app => app.status === 'Interview')
-                  .map((app) => (
-                    <Card key={app.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                      <CardHeader className="pb-2">
-                        <div className="flex justify-between">
-                          <div>
-                            <CardTitle className="text-lg">{app.job_title}</CardTitle>
-                            <CardDescription>{app.company}</CardDescription>
-                          </div>
-                          <Badge className={statusColors[app.status] || "bg-gray-100"}>
-                            {statusIcons[app.status]}
-                            {app.status}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        {/* Interview details */}
-                        <div className="text-sm space-y-2">
-                          <div className="flex items-center text-gray-500">
-                            <Calendar className="h-4 w-4 mr-2" />
-                            Applied: {new Date(app.date_applied).toLocaleDateString()}
-                          </div>
-                          
-                          {app.next_step && (
-                            <div className="flex items-center text-gray-700">
-                              <Clock className="h-4 w-4 mr-2" />
-                              Next: {app.next_step}
-                            </div>
-                          )}
-                          
-                          {app.feedback && (
-                            <div className="flex items-start mt-2 pt-2 border-t border-gray-100">
-                              <AlertCircle className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
-                              <span>Feedback: {app.feedback}</span>
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </div>
-            ) : (
-              "No interviews scheduled at this time."
-            )}
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="rejected">
-          <div className="text-center py-12 text-gray-500">
-            {applications.filter(app => app.status === 'Rejected').length > 0 ? (
-              <div className="space-y-4">
-                {applications
-                  .filter(app => app.status === 'Rejected')
-                  .map((app) => (
-                    <Card key={app.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                      <CardHeader className="pb-2">
-                        <div className="flex justify-between">
-                          <div>
-                            <CardTitle className="text-lg">{app.job_title}</CardTitle>
-                            <CardDescription>{app.company}</CardDescription>
-                          </div>
-                          <Badge className={statusColors[app.status] || "bg-gray-100"}>
-                            {statusIcons[app.status]}
-                            {app.status}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        {/* Rejection details */}
-                        <div className="text-sm space-y-2">
-                          <div className="flex items-center text-gray-500">
-                            <Calendar className="h-4 w-4 mr-2" />
-                            Applied: {new Date(app.date_applied).toLocaleDateString()}
-                          </div>
-                          
-                          {app.feedback && (
-                            <div className="flex items-start mt-2 pt-2 border-t border-gray-100">
-                              <AlertCircle className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
-                              <span>Feedback: {app.feedback}</span>
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </div>
-            ) : (
-              "No rejected applications."
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
+        </div>
+      </div>
+    </StudentDashboardLayout>
   );
 };
 

@@ -3,22 +3,21 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpRight, Briefcase, Building, FileText, MapPin, Search, DollarSign, Calendar, Clock } from "lucide-react";
+import { ArrowUpRight, Briefcase, Building, MapPin, Search, DollarSign, Calendar, Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { Link } from "react-router-dom";
 import { useJobListings } from "@/hooks/useJobListings";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
+import ResumeDropzone from "@/components/ui/ResumeDropzone";
 
 const ApplyJobs = () => {
   const { toast } = useToast();
   const [jobTitle, setJobTitle] = useState("");
   const [location, setLocation] = useState("");
-  const [resumeOption, setResumeOption] = useState("");
+  const [selectedResumes, setSelectedResumes] = useState<Record<string, { path: string; name: string }>>({});
   const { jobListings, loading, refetch } = useJobListings();
   const { user } = useAuth();
   
@@ -29,12 +28,6 @@ const ApplyJobs = () => {
     return titleMatch && locationMatch;
   });
 
-  // Sample resume options - in a real app, these would come from the database
-  const resumes = [
-    { id: "resume-1", name: "Software_Engineer_Resume.pdf", lastUpdated: "2025-05-01" },
-    { id: "resume-2", name: "John_Doe_Tech_Resume.pdf", lastUpdated: "2025-04-15" }
-  ];
-
   const handleSearch = () => {
     toast({
       title: "Search initiated",
@@ -43,11 +36,28 @@ const ApplyJobs = () => {
     refetch();
   };
 
+  const handleResumeUpload = (jobId: string, filePath: string, fileName: string) => {
+    if (filePath && fileName) {
+      setSelectedResumes(prev => ({
+        ...prev,
+        [jobId]: { path: filePath, name: fileName }
+      }));
+    } else {
+      setSelectedResumes(prev => {
+        const updated = { ...prev };
+        delete updated[jobId];
+        return updated;
+      });
+    }
+  };
+
   const handleApply = async (jobId: string) => {
-    if (!resumeOption) {
+    const selectedResume = selectedResumes[jobId];
+    
+    if (!selectedResume) {
       toast({
         title: "Resume required",
-        description: "Please select a resume to apply",
+        description: "Please upload a resume to apply",
         variant: "destructive"
       });
       return;
@@ -63,7 +73,6 @@ const ApplyJobs = () => {
     }
 
     try {
-      // Find the job from the list
       const job = jobListings.find(j => j.id === jobId);
       
       if (!job) {
@@ -75,17 +84,21 @@ const ApplyJobs = () => {
         return;
       }
       
-      // Insert application into database
+      // Insert application into database with resume information
       const { data, error } = await supabase
         .from('job_applications')
         .insert([
           {
             user_id: user.id,
+            job_id: jobId,
             job_title: job.title,
             company: job.company_name || 'Unknown Company',
             location: job.location,
             status: 'Applied',
             progress: 20,
+            resume_file_path: selectedResume.path,
+            resume_file_name: selectedResume.name,
+            application_status: 'pending'
           }
         ]);
         
@@ -102,6 +115,13 @@ const ApplyJobs = () => {
       toast({
         title: "Application submitted",
         description: `Your application for ${job.title} at ${job.company_name || 'Unknown Company'} has been submitted`,
+      });
+
+      // Remove the selected resume for this job after successful application
+      setSelectedResumes(prev => {
+        const updated = { ...prev };
+        delete updated[jobId];
+        return updated;
       });
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -244,22 +264,13 @@ const ApplyJobs = () => {
                       )}
                       
                       <div className="pt-3 border-t">
-                        <Label htmlFor={`resume-${job.id}`}>Select Resume to Apply</Label>
-                        <Select onValueChange={setResumeOption}>
-                          <SelectTrigger id={`resume-${job.id}`} className="mt-1">
-                            <SelectValue placeholder="Choose a resume" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {resumes.map(resume => (
-                              <SelectItem key={resume.id} value={resume.id}>
-                                <div className="flex items-center">
-                                  <FileText className="h-4 w-4 mr-2" />
-                                  {resume.name}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Label htmlFor={`resume-${job.id}`}>Upload Resume to Apply</Label>
+                        <div className="mt-2">
+                          <ResumeDropzone
+                            onFileUploaded={(filePath, fileName) => handleResumeUpload(job.id, filePath, fileName)}
+                            selectedFile={selectedResumes[job.id] || null}
+                          />
+                        </div>
                       </div>
                     </div>
                   </CardContent>
