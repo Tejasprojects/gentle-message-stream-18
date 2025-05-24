@@ -3,12 +3,21 @@ export interface UserProfile {
   id: string;
   user_id: string;
   cover_photo_url?: string;
+  cover_video_url?: string;
   profile_photo_url?: string;
   professional_headline?: string;
+  headline_tagline?: string;
   location?: string;
   website_url?: string;
   about_summary?: string;
   phone?: string;
+  industry?: string;
+  years_experience?: number;
+  current_company?: string;
+  current_position?: string;
+  brand_logo_url?: string;
+  profile_views_count?: number;
+  last_profile_view?: string;
   created_at: string;
   updated_at: string;
 }
@@ -35,6 +44,14 @@ export interface Experience {
   is_current: boolean;
   description?: string;
   skills_used?: string[];
+  team_size?: number;
+  budget_managed?: number;
+  revenue_impact?: string;
+  cost_savings?: string;
+  reporting_to?: string;
+  direct_reports?: number;
+  achievements?: string[];
+  media_links?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -60,6 +77,12 @@ export interface Skill {
   category?: string;
   proficiency_level?: number;
   endorsement_count: number;
+  verification_status?: string;
+  assessment_score?: number;
+  market_demand_score?: number;
+  salary_impact_percentage?: number;
+  last_used_date?: string;
+  years_experience?: number;
   created_at: string;
 }
 
@@ -74,6 +97,14 @@ export interface Certification {
   expiration_date?: string;
   credential_id?: string;
   verification_url?: string;
+  verification_status?: string;
+  industry_category?: string;
+  skill_level?: string;
+  ce_credits?: number;
+  blockchain_hash?: string;
+  ai_extracted_data?: any;
+  view_count?: number;
+  thumbnail_url?: string;
   created_at: string;
 }
 
@@ -100,5 +131,42 @@ export interface ResumeFile {
   file_type: string;
   file_size?: number;
   is_primary: boolean;
+  ats_score?: number;
+  version_number?: number;
+  industry_optimized_for?: string;
+  download_count?: number;
+  last_downloaded?: string;
+  keywords?: string[];
+  thumbnail_url?: string;
+  created_at: string;
+}
+
+export interface ProfileAnalytics {
+  id: string;
+  user_id: string;
+  date_recorded: string;
+  profile_views: number;
+  resume_downloads: number;
+  contact_requests: number;
+  search_appearances: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface JobMatch {
+  id: string;
+  user_id: string;
+  job_title: string;
+  company_name: string;
+  match_score: number;
+  salary_min?: number;
+  salary_max?: number;
+  location?: string;
+  job_type?: string;
+  posted_date?: string;
+  applicant_count?: number;
+  match_reasons?: string[];
+  missing_skills?: string[];
+  external_job_id?: string;
   created_at: string;
 }

@@ -392,6 +392,9 @@ export type Database = {
       }
       certifications: {
         Row: {
+          ai_extracted_data: Json | null
+          blockchain_hash: string | null
+          ce_credits: number | null
           certificate_file_path: string | null
           certificate_url: string | null
           certification_name: string
@@ -399,12 +402,20 @@ export type Database = {
           credential_id: string | null
           expiration_date: string | null
           id: string
+          industry_category: string | null
           issue_date: string | null
           issuing_organization: string
+          skill_level: string | null
+          thumbnail_url: string | null
           user_id: string
+          verification_status: string | null
           verification_url: string | null
+          view_count: number | null
         }
         Insert: {
+          ai_extracted_data?: Json | null
+          blockchain_hash?: string | null
+          ce_credits?: number | null
           certificate_file_path?: string | null
           certificate_url?: string | null
           certification_name: string
@@ -412,12 +423,20 @@ export type Database = {
           credential_id?: string | null
           expiration_date?: string | null
           id?: string
+          industry_category?: string | null
           issue_date?: string | null
           issuing_organization: string
+          skill_level?: string | null
+          thumbnail_url?: string | null
           user_id: string
+          verification_status?: string | null
           verification_url?: string | null
+          view_count?: number | null
         }
         Update: {
+          ai_extracted_data?: Json | null
+          blockchain_hash?: string | null
+          ce_credits?: number | null
           certificate_file_path?: string | null
           certificate_url?: string | null
           certification_name?: string
@@ -425,10 +444,15 @@ export type Database = {
           credential_id?: string | null
           expiration_date?: string | null
           id?: string
+          industry_category?: string | null
           issue_date?: string | null
           issuing_organization?: string
+          skill_level?: string | null
+          thumbnail_url?: string | null
           user_id?: string
+          verification_status?: string | null
           verification_url?: string | null
+          view_count?: number | null
         }
         Relationships: []
       }
@@ -512,10 +536,14 @@ export type Database = {
       }
       experiences: {
         Row: {
+          achievements: string[] | null
+          budget_managed: number | null
           company_logo_url: string | null
           company_name: string
+          cost_savings: string | null
           created_at: string | null
           description: string | null
+          direct_reports: number | null
           employment_type: string | null
           end_date: string | null
           id: string
@@ -523,16 +551,24 @@ export type Database = {
           is_remote: boolean | null
           job_title: string
           location: string | null
+          media_links: string[] | null
+          reporting_to: string | null
+          revenue_impact: string | null
           skills_used: string[] | null
           start_date: string
+          team_size: number | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          achievements?: string[] | null
+          budget_managed?: number | null
           company_logo_url?: string | null
           company_name: string
+          cost_savings?: string | null
           created_at?: string | null
           description?: string | null
+          direct_reports?: number | null
           employment_type?: string | null
           end_date?: string | null
           id?: string
@@ -540,16 +576,24 @@ export type Database = {
           is_remote?: boolean | null
           job_title: string
           location?: string | null
+          media_links?: string[] | null
+          reporting_to?: string | null
+          revenue_impact?: string | null
           skills_used?: string[] | null
           start_date: string
+          team_size?: number | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          achievements?: string[] | null
+          budget_managed?: number | null
           company_logo_url?: string | null
           company_name?: string
+          cost_savings?: string | null
           created_at?: string | null
           description?: string | null
+          direct_reports?: number | null
           employment_type?: string | null
           end_date?: string | null
           id?: string
@@ -557,8 +601,12 @@ export type Database = {
           is_remote?: boolean | null
           job_title?: string
           location?: string | null
+          media_links?: string[] | null
+          reporting_to?: string | null
+          revenue_impact?: string | null
           skills_used?: string[] | null
           start_date?: string
+          team_size?: number | null
           updated_at?: string | null
           user_id?: string
         }
@@ -816,6 +864,60 @@ export type Database = {
         }
         Relationships: []
       }
+      job_matches: {
+        Row: {
+          applicant_count: number | null
+          company_name: string
+          created_at: string | null
+          external_job_id: string | null
+          id: string
+          job_title: string
+          job_type: string | null
+          location: string | null
+          match_reasons: string[] | null
+          match_score: number
+          missing_skills: string[] | null
+          posted_date: string | null
+          salary_max: number | null
+          salary_min: number | null
+          user_id: string
+        }
+        Insert: {
+          applicant_count?: number | null
+          company_name: string
+          created_at?: string | null
+          external_job_id?: string | null
+          id?: string
+          job_title: string
+          job_type?: string | null
+          location?: string | null
+          match_reasons?: string[] | null
+          match_score: number
+          missing_skills?: string[] | null
+          posted_date?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          user_id: string
+        }
+        Update: {
+          applicant_count?: number | null
+          company_name?: string
+          created_at?: string | null
+          external_job_id?: string | null
+          id?: string
+          job_title?: string
+          job_type?: string | null
+          location?: string | null
+          match_reasons?: string[] | null
+          match_score?: number
+          missing_skills?: string[] | null
+          posted_date?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       jobs: {
         Row: {
           application_deadline: string | null
@@ -968,6 +1070,42 @@ export type Database = {
           },
         ]
       }
+      profile_analytics: {
+        Row: {
+          contact_requests: number | null
+          created_at: string | null
+          date_recorded: string
+          id: string
+          profile_views: number | null
+          resume_downloads: number | null
+          search_appearances: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          contact_requests?: number | null
+          created_at?: string | null
+          date_recorded?: string
+          id?: string
+          profile_views?: number | null
+          resume_downloads?: number | null
+          search_appearances?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          contact_requests?: number | null
+          created_at?: string | null
+          date_recorded?: string
+          id?: string
+          profile_views?: number | null
+          resume_downloads?: number | null
+          search_appearances?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           bio: string | null
@@ -1072,34 +1210,55 @@ export type Database = {
       }
       resume_files: {
         Row: {
+          ats_score: number | null
           created_at: string | null
+          download_count: number | null
           file_name: string
           file_path: string
           file_size: number | null
           file_type: string
           id: string
+          industry_optimized_for: string | null
           is_primary: boolean | null
+          keywords: string[] | null
+          last_downloaded: string | null
+          thumbnail_url: string | null
           user_id: string
+          version_number: number | null
         }
         Insert: {
+          ats_score?: number | null
           created_at?: string | null
+          download_count?: number | null
           file_name: string
           file_path: string
           file_size?: number | null
           file_type: string
           id?: string
+          industry_optimized_for?: string | null
           is_primary?: boolean | null
+          keywords?: string[] | null
+          last_downloaded?: string | null
+          thumbnail_url?: string | null
           user_id: string
+          version_number?: number | null
         }
         Update: {
+          ats_score?: number | null
           created_at?: string | null
+          download_count?: number | null
           file_name?: string
           file_path?: string
           file_size?: number | null
           file_type?: string
           id?: string
+          industry_optimized_for?: string | null
           is_primary?: boolean | null
+          keywords?: string[] | null
+          last_downloaded?: string | null
+          thumbnail_url?: string | null
           user_id?: string
+          version_number?: number | null
         }
         Relationships: []
       }
@@ -1147,31 +1306,49 @@ export type Database = {
       }
       skills: {
         Row: {
+          assessment_score: number | null
           category: string | null
           created_at: string | null
           endorsement_count: number | null
           id: string
+          last_used_date: string | null
+          market_demand_score: number | null
           proficiency_level: number | null
+          salary_impact_percentage: number | null
           skill_name: string
           user_id: string
+          verification_status: string | null
+          years_experience: number | null
         }
         Insert: {
+          assessment_score?: number | null
           category?: string | null
           created_at?: string | null
           endorsement_count?: number | null
           id?: string
+          last_used_date?: string | null
+          market_demand_score?: number | null
           proficiency_level?: number | null
+          salary_impact_percentage?: number | null
           skill_name: string
           user_id: string
+          verification_status?: string | null
+          years_experience?: number | null
         }
         Update: {
+          assessment_score?: number | null
           category?: string | null
           created_at?: string | null
           endorsement_count?: number | null
           id?: string
+          last_used_date?: string | null
+          market_demand_score?: number | null
           proficiency_level?: number | null
+          salary_impact_percentage?: number | null
           skill_name?: string
           user_id?: string
+          verification_status?: string | null
+          years_experience?: number | null
         }
         Relationships: []
       }
@@ -1232,42 +1409,69 @@ export type Database = {
       user_profiles: {
         Row: {
           about_summary: string | null
+          brand_logo_url: string | null
           cover_photo_url: string | null
+          cover_video_url: string | null
           created_at: string | null
+          current_company: string | null
+          current_position: string | null
+          headline_tagline: string | null
           id: string
+          industry: string | null
+          last_profile_view: string | null
           location: string | null
           phone: string | null
           professional_headline: string | null
           profile_photo_url: string | null
+          profile_views_count: number | null
           updated_at: string | null
           user_id: string
           website_url: string | null
+          years_experience: number | null
         }
         Insert: {
           about_summary?: string | null
+          brand_logo_url?: string | null
           cover_photo_url?: string | null
+          cover_video_url?: string | null
           created_at?: string | null
+          current_company?: string | null
+          current_position?: string | null
+          headline_tagline?: string | null
           id?: string
+          industry?: string | null
+          last_profile_view?: string | null
           location?: string | null
           phone?: string | null
           professional_headline?: string | null
           profile_photo_url?: string | null
+          profile_views_count?: number | null
           updated_at?: string | null
           user_id: string
           website_url?: string | null
+          years_experience?: number | null
         }
         Update: {
           about_summary?: string | null
+          brand_logo_url?: string | null
           cover_photo_url?: string | null
+          cover_video_url?: string | null
           created_at?: string | null
+          current_company?: string | null
+          current_position?: string | null
+          headline_tagline?: string | null
           id?: string
+          industry?: string | null
+          last_profile_view?: string | null
           location?: string | null
           phone?: string | null
           professional_headline?: string | null
           profile_photo_url?: string | null
+          profile_views_count?: number | null
           updated_at?: string | null
           user_id?: string
           website_url?: string | null
+          years_experience?: number | null
         }
         Relationships: []
       }
