@@ -1,12 +1,10 @@
 
-import React, { useState, useCallback, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import { JobFilter } from "@/types/job";
-import { Filter, Briefcase, MapPin, Clock, DollarSign } from "lucide-react";
+import { Briefcase, MapPin, Clock, DollarSign, Badge } from "lucide-react";
 
 interface JobSearchFiltersProps {
   onFilterChange: (filters: JobFilter) => void;
@@ -22,64 +20,62 @@ const JobSearchFilters: React.FC<JobSearchFiltersProps> = ({ onFilterChange, dis
     employmentType: "",
   });
 
-  // Memoize the filter change handler to prevent excessive calls
-  const handleFilterChange = useCallback((newFilters: JobFilter) => {
+  const handleFilterUpdate = (newFilters: JobFilter) => {
     setFilters(newFilters);
-    // Only call onFilterChange if the user is not disabled and filters actually changed
     if (!disabled) {
       onFilterChange(newFilters);
     }
-  }, [onFilterChange, disabled]);
+  };
 
-  const handleJobTypeChange = useCallback((value: string) => {
+  const handleJobTypeChange = (value: string) => {
     const newFilters = { ...filters, jobType: value };
-    handleFilterChange(newFilters);
-  }, [filters, handleFilterChange]);
+    handleFilterUpdate(newFilters);
+  };
 
-  const handleExperienceChange = useCallback((level: string, checked: boolean) => {
+  const handleExperienceChange = (level: string, checked: boolean) => {
     const newExperience = checked 
       ? [...filters.experience, level]
       : filters.experience.filter(exp => exp !== level);
     const newFilters = { ...filters, experience: newExperience };
-    handleFilterChange(newFilters);
-  }, [filters, handleFilterChange]);
+    handleFilterUpdate(newFilters);
+  };
 
-  const handleDatePostedChange = useCallback((value: string) => {
+  const handleDatePostedChange = (value: string) => {
     const newFilters = { ...filters, datePosted: value };
-    handleFilterChange(newFilters);
-  }, [filters, handleFilterChange]);
+    handleFilterUpdate(newFilters);
+  };
 
-  const handleRemoteChange = useCallback((checked: boolean) => {
+  const handleRemoteChange = (checked: boolean) => {
     const newFilters = { ...filters, remote: checked };
-    handleFilterChange(newFilters);
-  }, [filters, handleFilterChange]);
+    handleFilterUpdate(newFilters);
+  };
 
-  const handleEmploymentTypeChange = useCallback((value: string) => {
+  const handleEmploymentTypeChange = (value: string) => {
     const newFilters = { ...filters, employmentType: value };
-    handleFilterChange(newFilters);
-  }, [filters, handleFilterChange]);
+    handleFilterUpdate(newFilters);
+  };
 
-  const experienceLevels = useMemo(() => [
+  const experienceLevels = [
     "Entry Level",
     "Mid Level", 
     "Senior Level",
     "Executive"
-  ], []);
+  ];
 
-  const datePostedOptions = useMemo(() => [
+  const datePostedOptions = [
     { value: "any", label: "Any time" },
     { value: "today", label: "Today" },
     { value: "week", label: "Past week" },
     { value: "month", label: "Past month" }
-  ], []);
+  ];
 
-  const employmentTypes = useMemo(() => [
+  const employmentTypes = [
     { value: "", label: "All types" },
     { value: "full-time", label: "Full-time" },
     { value: "part-time", label: "Part-time" },
     { value: "contract", label: "Contract" },
     { value: "internship", label: "Internship" }
-  ], []);
+  ];
 
   return (
     <div className="space-y-6">
@@ -87,10 +83,10 @@ const JobSearchFilters: React.FC<JobSearchFiltersProps> = ({ onFilterChange, dis
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Briefcase className="h-4 w-4 text-blue-600" />
-          <Label className="text-sm font-medium text-gray-900">Job Type</Label>
+          <Label className="text-sm font-medium text-gray-900 dark:text-white">Job Type</Label>
         </div>
         <Select value={filters.jobType} onValueChange={handleJobTypeChange} disabled={disabled}>
-          <SelectTrigger className="bg-white border-gray-200">
+          <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -107,7 +103,7 @@ const JobSearchFilters: React.FC<JobSearchFiltersProps> = ({ onFilterChange, dis
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Badge className="h-4 w-4 text-green-600" />
-          <Label className="text-sm font-medium text-gray-900">Experience Level</Label>
+          <Label className="text-sm font-medium text-gray-900 dark:text-white">Experience Level</Label>
         </div>
         <div className="space-y-2">
           {experienceLevels.map((level) => (
@@ -118,7 +114,7 @@ const JobSearchFilters: React.FC<JobSearchFiltersProps> = ({ onFilterChange, dis
                 onCheckedChange={(checked) => handleExperienceChange(level, checked as boolean)}
                 disabled={disabled}
               />
-              <Label htmlFor={`exp-${level}`} className="text-sm text-gray-700">
+              <Label htmlFor={`exp-${level}`} className="text-sm text-gray-700 dark:text-gray-300">
                 {level}
               </Label>
             </div>
@@ -130,10 +126,10 @@ const JobSearchFilters: React.FC<JobSearchFiltersProps> = ({ onFilterChange, dis
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-purple-600" />
-          <Label className="text-sm font-medium text-gray-900">Date Posted</Label>
+          <Label className="text-sm font-medium text-gray-900 dark:text-white">Date Posted</Label>
         </div>
         <Select value={filters.datePosted} onValueChange={handleDatePostedChange} disabled={disabled}>
-          <SelectTrigger className="bg-white border-gray-200">
+          <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -150,7 +146,7 @@ const JobSearchFilters: React.FC<JobSearchFiltersProps> = ({ onFilterChange, dis
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-orange-600" />
-          <Label className="text-sm font-medium text-gray-900">Work Type</Label>
+          <Label className="text-sm font-medium text-gray-900 dark:text-white">Work Type</Label>
         </div>
         <div className="flex items-center space-x-2">
           <Checkbox
@@ -159,7 +155,7 @@ const JobSearchFilters: React.FC<JobSearchFiltersProps> = ({ onFilterChange, dis
             onCheckedChange={handleRemoteChange}
             disabled={disabled}
           />
-          <Label htmlFor="remote" className="text-sm text-gray-700">
+          <Label htmlFor="remote" className="text-sm text-gray-700 dark:text-gray-300">
             Remote Only
           </Label>
         </div>
@@ -169,10 +165,10 @@ const JobSearchFilters: React.FC<JobSearchFiltersProps> = ({ onFilterChange, dis
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <DollarSign className="h-4 w-4 text-indigo-600" />
-          <Label className="text-sm font-medium text-gray-900">Employment Type</Label>
+          <Label className="text-sm font-medium text-gray-900 dark:text-white">Employment Type</Label>
         </div>
         <Select value={filters.employmentType} onValueChange={handleEmploymentTypeChange} disabled={disabled}>
-          <SelectTrigger className="bg-white border-gray-200">
+          <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

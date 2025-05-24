@@ -1,407 +1,345 @@
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, 
+         LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Line, AreaChart, PieChart, ResponsiveContainer, XAxis, YAxis, Bar, Tooltip, Legend, Area, Pie, Cell } from "recharts";
-import { CalendarDays, BarChart2, PieChart as PieChartIcon, TrendingUp, Clock, Target, Award, Zap, Users, Star, Globe } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { useAuth } from "@/context/AuthContext";
-import { updateUserAnalytics } from "@/services/analyticsService";
+import { Loader2, TrendingUp, Users, FileText, Calendar } from "lucide-react";
+import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
 
 const MyAnalytics = () => {
-  const { analytics, loading, refetch } = useAnalytics();
-  const { user } = useAuth();
+  const [timeframe, setTimeframe] = useState("lastThreeMonths");
+  const { analytics, loading } = useAnalytics();
+  
+  // Colors for charts
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
-  useEffect(() => {
-    const updateAnalytics = async () => {
-      if (user) {
-        try {
-          await updateUserAnalytics(user.id);
-          refetch();
-        } catch (error) {
-          console.error("Failed to update analytics:", error);
-        }
-      }
-    };
-
-    updateAnalytics();
-  }, [user]);
-
+  // Mock data for demonstration - in a real app this would come from your analytics
   const applicationData = [
-    { month: "Jan", applications: 3, interviews: 1, offers: 0 },
-    { month: "Feb", applications: 5, interviews: 2, offers: 0 },
-    { month: "Mar", applications: 7, interviews: 3, offers: 1 },
-    { month: "Apr", applications: 10, interviews: 4, offers: 0 },
-    { month: "May", applications: 8, interviews: 3, offers: 1 },
-  ];
-
-  const responseRateData = [
-    { name: "Week 1", rate: 20 },
-    { name: "Week 2", rate: 35 },
-    { name: "Week 3", rate: 30 },
-    { name: "Week 4", rate: 45 },
-    { name: "Week 5", rate: 55 },
-    { name: "Week 6", rate: 60 },
-  ];
-
-  const interviewStageData = [
-    { name: "Phone Screen", value: 10 },
-    { name: "Technical", value: 7 },
-    { name: "Behavioral", value: 5 },
-    { name: "Final Round", value: 3 },
-    { name: "Offer", value: 2 },
+    { month: "Jan 2024", applications: 12, responses: 3, interviews: 1 },
+    { month: "Feb 2024", applications: 15, responses: 5, interviews: 2 },
+    { month: "Mar 2024", applications: 8, responses: 2, interviews: 1 },
   ];
 
   const skillsData = [
-    { name: "React", score: 85 },
-    { name: "JavaScript", score: 80 },
-    { name: "TypeScript", score: 70 },
-    { name: "Node.js", score: 65 },
-    { name: "CSS", score: 60 },
+    { name: "React", value: 85 },
+    { name: "TypeScript", value: 78 },
+    { name: "Node.js", value: 72 },
+    { name: "Python", value: 65 },
+    { name: "AWS", value: 58 },
   ];
 
-  const timeToResponseData = [
-    { name: "1 day", percentage: 15 },
-    { name: "2-3 days", percentage: 25 },
-    { name: "4-7 days", percentage: 35 },
-    { name: "1-2 weeks", percentage: 20 },
-    { name: "3+ weeks", percentage: 5 },
+  const industryData = [
+    { name: "Technology", applications: 20 },
+    { name: "Finance", applications: 8 },
+    { name: "Healthcare", applications: 5 },
+    { name: "Education", applications: 3 },
   ];
 
-  const COLORS = ["#4f46e5", "#3b82f6", "#0ea5e9", "#06b6d4", "#0ea5e9"];
-
-  const statsCards = [
-    {
-      title: "Applications",
-      value: analytics?.applications_count || 0,
-      icon: BarChart2,
-      gradient: "from-blue-600 to-indigo-700",
-      change: "+12%"
-    },
-    {
-      title: "Interviews",
-      value: analytics?.interviews_count || 0,
-      icon: Users,
-      gradient: "from-emerald-600 to-teal-700",
-      change: "+8%"
-    },
-    {
-      title: "Offers",
-      value: analytics?.offers_count || 0,
-      icon: Award,
-      gradient: "from-purple-600 to-pink-600",
-      change: "+25%"
-    },
-    {
-      title: "Response Rate",
-      value: `${analytics?.response_rate || 0}%`,
-      icon: TrendingUp,
-      gradient: "from-orange-600 to-amber-700",
-      change: "+5%"
-    }
-  ];
+  const handleTimeframeChange = (value: string) => {
+    setTimeframe(value);
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="relative w-20 h-20 mx-auto">
-            <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-blue-600 rounded-full animate-spin border-t-transparent"></div>
-          </div>
-          <h3 className="text-2xl font-semibold text-slate-700">Analyzing Your Data</h3>
-          <p className="text-slate-500">Generating insights from your career analytics...</p>
+      <StudentDashboardLayout>
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      </div>
+      </StudentDashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-      {/* Premium Header */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 text-white mb-8 rounded-2xl mx-4 mt-4">
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }} />
-        
-        <div className="relative p-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-            <div>
-              <h1 className="text-4xl font-bold tracking-tight flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                  <BarChart2 className="h-6 w-6" />
-                </div>
-                Career Analytics
-              </h1>
-              <p className="text-xl text-slate-300">
-                Deep insights into your job search performance
+    <StudentDashboardLayout>
+      <div className="container mx-auto py-6 space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">My Analytics</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Track your job search progress and performance
+            </p>
+          </div>
+          <Select value={timeframe} onValueChange={handleTimeframeChange}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Select timeframe" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="lastMonth">Last Month</SelectItem>
+              <SelectItem value="lastThreeMonths">Last 3 Months</SelectItem>
+              <SelectItem value="lastSixMonths">Last 6 Months</SelectItem>
+              <SelectItem value="lastYear">Last Year</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Key Metrics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
+              <FileText className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{analytics?.applications_count || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                +12% from last month
               </p>
-              <div className="flex items-center mt-4 space-x-6">
-                <div className="flex items-center text-emerald-400">
-                  <Target className="w-4 h-4 mr-2" />
-                  <span className="text-sm font-medium">Success Rate: 78%</span>
-                </div>
-                <div className="flex items-center text-blue-400">
-                  <Globe className="w-4 h-4 mr-2" />
-                  <span className="text-sm font-medium">Market Performance: Above Average</span>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-              <div className="flex items-center space-x-2">
-                <Star className="w-5 h-5 text-yellow-400" />
-                <div>
-                  <p className="text-sm font-medium">Performance Score</p>
-                  <p className="text-2xl font-bold">8.7/10</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-6 max-w-7xl">
-        {/* Premium Analytics Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {statsCards.map((stat, index) => (
-            <Card key={stat.title} className="group relative overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-500 border-0 rounded-2xl transform hover:-translate-y-2">
-              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-5 group-hover:opacity-10 transition-opacity duration-300`} />
-              <CardContent className="p-6 relative">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}>
-                    <stat.icon className="h-7 w-7 text-white" />
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center text-emerald-600 text-sm font-semibold">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      {stat.change}
-                    </div>
-                    <p className="text-xs text-slate-500">vs last month</p>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-600 mb-1">{stat.title}</p>
-                  <h2 className="text-3xl font-bold text-slate-900">{stat.value}</h2>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Interview Invites</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{analytics?.interviews_count || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                +8% from last month
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Response Rate</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{analytics?.response_rate || 0}%</div>
+              <p className="text-xs text-muted-foreground">
+                +2% from last month
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Job Offers</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{analytics?.offers_count || 0}</div>
+              <p className="text-xs text-muted-foreground">
+                +1 from last month
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Premium Tabs */}
-        <Tabs defaultValue="overview" className="w-full space-y-6">
-          <div className="bg-white rounded-2xl shadow-lg border-0 p-2">
-            <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full bg-slate-50 rounded-xl p-1">
-              <TabsTrigger value="overview" className="rounded-lg font-semibold data-[state=active]:bg-white data-[state=active]:shadow-md">
-                <Globe className="w-4 h-4 mr-2" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="applications" className="rounded-lg font-semibold data-[state=active]:bg-white data-[state=active]:shadow-md">
-                <BarChart2 className="w-4 h-4 mr-2" />
-                Applications
-              </TabsTrigger>
-              <TabsTrigger value="interviews" className="rounded-lg font-semibold data-[state=active]:bg-white data-[state=active]:shadow-md">
-                <Users className="w-4 h-4 mr-2" />
-                Interviews
-              </TabsTrigger>
-              <TabsTrigger value="skills" className="rounded-lg font-semibold data-[state=active]:bg-white data-[state=active]:shadow-md">
-                <Zap className="w-4 h-4 mr-2" />
-                Skills
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Application Metrics */}
-              <Card className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-xl font-bold text-slate-900">Application Metrics</CardTitle>
-                      <CardDescription className="text-slate-600">Applications, interviews, and offers over time</CardDescription>
-                    </div>
-                    <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
-                      <BarChart2 className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="h-[280px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={applicationData}>
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="applications" fill="#4f46e5" name="Applications" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="interviews" fill="#10b981" name="Interviews" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="offers" fill="#f59e0b" name="Offers" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Response Rate */}
-              <Card className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-xl font-bold text-slate-900">Response Rate Trend</CardTitle>
-                      <CardDescription className="text-slate-600">Weekly response rate percentage</CardDescription>
-                    </div>
-                    <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center">
-                      <TrendingUp className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="h-[280px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={responseRateData}>
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Area type="monotone" dataKey="rate" stroke="#4f46e5" fill="#4f46e5" fillOpacity={0.2} name="Response Rate %" strokeWidth={3} />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Interview Funnel */}
-              <Card className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-xl font-bold text-slate-900">Interview Funnel</CardTitle>
-                      <CardDescription className="text-slate-600">Progress through interview stages</CardDescription>
-                    </div>
-                    <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
-                      <PieChartIcon className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="h-[280px] flex items-center justify-center">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Tooltip />
-                        <Pie
-                          data={interviewStageData}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={100}
-                          fill="#8884d8"
-                          dataKey="value"
-                          nameKey="name"
-                          label
-                        >
-                          {interviewStageData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Time to Response */}
-              <Card className="bg-white shadow-lg border-0 rounded-2xl overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-xl font-bold text-slate-900">Time to Response</CardTitle>
-                      <CardDescription className="text-slate-600">How quickly companies respond</CardDescription>
-                    </div>
-                    <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center">
-                      <Clock className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="h-[280px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={timeToResponseData}
-                        layout="vertical"
-                      >
-                        <XAxis type="number" />
-                        <YAxis dataKey="name" type="category" width={80} />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="percentage" name="Percentage" fill="#3b82f6" radius={[0, 8, 8, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+        <Tabs defaultValue="applications" className="space-y-6">
+          <TabsList className="grid grid-cols-3 max-w-md">
+            <TabsTrigger value="applications">Applications</TabsTrigger>
+            <TabsTrigger value="skills">Skills</TabsTrigger>
+            <TabsTrigger value="industry">Industry</TabsTrigger>
+          </TabsList>
 
           <TabsContent value="applications" className="space-y-6">
-            <Card className="bg-white shadow-lg border-0 rounded-2xl">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
-                <CardTitle className="text-xl font-bold text-slate-900">Application Insights</CardTitle>
-                <CardDescription className="text-slate-600">
-                  Detailed analysis of your job applications
-                </CardDescription>
+            {/* Application Progress Over Time */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Application Progress</CardTitle>
+                <CardDescription>Your job application activity over time</CardDescription>
               </CardHeader>
-              <CardContent className="p-8">
-                <div className="text-center py-16">
-                  <BarChart2 className="w-20 h-20 text-slate-400 mx-auto mb-6" />
-                  <h3 className="text-2xl font-semibold text-slate-700 mb-4">Advanced Analytics Coming Soon</h3>
-                  <p className="text-slate-500 text-lg max-w-md mx-auto">
-                    Detailed application analytics with AI-powered insights will appear here in the full implementation.
-                  </p>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={applicationData}
+                      margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="applications" 
+                        stroke="#3b82f6" 
+                        strokeWidth={2}
+                        name="Applications Sent"
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="responses" 
+                        stroke="#10b981" 
+                        strokeWidth={2}
+                        name="Responses Received"
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="interviews" 
+                        stroke="#f59e0b" 
+                        strokeWidth={2}
+                        name="Interviews"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
 
-          <TabsContent value="interviews" className="space-y-6">
-            <Card className="bg-white shadow-lg border-0 rounded-2xl">
-              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
-                <CardTitle className="text-xl font-bold text-slate-900">Interview Performance</CardTitle>
-                <CardDescription className="text-slate-600">
-                  Analysis of your interview performance and outcomes
-                </CardDescription>
+            {/* Application Success Rate */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Application Funnel</CardTitle>
+                <CardDescription>Conversion rates through your application process</CardDescription>
               </CardHeader>
-              <CardContent className="p-8">
-                <div className="text-center py-16">
-                  <Users className="w-20 h-20 text-slate-400 mx-auto mb-6" />
-                  <h3 className="text-2xl font-semibold text-slate-700 mb-4">Interview Analytics Dashboard</h3>
-                  <p className="text-slate-500 text-lg max-w-md mx-auto">
-                    Comprehensive interview performance analytics with success rate tracking will appear here.
-                  </p>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={[
+                        { stage: "Applications", count: 35, rate: 100 },
+                        { stage: "Responses", count: 10, rate: 29 },
+                        { stage: "Interviews", count: 4, rate: 11 },
+                        { stage: "Offers", count: 1, rate: 3 },
+                      ]}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="stage" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="count" fill="#3b82f6" name="Count" />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="skills" className="space-y-6">
-            <Card className="bg-white shadow-lg border-0 rounded-2xl">
-              <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50">
-                <CardTitle className="text-xl font-bold text-slate-900">Skills Assessment</CardTitle>
-                <CardDescription className="text-slate-600">
-                  Your skills compared to market demands
-                </CardDescription>
+            {/* Skills Assessment */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Skills Profile</CardTitle>
+                <CardDescription>Your skill strengths based on job applications</CardDescription>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="h-[350px]">
+              <CardContent>
+                <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={skillsData}
-                      layout="vertical"
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      layout="horizontal"
                     >
-                      <XAxis type="number" domain={[0, 100]} />
-                      <YAxis dataKey="name" type="category" width={100} />
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" />
+                      <YAxis type="category" dataKey="name" />
                       <Tooltip />
-                      <Bar dataKey="score" name="Proficiency" fill="#4f46e5" radius={[0, 8, 8, 0]} />
+                      <Bar dataKey="value" fill="#10b981" />
                     </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Skills Distribution */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Skill Distribution</CardTitle>
+                <CardDescription>Distribution of your key skills</CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-center">
+                <div className="h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={skillsData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {skillsData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="industry" className="space-y-6">
+            {/* Industry Applications */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Applications by Industry</CardTitle>
+                <CardDescription>Distribution of your applications across industries</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={industryData}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="applications" fill="#6366f1" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Success Rate by Industry */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Success Rate by Industry</CardTitle>
+                <CardDescription>Your response rates across different industries</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                      data={[
+                        { industry: "Technology", responseRate: 35, averageRate: 25 },
+                        { industry: "Finance", responseRate: 28, averageRate: 30 },
+                        { industry: "Healthcare", responseRate: 40, averageRate: 32 },
+                        { industry: "Education", responseRate: 45, averageRate: 28 },
+                      ]}
+                      margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="industry" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Area 
+                        type="monotone" 
+                        dataKey="responseRate" 
+                        stackId="1" 
+                        stroke="#3b82f6" 
+                        fill="#3b82f6" 
+                        name="Your Rate"
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="averageRate" 
+                        stackId="2" 
+                        stroke="#10b981" 
+                        fill="#10b981" 
+                        name="Industry Average"
+                      />
+                    </AreaChart>
                   </ResponsiveContainer>
                 </div>
               </CardContent>
@@ -409,7 +347,7 @@ const MyAnalytics = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </StudentDashboardLayout>
   );
 };
 
