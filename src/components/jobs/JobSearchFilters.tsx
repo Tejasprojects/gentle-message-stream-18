@@ -1,176 +1,190 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useCallback, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { JobFilter } from "@/types/job";
+import { Filter, Briefcase, MapPin, Clock, DollarSign } from "lucide-react";
 
 interface JobSearchFiltersProps {
   onFilterChange: (filters: JobFilter) => void;
   disabled?: boolean;
 }
 
-const JobSearchFilters = ({ onFilterChange, disabled = false }: JobSearchFiltersProps) => {
-  const [jobType, setJobType] = useState<string>("all");
-  const [experience, setExperience] = useState<string[]>([]);
-  const [datePosted, setDatePosted] = useState<string>("any");
-  const [remote, setRemote] = useState<boolean>(false);
+const JobSearchFilters: React.FC<JobSearchFiltersProps> = ({ onFilterChange, disabled = false }) => {
+  const [filters, setFilters] = useState<JobFilter>({
+    jobType: "all",
+    experience: [],
+    datePosted: "any",
+    remote: false,
+    employmentType: "",
+  });
 
-  // Update parent component when filters change
-  useEffect(() => {
-    onFilterChange({
-      jobType,
-      experience,
-      datePosted,
-      remote,
-      employmentType: mapJobTypeToEmploymentType(jobType)
-    });
-  }, [jobType, experience, datePosted, remote, onFilterChange]);
-
-  // Map our UI job type to API employment_type parameter
-  const mapJobTypeToEmploymentType = (type: string): string => {
-    switch (type) {
-      case "full-time": return "full_time";
-      case "part-time": return "part_time";
-      case "contract": return "contract";
-      case "internship": return "internship";
-      default: return "";
+  // Memoize the filter change handler to prevent excessive calls
+  const handleFilterChange = useCallback((newFilters: JobFilter) => {
+    setFilters(newFilters);
+    // Only call onFilterChange if the user is not disabled and filters actually changed
+    if (!disabled) {
+      onFilterChange(newFilters);
     }
-  };
+  }, [onFilterChange, disabled]);
 
-  const handleJobTypeChange = (value: string) => {
-    setJobType(value);
-  };
+  const handleJobTypeChange = useCallback((value: string) => {
+    const newFilters = { ...filters, jobType: value };
+    handleFilterChange(newFilters);
+  }, [filters, handleFilterChange]);
 
-  const handleExperienceChange = (value: string) => {
-    setExperience(prev => 
-      prev.includes(value) ? prev.filter(item => item !== value) : [...prev, value]
-    );
-  };
+  const handleExperienceChange = useCallback((level: string, checked: boolean) => {
+    const newExperience = checked 
+      ? [...filters.experience, level]
+      : filters.experience.filter(exp => exp !== level);
+    const newFilters = { ...filters, experience: newExperience };
+    handleFilterChange(newFilters);
+  }, [filters, handleFilterChange]);
 
-  const handleDatePostedChange = (value: string) => {
-    setDatePosted(value);
-  };
+  const handleDatePostedChange = useCallback((value: string) => {
+    const newFilters = { ...filters, datePosted: value };
+    handleFilterChange(newFilters);
+  }, [filters, handleFilterChange]);
 
-  const handleRemoteChange = (checked: boolean) => {
-    setRemote(checked);
-  };
+  const handleRemoteChange = useCallback((checked: boolean) => {
+    const newFilters = { ...filters, remote: checked };
+    handleFilterChange(newFilters);
+  }, [filters, handleFilterChange]);
+
+  const handleEmploymentTypeChange = useCallback((value: string) => {
+    const newFilters = { ...filters, employmentType: value };
+    handleFilterChange(newFilters);
+  }, [filters, handleFilterChange]);
+
+  const experienceLevels = useMemo(() => [
+    "Entry Level",
+    "Mid Level", 
+    "Senior Level",
+    "Executive"
+  ], []);
+
+  const datePostedOptions = useMemo(() => [
+    { value: "any", label: "Any time" },
+    { value: "today", label: "Today" },
+    { value: "week", label: "Past week" },
+    { value: "month", label: "Past month" }
+  ], []);
+
+  const employmentTypes = useMemo(() => [
+    { value: "", label: "All types" },
+    { value: "full-time", label: "Full-time" },
+    { value: "part-time", label: "Part-time" },
+    { value: "contract", label: "Contract" },
+    { value: "internship", label: "Internship" }
+  ], []);
 
   return (
-    <ScrollArea className="h-[calc(100vh-240px)] pr-4">
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-sm font-medium mb-3">Job Type</h3>
-          <RadioGroup value={jobType} onValueChange={handleJobTypeChange} disabled={disabled}>
-            <div className="flex items-center space-x-2 mb-2">
-              <RadioGroupItem value="all" id="all" disabled={disabled} />
-              <Label htmlFor="all" className={disabled ? "opacity-50" : ""}>All Types</Label>
-            </div>
-            <div className="flex items-center space-x-2 mb-2">
-              <RadioGroupItem value="full-time" id="full-time" disabled={disabled} />
-              <Label htmlFor="full-time" className={disabled ? "opacity-50" : ""}>Full-time</Label>
-            </div>
-            <div className="flex items-center space-x-2 mb-2">
-              <RadioGroupItem value="part-time" id="part-time" disabled={disabled} />
-              <Label htmlFor="part-time" className={disabled ? "opacity-50" : ""}>Part-time</Label>
-            </div>
-            <div className="flex items-center space-x-2 mb-2">
-              <RadioGroupItem value="contract" id="contract" disabled={disabled} />
-              <Label htmlFor="contract" className={disabled ? "opacity-50" : ""}>Contract</Label>
-            </div>
-            <div className="flex items-center space-x-2 mb-2">
-              <RadioGroupItem value="internship" id="internship" disabled={disabled} />
-              <Label htmlFor="internship" className={disabled ? "opacity-50" : ""}>Internship</Label>
-            </div>
-          </RadioGroup>
+    <div className="space-y-6">
+      {/* Job Type Filter */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Briefcase className="h-4 w-4 text-blue-600" />
+          <Label className="text-sm font-medium text-gray-900">Job Type</Label>
         </div>
+        <Select value={filters.jobType} onValueChange={handleJobTypeChange} disabled={disabled}>
+          <SelectTrigger className="bg-white border-gray-200">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Jobs</SelectItem>
+            <SelectItem value="technology">Technology</SelectItem>
+            <SelectItem value="marketing">Marketing</SelectItem>
+            <SelectItem value="design">Design</SelectItem>
+            <SelectItem value="sales">Sales</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-        <Separator />
-
-        <div>
-          <h3 className="text-sm font-medium mb-3">Remote Work</h3>
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="remote-work" 
-              checked={remote}
-              onCheckedChange={(checked) => handleRemoteChange(checked as boolean)}
-              disabled={disabled}
-            />
-            <Label htmlFor="remote-work" className={disabled ? "opacity-50" : ""}>Remote Jobs Only</Label>
-          </div>
+      {/* Experience Level Filter */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Badge className="h-4 w-4 text-green-600" />
+          <Label className="text-sm font-medium text-gray-900">Experience Level</Label>
         </div>
-
-        <Separator />
-
-        <div>
-          <h3 className="text-sm font-medium mb-3">Experience Level</h3>
-          <div className="flex flex-col space-y-2">
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="entry" 
-                checked={experience.includes("entry")}
-                onCheckedChange={() => handleExperienceChange("entry")}
+        <div className="space-y-2">
+          {experienceLevels.map((level) => (
+            <div key={level} className="flex items-center space-x-2">
+              <Checkbox
+                id={`exp-${level}`}
+                checked={filters.experience.includes(level)}
+                onCheckedChange={(checked) => handleExperienceChange(level, checked as boolean)}
                 disabled={disabled}
               />
-              <Label htmlFor="entry" className={disabled ? "opacity-50" : ""}>Entry Level</Label>
+              <Label htmlFor={`exp-${level}`} className="text-sm text-gray-700">
+                {level}
+              </Label>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="mid" 
-                checked={experience.includes("mid")}
-                onCheckedChange={() => handleExperienceChange("mid")}
-                disabled={disabled}
-              />
-              <Label htmlFor="mid" className={disabled ? "opacity-50" : ""}>Mid Level</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="senior" 
-                checked={experience.includes("senior")}
-                onCheckedChange={() => handleExperienceChange("senior")}
-                disabled={disabled}
-              />
-              <Label htmlFor="senior" className={disabled ? "opacity-50" : ""}>Senior Level</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="executive" 
-                checked={experience.includes("executive")}
-                onCheckedChange={() => handleExperienceChange("executive")}
-                disabled={disabled}
-              />
-              <Label htmlFor="executive" className={disabled ? "opacity-50" : ""}>Executive</Label>
-            </div>
-          </div>
-        </div>
-
-        <Separator />
-
-        <div>
-          <h3 className="text-sm font-medium mb-3">Date Posted</h3>
-          <RadioGroup value={datePosted} onValueChange={handleDatePostedChange} disabled={disabled}>
-            <div className="flex items-center space-x-2 mb-2">
-              <RadioGroupItem value="any" id="any" disabled={disabled} />
-              <Label htmlFor="any" className={disabled ? "opacity-50" : ""}>Any time</Label>
-            </div>
-            <div className="flex items-center space-x-2 mb-2">
-              <RadioGroupItem value="day" id="day" disabled={disabled} />
-              <Label htmlFor="day" className={disabled ? "opacity-50" : ""}>Past 24 hours</Label>
-            </div>
-            <div className="flex items-center space-x-2 mb-2">
-              <RadioGroupItem value="week" id="week" disabled={disabled} />
-              <Label htmlFor="week" className={disabled ? "opacity-50" : ""}>Past week</Label>
-            </div>
-            <div className="flex items-center space-x-2 mb-2">
-              <RadioGroupItem value="month" id="month" disabled={disabled} />
-              <Label htmlFor="month" className={disabled ? "opacity-50" : ""}>Past month</Label>
-            </div>
-          </RadioGroup>
+          ))}
         </div>
       </div>
-    </ScrollArea>
+
+      {/* Date Posted Filter */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-purple-600" />
+          <Label className="text-sm font-medium text-gray-900">Date Posted</Label>
+        </div>
+        <Select value={filters.datePosted} onValueChange={handleDatePostedChange} disabled={disabled}>
+          <SelectTrigger className="bg-white border-gray-200">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {datePostedOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Remote Work Filter */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-orange-600" />
+          <Label className="text-sm font-medium text-gray-900">Work Type</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="remote"
+            checked={filters.remote}
+            onCheckedChange={handleRemoteChange}
+            disabled={disabled}
+          />
+          <Label htmlFor="remote" className="text-sm text-gray-700">
+            Remote Only
+          </Label>
+        </div>
+      </div>
+
+      {/* Employment Type Filter */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <DollarSign className="h-4 w-4 text-indigo-600" />
+          <Label className="text-sm font-medium text-gray-900">Employment Type</Label>
+        </div>
+        <Select value={filters.employmentType} onValueChange={handleEmploymentTypeChange} disabled={disabled}>
+          <SelectTrigger className="bg-white border-gray-200">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {employmentTypes.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
   );
 };
 

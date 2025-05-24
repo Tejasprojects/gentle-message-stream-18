@@ -6,8 +6,8 @@ const JobSearch = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect to job board with search parameters
-    navigate("/job-board");
+    // Use replace instead of navigate to prevent history buildup
+    navigate("/job-board", { replace: true });
   }, [navigate]);
 
   return (

@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -104,10 +104,11 @@ const JobBoard = () => {
     }
   };
 
-  const handleFilterChange = (filters: JobFilter) => {
+  // Use useCallback to prevent excessive re-renders
+  const handleFilterChange = useCallback((filters: JobFilter) => {
     console.log("Filter changed:", filters);
     setActiveFilters(filters);
-  };
+  }, []);
 
   const handleApplyFilters = () => {
     setCurrentPage(1);
@@ -144,7 +145,7 @@ const JobBoard = () => {
   return (
     <StudentDashboardLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        {/* Hero Section - Updated colors to match student home */}
+        {/* Hero Section */}
         <div className="relative overflow-hidden mb-8">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-indigo-600/5 to-purple-600/5" />
           <div className="absolute top-0 left-1/4 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl animate-pulse" />
@@ -204,7 +205,7 @@ const JobBoard = () => {
           </Card>
         </div>
         
-        {/* Search Section - Updated colors */}
+        {/* Search Section */}
         <Card className="mx-6 mb-8 border-0 shadow-lg bg-white/90 backdrop-blur-sm">
           <CardContent className="p-8">
             <div className="space-y-6">
@@ -258,7 +259,7 @@ const JobBoard = () => {
         </Card>
         
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 mx-6">
-          {/* Filters Sidebar - Updated colors */}
+          {/* Filters Sidebar */}
           <div className="xl:col-span-1">
             <Card className="sticky top-6 border-0 shadow-lg bg-white/90 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-t-xl">
@@ -303,7 +304,7 @@ const JobBoard = () => {
             </Card>
           </div>
 
-          {/* Jobs List - Updated colors */}
+          {/* Jobs List */}
           <div className="xl:col-span-3">
             <div className="space-y-6">
               {/* Results Header */}
