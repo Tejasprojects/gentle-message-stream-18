@@ -13,6 +13,7 @@ import ApplyJobs from "@/pages/ApplyJobs";
 import MyApplications from "@/pages/MyApplications";
 import MyAnalytics from "@/pages/MyAnalytics";
 import Login from "@/pages/Auth/Login";
+import NewLogin from "@/pages/Auth/NewLogin";
 import Register from "@/pages/Auth/Register";
 import ForgotPassword from "@/pages/Auth/ForgotPassword";
 import ResetPassword from "@/pages/Auth/ResetPassword";
@@ -84,6 +85,7 @@ function App() {
             <Routes>
               {/* Auth routes with special layout */}
               <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
+              <Route path="/new-login" element={<NewLogin />} />
               <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
               <Route path="/forgot-password" element={<AuthLayout><ForgotPassword /></AuthLayout>} />
               <Route path="/reset-password" element={<AuthLayout><ResetPassword /></AuthLayout>} />
