@@ -35,7 +35,10 @@ export const useProfile = (userId?: string) => {
   const targetUserId = userId || user?.id;
 
   const fetchProfile = async () => {
-    if (!targetUserId) return;
+    if (!targetUserId) {
+      setLoading(false);
+      return;
+    }
     
     try {
       setLoading(true);
@@ -45,10 +48,16 @@ export const useProfile = (userId?: string) => {
         .from('user_profiles')
         .select('*')
         .eq('user_id', targetUserId)
-        .single();
+        .maybeSingle();
 
       if (profileError && profileError.code !== 'PGRST116') {
         console.error('Error fetching profile:', profileError);
+        toast({
+          title: 'Error fetching profile',
+          description: profileError.message,
+          variant: 'destructive',
+        });
+        return;
       }
 
       // Fetch social links
@@ -107,7 +116,7 @@ export const useProfile = (userId?: string) => {
           .select('*')
           .eq('user_id', targetUserId)
           .eq('date_recorded', new Date().toISOString().split('T')[0])
-          .single();
+          .maybeSingle();
 
         setAnalytics(analyticsData);
 
@@ -172,7 +181,14 @@ export const useProfile = (userId?: string) => {
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      toast({
+        title: 'Authentication required',
+        description: 'Please log in to update your profile.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -181,22 +197,28 @@ export const useProfile = (userId?: string) => {
           user_id: user.id,
           ...updates,
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating profile:', error);
+        throw error;
+      }
 
       await fetchProfile();
       toast({
         title: 'Profile updated',
         description: 'Your profile has been successfully updated.',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
         title: 'Error updating profile',
-        description: 'Please try again later.',
+        description: error.message || 'Please try again later.',
         variant: 'destructive',
       });
+      throw error;
     }
   };
 
@@ -218,11 +240,11 @@ export const useProfile = (userId?: string) => {
         title: 'Experience added',
         description: 'Your experience has been added successfully.',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding experience:', error);
       toast({
         title: 'Error adding experience',
-        description: 'Please try again later.',
+        description: error.message || 'Please try again later.',
         variant: 'destructive',
       });
     }
@@ -247,11 +269,11 @@ export const useProfile = (userId?: string) => {
         title: 'Skill added',
         description: 'Your skill has been added successfully.',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding skill:', error);
       toast({
         title: 'Error adding skill',
-        description: 'Please try again later.',
+        description: error.message || 'Please try again later.',
         variant: 'destructive',
       });
     }
@@ -275,11 +297,11 @@ export const useProfile = (userId?: string) => {
         title: 'Certification added',
         description: 'Your certification has been added successfully.',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding certification:', error);
       toast({
         title: 'Error adding certification',
-        description: 'Please try again later.',
+        description: error.message || 'Please try again later.',
         variant: 'destructive',
       });
     }

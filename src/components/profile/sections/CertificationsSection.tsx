@@ -11,7 +11,7 @@ interface CertificationsSectionProps {
   certifications: Certification[];
   isOwner: boolean;
   onAdd: () => void;
-  onEdit: (certification: Certification) => void;
+  onEdit?: (certification: Certification) => void;
 }
 
 export const CertificationsSection: React.FC<CertificationsSectionProps> = ({
@@ -53,7 +53,7 @@ export const CertificationsSection: React.FC<CertificationsSectionProps> = ({
                     <p className="text-gray-600 text-sm">{cert.issuing_organization}</p>
                   </div>
                 </div>
-                {isOwner && (
+                {isOwner && onEdit && (
                   <Button 
                     variant="ghost" 
                     size="sm"

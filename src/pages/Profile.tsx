@@ -102,6 +102,7 @@ const Profile = () => {
                   <ResumeSection
                     resumeFiles={resumeFiles}
                     analytics={analytics}
+                    isOwner={isOwner}
                   />
                 )}
               </div>

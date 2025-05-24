@@ -18,6 +18,7 @@ export interface UserProfile {
   brand_logo_url?: string;
   profile_views_count?: number;
   last_profile_view?: string;
+  verification_status?: string;
   created_at: string;
   updated_at: string;
 }

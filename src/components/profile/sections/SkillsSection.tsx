@@ -9,7 +9,7 @@ interface SkillsSectionProps {
   skills: Skill[];
   isOwner: boolean;
   onAdd: () => void;
-  onEdit: () => void;
+  onEdit?: () => void;
 }
 
 export const SkillsSection: React.FC<SkillsSectionProps> = ({

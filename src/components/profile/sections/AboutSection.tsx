@@ -1,15 +1,16 @@
 
 import React from 'react';
 import { ProfileSection } from '../ProfileSection';
+import type { UserProfile } from '@/types/profile';
 
 interface AboutSectionProps {
-  about?: string;
+  profile: UserProfile | null;
   isOwner: boolean;
   onEdit: () => void;
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({
-  about,
+  profile,
   isOwner,
   onEdit
 }) => {
@@ -20,9 +21,9 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
       onEdit={onEdit}
     >
       <div className="prose max-w-none">
-        {about ? (
+        {profile?.about_summary ? (
           <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-            {about}
+            {profile.about_summary}
           </p>
         ) : (
           <p className="text-gray-500 italic">
