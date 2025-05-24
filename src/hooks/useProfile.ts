@@ -37,11 +37,15 @@ export const useProfile = (userId?: string) => {
       setLoading(true);
 
       // Fetch user profile
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('user_id', targetUserId)
         .single();
+
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error('Error fetching profile:', profileError);
+      }
 
       // Fetch social links
       const { data: socialData } = await supabase
@@ -52,13 +56,6 @@ export const useProfile = (userId?: string) => {
       // Fetch experiences
       const { data: experienceData } = await supabase
         .from('experiences')
-        .select('*')
-        .eq('user_id', targetUserId)
-        .order('start_date', { ascending: false });
-
-      // Fetch education
-      const { data: educationData } = await supabase
-        .from('education')
         .select('*')
         .eq('user_id', targetUserId)
         .order('start_date', { ascending: false });
@@ -97,7 +94,6 @@ export const useProfile = (userId?: string) => {
       setProfile(profileData);
       setSocialLinks(socialData || []);
       setExperiences(experienceData || []);
-      setEducation(educationData || []);
       setSkills(skillsData || []);
       setCertifications(certificationsData || []);
       setProjects(projectsData || []);
