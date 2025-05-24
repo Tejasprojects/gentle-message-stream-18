@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { Loader2, Briefcase, MapPin, Clock, User, Search, Check, X } from "lucide-react";
+import { Loader2, Briefcase, MapPin, Clock, User, Search, Check, X, Eye } from "lucide-react";
 import { format } from "date-fns";
 
 const JobDetails = () => {
@@ -69,19 +69,33 @@ const JobDetails = () => {
   const fetchApplications = async () => {
     setApplicationsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('applications')
-        .select(`
-          *,
-          candidates (id, first_name, last_name, email, profile_photo_url, skills, experience_years, overall_score)
-        `)
+      // Get applications from job_applications table
+      const { data: applicationsData, error } = await supabase
+        .from('job_applications')
+        .select('*')
         .eq('job_id', id)
-        .order('created_at', { ascending: false });
+        .order('date_applied', { ascending: false });
         
       if (error) {
         console.error("Error fetching applications:", error);
       } else {
-        setApplications(data || []);
+        // Get user profiles for each application
+        const applicationsWithProfiles = await Promise.all(
+          (applicationsData || []).map(async (app) => {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('full_name, email')
+              .eq('id', app.user_id)
+              .single();
+
+            return {
+              ...app,
+              candidate_profile: profileData || {}
+            };
+          })
+        );
+        
+        setApplications(applicationsWithProfiles);
       }
     } catch (error) {
       console.error("Error in fetching applications:", error);
@@ -93,8 +107,8 @@ const JobDetails = () => {
   const handleUpdateStatus = async (applicationId, status) => {
     try {
       const { error } = await supabase
-        .from('applications')
-        .update({ status })
+        .from('job_applications')
+        .update({ application_status: status })
         .eq('id', applicationId);
         
       if (error) {
@@ -112,43 +126,70 @@ const JobDetails = () => {
         
         // Update local state
         setApplications(prev => 
-          prev.map(app => app.id === applicationId ? {...app, status} : app)
+          prev.map(app => app.id === applicationId ? {...app, application_status: status} : app)
         );
+
+        // Create notification for applicant
+        const application = applications.find(app => app.id === applicationId);
+        if (application) {
+          await supabase
+            .from('notifications')
+            .insert({
+              user_id: application.user_id,
+              title: 'Application Status Update',
+              message: `Your application for ${application.job_title} has been ${status}`,
+              type: status === 'accepted' ? 'success' : status === 'rejected' ? 'error' : 'info',
+              related_application_id: applicationId
+            });
+        }
       }
     } catch (error) {
       console.error("Error in updating application:", error);
     }
   };
 
+  const viewResume = async (filePath: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('resumes')
+        .createSignedUrl(filePath, 60);
+
+      if (error) {
+        throw error;
+      }
+
+      window.open(data.signedUrl, '_blank');
+    } catch (error) {
+      console.error("Error viewing resume:", error);
+      toast({
+        title: "Error",
+        description: "Failed to open resume",
+        variant: "destructive"
+      });
+    }
+  };
+
   const filteredApplications = applications.filter(app => {
-    const candidate = app.candidates;
-    if (!candidate) return false;
+    if (!searchTerm) return true;
     
     const searchString = searchTerm.toLowerCase();
-    return (
-      candidate.first_name?.toLowerCase().includes(searchString) ||
-      candidate.last_name?.toLowerCase().includes(searchString) ||
-      candidate.email?.toLowerCase().includes(searchString) ||
-      (candidate.skills && candidate.skills.some(skill => 
-        skill.toLowerCase().includes(searchString)
-      ))
-    );
+    const candidateName = app.candidate_profile?.full_name?.toLowerCase() || '';
+    const email = app.candidate_profile?.email?.toLowerCase() || '';
+    
+    return candidateName.includes(searchString) || email.includes(searchString);
   });
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case 'Shortlisted':
-        return 'bg-blue-100 text-blue-800';
-      case 'Interviewed':
-        return 'bg-purple-100 text-purple-800';
-      case 'Offered':
+      case 'accepted':
         return 'bg-green-100 text-green-800';
-      case 'Rejected':
+      case 'rejected':
         return 'bg-red-100 text-red-800';
-      case 'Hired':
-        return 'bg-emerald-100 text-emerald-800';
+      case 'reviewed':
+        return 'bg-blue-100 text-blue-800';
+      case 'pending':
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-yellow-100 text-yellow-800';
     }
   };
 
@@ -185,7 +226,7 @@ const JobDetails = () => {
           <div>
             <h1 className="text-2xl font-bold">{job.title}</h1>
             <p className="text-muted-foreground">
-              {job.companies.name} • Posted {format(new Date(job.posted_date), "MMMM dd, yyyy")}
+              {job.companies?.name || job.company_name} • Posted {format(new Date(job.posted_date), "MMMM dd, yyyy")}
             </p>
           </div>
           <Badge 
@@ -301,7 +342,7 @@ const JobDetails = () => {
                 <div className="relative mt-2">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search candidates by name, email or skills..."
+                    placeholder="Search candidates by name or email..."
                     className="pl-8"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -327,8 +368,8 @@ const JobDetails = () => {
                         <TableRow>
                           <TableHead>Candidate</TableHead>
                           <TableHead>Status</TableHead>
-                          <TableHead className="hidden md:table-cell">Score</TableHead>
                           <TableHead className="hidden md:table-cell">Applied</TableHead>
+                          <TableHead className="hidden md:table-cell">Resume</TableHead>
                           <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -338,50 +379,53 @@ const JobDetails = () => {
                             <TableCell>
                               <div className="flex items-center gap-3">
                                 <Avatar className="h-9 w-9">
-                                  <AvatarImage src={app.candidates.profile_photo_url} />
                                   <AvatarFallback className="text-xs">
-                                    {`${app.candidates.first_name?.[0] || ''}${app.candidates.last_name?.[0] || ''}`}
+                                    {app.candidate_profile?.full_name ? 
+                                      app.candidate_profile.full_name.split(' ').map(n => n[0]).join('') : '??'}
                                   </AvatarFallback>
                                 </Avatar>
                                 <div>
-                                  <p className="font-medium">{`${app.candidates.first_name} ${app.candidates.last_name}`}</p>
-                                  <p className="text-xs text-muted-foreground">{app.candidates.email}</p>
+                                  <p className="font-medium">{app.candidate_profile?.full_name || 'Unknown'}</p>
+                                  <p className="text-xs text-muted-foreground">{app.candidate_profile?.email}</p>
                                 </div>
                               </div>
                             </TableCell>
                             <TableCell>
-                              <Badge className={getStatusBadgeClass(app.status)}>
-                                {app.status}
+                              <Badge className={getStatusBadgeClass(app.application_status)}>
+                                {app.application_status || 'pending'}
                               </Badge>
                             </TableCell>
                             <TableCell className="hidden md:table-cell">
-                              {app.candidates.overall_score ? `${app.candidates.overall_score}/100` : 'N/A'}
+                              {format(new Date(app.date_applied), "MMM dd, yyyy")}
                             </TableCell>
                             <TableCell className="hidden md:table-cell">
-                              {format(new Date(app.application_date), "MMM dd, yyyy")}
+                              {app.resume_file_name && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => viewResume(app.resume_file_path)}
+                                  className="text-blue-600 hover:text-blue-800"
+                                >
+                                  <Eye className="h-4 w-4 mr-1" />
+                                  View
+                                </Button>
+                              )}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end items-center gap-2">
                                 <Button 
                                   variant="ghost" 
-                                  size="icon"
-                                  onClick={() => navigate(`/hr-dashboard/candidates/${app.candidates.id}`)}
-                                >
-                                  <User className="h-4 w-4" />
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon"
-                                  onClick={() => handleUpdateStatus(app.id, 'Shortlisted')}
-                                  className="text-blue-600"
+                                  size="sm"
+                                  onClick={() => handleUpdateStatus(app.id, 'accepted')}
+                                  className="text-green-600 hover:text-green-800"
                                 >
                                   <Check className="h-4 w-4" />
                                 </Button>
                                 <Button 
                                   variant="ghost" 
-                                  size="icon"
-                                  onClick={() => handleUpdateStatus(app.id, 'Rejected')}
-                                  className="text-red-600"
+                                  size="sm"
+                                  onClick={() => handleUpdateStatus(app.id, 'rejected')}
+                                  className="text-red-600 hover:text-red-800"
                                 >
                                   <X className="h-4 w-4" />
                                 </Button>

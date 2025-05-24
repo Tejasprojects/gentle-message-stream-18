@@ -85,7 +85,7 @@ const ApplyJobs = () => {
       }
       
       // Insert application into database with resume information
-      const { data, error } = await supabase
+      const { data: applicationData, error: applicationError } = await supabase
         .from('job_applications')
         .insert([
           {
@@ -100,16 +100,38 @@ const ApplyJobs = () => {
             resume_file_name: selectedResume.name,
             application_status: 'pending'
           }
-        ]);
+        ])
+        .select()
+        .single();
         
-      if (error) {
-        console.error("Error submitting application:", error);
+      if (applicationError) {
+        console.error("Error submitting application:", applicationError);
         toast({
           title: "Application failed",
-          description: error.message,
+          description: applicationError.message,
           variant: "destructive"
         });
         return;
+      }
+
+      // Create notification for HR members
+      const { data: hrMembers } = await supabase
+        .from('hr_members')
+        .select('user_profile_id')
+        .eq('company_id', job.company_id);
+
+      if (hrMembers && hrMembers.length > 0) {
+        const notifications = hrMembers.map(hr => ({
+          user_id: hr.user_profile_id,
+          title: 'New Job Application',
+          message: `New application received for ${job.title} position`,
+          type: 'info' as const,
+          related_application_id: applicationData.id
+        }));
+
+        await supabase
+          .from('notifications')
+          .insert(notifications);
       }
       
       toast({

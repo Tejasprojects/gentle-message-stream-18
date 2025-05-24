@@ -45,7 +45,7 @@ const Candidates = () => {
   const fetchApplications = async () => {
     setLoading(true);
     try {
-      // First get all applications
+      // Get all applications from job_applications table
       const { data: applicationsData, error: applicationsError } = await supabase
         .from('job_applications')
         .select('*')
@@ -61,7 +61,7 @@ const Candidates = () => {
         return;
       }
 
-      // Then get user profiles for each application
+      // Get user profiles for each application
       const applicationsWithProfiles = await Promise.all(
         (applicationsData || []).map(async (app) => {
           const { data: profileData } = await supabase
@@ -103,6 +103,20 @@ const Candidates = () => {
             : app
         )
       );
+
+      // Create notification for applicant
+      const application = applications.find(app => app.id === applicationId);
+      if (application) {
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: application.user_id,
+            title: 'Application Status Update',
+            message: `Your application for ${application.job_title} has been ${newStatus}`,
+            type: newStatus === 'accepted' ? 'success' : newStatus === 'rejected' ? 'error' : 'info',
+            related_application_id: applicationId
+          });
+      }
 
       toast({
         title: "Status updated",
