@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
@@ -372,12 +371,8 @@ const ATSScanner = () => {
           <div className="space-y-6">
             {/* Fix: Pass the correct props to ATSScoreDisplay */}
             <ATSScoreDisplay 
-              overallScore={atsScore.overallScore}
-              keywordScore={atsScore.keywordScore}
-              formatScore={atsScore.formatScore}
-              contentScore={atsScore.contentScore}
-              suggestions={atsScore.suggestions}
-              jobMatch={atsScore.jobMatch}
+              scoreData={atsScore}
+              isLoading={false}
             />
             
             {/* Job Recommendations */}
