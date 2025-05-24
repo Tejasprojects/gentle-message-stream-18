@@ -1,11 +1,11 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { JobListing } from '@/types/database';
+import { Job } from '@/types/database';
 import { useToast } from '@/components/ui/use-toast';
 
 export const useJobListings = () => {
-  const [jobListings, setJobListings] = useState<JobListing[]>([]);
+  const [jobListings, setJobListings] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -14,10 +14,10 @@ export const useJobListings = () => {
       setLoading(true);
 
       const { data, error } = await supabase
-        .from('job_listings')
+        .from('jobs')
         .select('*')
-        .eq('is_active', true)
-        .order('posted_date', { ascending: false });
+        .eq('status', 'Open')
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching job listings:', error);

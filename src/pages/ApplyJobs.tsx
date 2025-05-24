@@ -5,12 +5,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ArrowUpRight, Briefcase, Building, FileText, MapPin, Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ArrowUpRight, Briefcase, Building, FileText, MapPin, Search, DollarSign, Calendar, Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Link } from "react-router-dom";
 import { useJobListings } from "@/hooks/useJobListings";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
 
 const ApplyJobs = () => {
   const { toast } = useToast();
@@ -38,10 +40,10 @@ const ApplyJobs = () => {
       title: "Search initiated",
       description: `Searching for "${jobTitle}" jobs in "${location || 'all locations'}"`,
     });
-    // In a real app, this would trigger a more sophisticated search
+    refetch();
   };
 
-  const handleApply = async (jobId) => {
+  const handleApply = async (jobId: string) => {
     if (!resumeOption) {
       toast({
         title: "Resume required",
@@ -80,7 +82,7 @@ const ApplyJobs = () => {
           {
             user_id: user.id,
             job_title: job.title,
-            company: job.company,
+            company: job.company_name || 'Unknown Company',
             location: job.location,
             status: 'Applied',
             progress: 20,
@@ -99,7 +101,7 @@ const ApplyJobs = () => {
       
       toast({
         title: "Application submitted",
-        description: `Your application for ${job.title} at ${job.company} has been submitted`,
+        description: `Your application for ${job.title} at ${job.company_name || 'Unknown Company'} has been submitted`,
       });
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -112,126 +114,199 @@ const ApplyJobs = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Apply for Jobs</h1>
-      
-      {/* Job Search Section */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-lg">Find Your Next Opportunity</CardTitle>
-          <CardDescription>Search for jobs that match your skills and experience</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                <Input
-                  placeholder="Job title, skills, or keywords"
-                  className="pl-10"
-                  value={jobTitle}
-                  onChange={(e) => setJobTitle(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="flex-1">
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                <Input
-                  placeholder="City, state, or remote"
-                  className="pl-10"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                />
-              </div>
-            </div>
-            <Button onClick={handleSearch}>Search Jobs</Button>
+    <StudentDashboardLayout>
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row justify-between md:items-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Apply for Jobs</h1>
+            <p className="text-muted-foreground">Find and apply for your next career opportunity</p>
           </div>
-        </CardContent>
-      </Card>
-      
-      {/* Job Listings */}
-      <h2 className="text-xl font-semibold mb-4">Available Jobs</h2>
-      
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-gray-600">Loading jobs...</span>
         </div>
-      ) : filteredJobs.length > 0 ? (
-        <div className="space-y-6">
-          {filteredJobs.map((job) => (
-            <Card key={job.id} className="overflow-hidden hover:shadow-md transition-shadow">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg">{job.title}</CardTitle>
-                    <CardDescription className="flex items-center">
-                      <Building className="h-4 w-4 mr-1" /> {job.company}
-                    </CardDescription>
-                  </div>
-                  <div className="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-sm font-medium">
-                    Match
-                  </div>
+        
+        {/* Job Search Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Find Your Next Opportunity</CardTitle>
+            <CardDescription>Search for jobs that match your skills and experience</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <Input
+                    placeholder="Job title, skills, or keywords"
+                    className="pl-10"
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                  />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {job.location && (
-                    <div className="flex items-center text-gray-500 text-sm">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      {job.location}
+              </div>
+              <div className="flex-1">
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <Input
+                    placeholder="City, state, or remote"
+                    className="pl-10"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                  />
+                </div>
+              </div>
+              <Button onClick={handleSearch}>Search Jobs</Button>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Job Listings */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Available Jobs ({filteredJobs.length})</h2>
+            <div className="flex gap-2">
+              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                {filteredJobs.filter(job => job.status === 'Open').length} Open Positions
+              </Badge>
+            </div>
+          </div>
+          
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-600">Loading jobs...</span>
+            </div>
+          ) : filteredJobs.length > 0 ? (
+            <div className="space-y-6">
+              {filteredJobs.map((job) => (
+                <Card key={job.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">{job.title}</CardTitle>
+                        <CardDescription className="flex items-center mt-1">
+                          <Building className="h-4 w-4 mr-1" /> 
+                          {job.company_name || 'Company'}
+                        </CardDescription>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Badge className="bg-blue-50 text-blue-700">
+                          {job.experience_level || 'All Levels'}
+                        </Badge>
+                        <Badge variant="outline">
+                          {job.employment_type || 'Full-time'}
+                        </Badge>
+                      </div>
                     </div>
-                  )}
-                  {job.salary_range && (
-                    <div className="flex items-center text-gray-500 text-sm">
-                      <Briefcase className="h-4 w-4 mr-1" />
-                      {job.salary_range}
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        {job.location && (
+                          <div className="flex items-center text-gray-600">
+                            <MapPin className="h-4 w-4 mr-2" />
+                            {job.location}
+                          </div>
+                        )}
+                        {job.salary_range && (
+                          <div className="flex items-center text-gray-600">
+                            <DollarSign className="h-4 w-4 mr-2" />
+                            {job.salary_range}
+                          </div>
+                        )}
+                        {job.department && (
+                          <div className="flex items-center text-gray-600">
+                            <Briefcase className="h-4 w-4 mr-2" />
+                            {job.department}
+                          </div>
+                        )}
+                        {job.application_deadline && (
+                          <div className="flex items-center text-gray-600">
+                            <Calendar className="h-4 w-4 mr-2" />
+                            Apply by {new Date(job.application_deadline).toLocaleDateString()}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <p className="text-sm text-gray-600 line-clamp-3">{job.description}</p>
+                      
+                      {job.skills_required && job.skills_required.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {job.skills_required.slice(0, 4).map((skill, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {skill}
+                            </Badge>
+                          ))}
+                          {job.skills_required.length > 4 && (
+                            <Badge variant="secondary" className="text-xs">
+                              +{job.skills_required.length - 4} more
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                      
+                      <div className="pt-3 border-t">
+                        <Label htmlFor={`resume-${job.id}`}>Select Resume to Apply</Label>
+                        <Select onValueChange={setResumeOption}>
+                          <SelectTrigger id={`resume-${job.id}`} className="mt-1">
+                            <SelectValue placeholder="Choose a resume" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {resumes.map(resume => (
+                              <SelectItem key={resume.id} value={resume.id}>
+                                <div className="flex items-center">
+                                  <FileText className="h-4 w-4 mr-2" />
+                                  {resume.name}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
-                  )}
-                  <p className="text-sm text-gray-600 mt-2">{job.description}</p>
-                  
-                  <div className="pt-3">
-                    <Label htmlFor={`resume-${job.id}`}>Select Resume</Label>
-                    <Select onValueChange={setResumeOption}>
-                      <SelectTrigger id={`resume-${job.id}`} className="mt-1">
-                        <SelectValue placeholder="Choose a resume" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {resumes.map(resume => (
-                          <SelectItem key={resume.id} value={resume.id}>
-                            <div className="flex items-center">
-                              <FileText className="h-4 w-4 mr-2" />
-                              {resume.name}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between border-t pt-4">
-                <div className="text-sm text-gray-500">
-                  Posted {new Date(job.posted_date).toLocaleDateString()}
-                </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" className="text-blue-600">
-                    View Details
-                    <ArrowUpRight className="ml-1 h-4 w-4" />
+                  </CardContent>
+                  <CardFooter className="flex justify-between border-t pt-4">
+                    <div className="text-sm text-gray-500">
+                      <div className="flex items-center">
+                        <Clock className="h-4 w-4 mr-1" />
+                        Posted {job.posted_date ? new Date(job.posted_date).toLocaleDateString() : 'Recently'}
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button variant="outline" className="text-blue-600">
+                        View Details
+                        <ArrowUpRight className="ml-1 h-4 w-4" />
+                      </Button>
+                      <Button onClick={() => handleApply(job.id)}>Apply Now</Button>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="text-center py-12">
+                <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No jobs found</h3>
+                <p className="text-gray-500 mb-4">
+                  {jobTitle || location ? 
+                    "No jobs match your search criteria. Try adjusting your filters." :
+                    "No job openings are currently available. Check back later for new opportunities."
+                  }
+                </p>
+                {(jobTitle || location) && (
+                  <Button variant="outline" onClick={() => {
+                    setJobTitle("");
+                    setLocation("");
+                    refetch();
+                  }}>
+                    Clear Filters
                   </Button>
-                  <Button onClick={() => handleApply(job.id)}>Apply Now</Button>
-                </div>
-              </CardFooter>
+                )}
+              </CardContent>
             </Card>
-          ))}
+          )}
         </div>
-      ) : (
-        <div className="text-center py-12 text-gray-500">
-          No jobs found matching your criteria. Try adjusting your search.
-        </div>
-      )}
-    </div>
+      </div>
+    </StudentDashboardLayout>
   );
 };
 
