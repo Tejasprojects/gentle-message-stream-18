@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -98,21 +97,78 @@ const CreateJob = () => {
         return;
       }
       
+      // Try to get HR member profile, but don't fail if it doesn't exist
       const { data: hrMember, error: hrError } = await supabase
         .from('hr_members')
         .select('id, company_id')
         .eq('user_profile_id', user.id)
-        .single();
+        .maybeSingle();
       
-      if (hrError || !hrMember) {
-        console.error("Error fetching HR member:", hrError);
-        toast({
-          title: "Error",
-          description: "Could not retrieve your profile information.",
-          variant: "destructive"
-        });
-        setLoading(false);
-        return;
+      // If no HR member profile exists, create a default company and HR member
+      let companyId = hrMember?.company_id;
+      let hrMemberId = hrMember?.id;
+      
+      if (!hrMember) {
+        console.log("No HR member profile found, creating default records");
+        
+        // Create a default company first
+        const { data: newCompany, error: companyError } = await supabase
+          .from('companies')
+          .insert({
+            name: jobData.company_name || "Default Company",
+            industry: "Technology"
+          })
+          .select()
+          .single();
+          
+        if (companyError) {
+          console.error("Error creating company:", companyError);
+          toast({
+            title: "Error",
+            description: "Could not create company profile. Please contact support.",
+            variant: "destructive"
+          });
+          setLoading(false);
+          return;
+        }
+        
+        companyId = newCompany.id;
+        
+        // Get user profile to get email and name
+        const { data: userProfile } = await supabase
+          .from('profiles')
+          .select('email, full_name')
+          .eq('id', user.id)
+          .single();
+        
+        // Create HR member profile
+        const { data: newHrMember, error: hrMemberError } = await supabase
+          .from('hr_members')
+          .insert({
+            user_profile_id: user.id,
+            company_id: companyId,
+            first_name: userProfile?.full_name?.split(' ')[0] || "HR",
+            last_name: userProfile?.full_name?.split(' ').slice(1).join(' ') || "Manager",
+            email: userProfile?.email || user.email || "",
+            role: "HR Manager",
+            department: "Human Resources",
+            status: "Active"
+          })
+          .select()
+          .single();
+          
+        if (hrMemberError) {
+          console.error("Error creating HR member:", hrMemberError);
+          toast({
+            title: "Error",
+            description: "Could not create HR profile. Please contact support.",
+            variant: "destructive"
+          });
+          setLoading(false);
+          return;
+        }
+        
+        hrMemberId = newHrMember.id;
       }
       
       const { data: newJob, error: jobError } = await supabase
@@ -142,8 +198,8 @@ const CreateJob = () => {
           salary_range: jobData.salary_min && jobData.salary_max 
             ? `${jobData.currency} ${jobData.salary_min} - ${jobData.salary_max}` 
             : null,
-          company_id: hrMember.company_id,
-          assigned_hr_id: hrMember.id,
+          company_id: companyId,
+          assigned_hr_id: hrMemberId,
           status: 'Open'
         })
         .select()
