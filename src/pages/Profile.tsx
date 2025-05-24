@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import StudentDashboardLayout from '@/components/layout/StudentDashboardLayout';
@@ -9,6 +9,10 @@ import { ExperienceSection } from '@/components/profile/sections/ExperienceSecti
 import { SkillsSection } from '@/components/profile/sections/SkillsSection';
 import { CertificationsSection } from '@/components/profile/sections/CertificationsSection';
 import { ResumeSection } from '@/components/profile/sections/ResumeSection';
+import { EditProfileModal } from '@/components/profile/modals/EditProfileModal';
+import { AddExperienceModal } from '@/components/profile/modals/AddExperienceModal';
+import { AddSkillModal } from '@/components/profile/modals/AddSkillModal';
+import { AddCertificationModal } from '@/components/profile/modals/AddCertificationModal';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/context/AuthContext';
 
@@ -27,6 +31,12 @@ const Profile = () => {
 
   const isOwner = !userId || userId === user?.id;
 
+  // Modal states
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [addExperienceOpen, setAddExperienceOpen] = useState(false);
+  const [addSkillOpen, setAddSkillOpen] = useState(false);
+  const [addCertificationOpen, setAddCertificationOpen] = useState(false);
+
   if (loading) {
     return (
       <StudentDashboardLayout>
@@ -38,94 +48,115 @@ const Profile = () => {
   }
 
   const handleEdit = () => {
-    // TODO: Open edit modal
-    console.log('Edit profile');
+    setEditProfileOpen(true);
   };
 
   const handleAddExperience = () => {
-    // TODO: Open add experience modal
-    console.log('Add experience');
+    setAddExperienceOpen(true);
   };
 
   const handleEditExperience = (experience: any) => {
-    // TODO: Open edit experience modal
     console.log('Edit experience', experience);
   };
 
   const handleAddSkill = () => {
-    // TODO: Open add skill modal
-    console.log('Add skill');
+    setAddSkillOpen(true);
   };
 
   const handleEditSkills = () => {
-    // TODO: Open edit skills modal
     console.log('Edit skills');
   };
 
   const handleAddCertification = () => {
-    // TODO: Open add certification modal
-    console.log('Add certification');
+    setAddCertificationOpen(true);
   };
 
   const handleEditCertification = (certification: any) => {
-    // TODO: Open edit certification modal
     console.log('Edit certification', certification);
   };
 
   return (
     <StudentDashboardLayout>
-      <div className="max-w-4xl mx-auto">
-        {/* Profile Header */}
-        <div className="bg-white rounded-lg shadow-sm mb-6 overflow-hidden">
-          <ProfileHeader
-            profile={profile}
-            isOwner={isOwner}
-            onEdit={handleEdit}
-          />
-        </div>
-
-        {/* Profile Sections */}
-        <div className="space-y-6">
-          {/* About Section */}
-          <AboutSection
-            about={profile?.about_summary}
-            isOwner={isOwner}
-            onEdit={handleEdit}
-          />
-
-          {/* Experience Section */}
-          <ExperienceSection
-            experiences={experiences}
-            isOwner={isOwner}
-            onAdd={handleAddExperience}
-            onEdit={handleEditExperience}
-          />
-
-          {/* Skills Section */}
-          <SkillsSection
-            skills={skills}
-            isOwner={isOwner}
-            onAdd={handleAddSkill}
-            onEdit={handleEditSkills}
-          />
-
-          {/* Certifications Section */}
-          <CertificationsSection
-            certifications={certifications}
-            isOwner={isOwner}
-            onAdd={handleAddCertification}
-            onEdit={handleEditCertification}
-          />
-
-          {/* Resume Section - Only for profile owner */}
-          {isOwner && (
-            <ResumeSection
-              resumeFiles={resumeFiles}
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto">
+          {/* Profile Header */}
+          <div className="bg-white rounded-lg shadow-sm mb-6 overflow-hidden">
+            <ProfileHeader
+              profile={profile}
               isOwner={isOwner}
-              onUpload={refetch}
+              onEdit={handleEdit}
             />
-          )}
+          </div>
+
+          {/* Profile Sections */}
+          <div className="space-y-6">
+            {/* About Section */}
+            <AboutSection
+              about={profile?.about_summary}
+              isOwner={isOwner}
+              onEdit={handleEdit}
+            />
+
+            {/* Experience Section */}
+            <ExperienceSection
+              experiences={experiences}
+              isOwner={isOwner}
+              onAdd={handleAddExperience}
+              onEdit={handleEditExperience}
+            />
+
+            {/* Skills Section */}
+            <SkillsSection
+              skills={skills}
+              isOwner={isOwner}
+              onAdd={handleAddSkill}
+              onEdit={handleEditSkills}
+            />
+
+            {/* Certifications Section */}
+            <CertificationsSection
+              certifications={certifications}
+              isOwner={isOwner}
+              onAdd={handleAddCertification}
+              onEdit={handleEditCertification}
+            />
+
+            {/* Resume Section - Only for profile owner */}
+            {isOwner && (
+              <ResumeSection
+                resumeFiles={resumeFiles}
+                isOwner={isOwner}
+                onUpload={refetch}
+              />
+            )}
+          </div>
         </div>
+
+        {/* Modals */}
+        <EditProfileModal
+          isOpen={editProfileOpen}
+          onClose={() => setEditProfileOpen(false)}
+          profile={profile}
+          onUpdate={refetch}
+        />
+
+        <AddExperienceModal
+          isOpen={addExperienceOpen}
+          onClose={() => setAddExperienceOpen(false)}
+          onSuccess={refetch}
+        />
+
+        <AddSkillModal
+          isOpen={addSkillOpen}
+          onClose={() => setAddSkillOpen(false)}
+          onSuccess={refetch}
+        />
+
+        <AddCertificationModal
+          isOpen={addCertificationOpen}
+          onClose={() => setAddCertificationOpen(false)}
+          onSuccess={refetch}
+        />
       </div>
     </StudentDashboardLayout>
   );
