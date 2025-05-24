@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import MainLayout from "@/components/layout/MainLayout";
+import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FileCheck, AlertTriangle, Award, ArrowRight, Download, FileText, Scan } from "lucide-react";
@@ -191,15 +191,17 @@ const ResumeCompare = () => {
   };
 
   return (
-    <MainLayout>
-      <div className="container py-12">
+    <StudentDashboardLayout>
+      <div className="container py-8">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-sf-pro font-bold mb-4 gradient-text">📊 Compare Your Resumes & Find the Best!</h1>
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            📊 Compare Your Resumes & Find the Best!
+          </h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             Upload two different versions of your resume to see which one performs better with ATS systems.
             Our AI will analyze both and provide detailed feedback on which one is more likely to land you the job.
@@ -211,14 +213,18 @@ const ResumeCompare = () => {
             variants={itemVariants}
             initial="hidden"
             animate="visible"
-            className="glass-card p-6"
+            className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl p-6 shadow-lg"
           >
             <div className="text-center mb-4">
-              <h2 className="text-2xl font-sf-pro font-semibold text-modern-blue-600">Resume A</h2>
+              <h2 className="text-2xl font-semibold text-blue-600">Resume A</h2>
               <p className="text-gray-500">Upload your first resume</p>
             </div>
             
-            <div className={`border-2 border-dashed rounded-lg p-8 text-center ${resumeA ? 'border-green-500 bg-green-50/30' : 'border-gray-300 hover:border-modern-blue-400'} transition-all duration-300`}>
+            <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 ${
+              resumeA 
+                ? 'border-green-500 bg-green-50/50' 
+                : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50/30'
+            }`}>
               {resumeA ? (
                 <div className="flex flex-col items-center">
                   <FileCheck className="h-16 w-16 text-green-500 mb-2" />
@@ -233,8 +239,8 @@ const ResumeCompare = () => {
                 </div>
               ) : (
                 <label className="cursor-pointer flex flex-col items-center">
-                  <Upload className="h-16 w-16 text-modern-blue-500 mb-2" />
-                  <p className="text-modern-blue-600 font-medium mb-2">Drag & drop your resume or click to browse</p>
+                  <Upload className="h-16 w-16 text-blue-500 mb-2" />
+                  <p className="text-blue-600 font-medium mb-2">Drag & drop your resume or click to browse</p>
                   <p className="text-sm text-gray-500">Supported formats: PDF, DOCX</p>
                   <input 
                     type="file" 
@@ -251,14 +257,18 @@ const ResumeCompare = () => {
             variants={itemVariants}
             initial="hidden"
             animate="visible"
-            className="glass-card p-6"
+            className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl p-6 shadow-lg"
           >
             <div className="text-center mb-4">
-              <h2 className="text-2xl font-sf-pro font-semibold text-modern-blue-600">Resume B</h2>
+              <h2 className="text-2xl font-semibold text-blue-600">Resume B</h2>
               <p className="text-gray-500">Upload your second resume</p>
             </div>
             
-            <div className={`border-2 border-dashed rounded-lg p-8 text-center ${resumeB ? 'border-green-500 bg-green-50/30' : 'border-gray-300 hover:border-modern-blue-400'} transition-all duration-300`}>
+            <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 ${
+              resumeB 
+                ? 'border-green-500 bg-green-50/50' 
+                : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50/30'
+            }`}>
               {resumeB ? (
                 <div className="flex flex-col items-center">
                   <FileCheck className="h-16 w-16 text-green-500 mb-2" />
@@ -273,8 +283,8 @@ const ResumeCompare = () => {
                 </div>
               ) : (
                 <label className="cursor-pointer flex flex-col items-center">
-                  <Upload className="h-16 w-16 text-modern-blue-500 mb-2" />
-                  <p className="text-modern-blue-600 font-medium mb-2">Drag & drop your resume or click to browse</p>
+                  <Upload className="h-16 w-16 text-blue-500 mb-2" />
+                  <p className="text-blue-600 font-medium mb-2">Drag & drop your resume or click to browse</p>
                   <p className="text-sm text-gray-500">Supported formats: PDF, DOCX</p>
                   <input 
                     type="file" 
@@ -290,9 +300,7 @@ const ResumeCompare = () => {
 
         <div className="text-center mb-12">
           <Button
-            variant="gradient"
-            size="xl"
-            className="px-10"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-10 py-3 text-lg"
             disabled={!resumeA || !resumeB || isComparing}
             onClick={compareResumes}
           >
@@ -307,8 +315,8 @@ const ResumeCompare = () => {
             animate={{ opacity: 1 }}
             className="my-12"
           >
-            <Card className="border shadow-sm overflow-hidden glassmorphism">
-              <CardHeader className="bg-gradient-to-r from-modern-blue-600 to-soft-purple text-white">
+            <Card className="border shadow-sm overflow-hidden bg-white/70 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
                 <CardTitle className="text-center flex items-center justify-center">
                   <Scan className="mr-2 h-5 w-5 animate-pulse" />
                   Scanning & Comparing Resumes
@@ -332,22 +340,24 @@ const ResumeCompare = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-3xl font-sf-pro font-bold text-center mb-8 gradient-text">Comparison Results</h2>
+            <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Comparison Results
+            </h2>
             
             <div className="grid md:grid-cols-2 gap-8 mb-8">
-              <Card className={`overflow-hidden ${comparisonResults.winner === 'resumeA' ? 'border-2 border-green-500' : ''}`}>
+              <Card className={`overflow-hidden relative bg-white/70 backdrop-blur-sm ${comparisonResults.winner === 'resumeA' ? 'border-2 border-green-500' : ''}`}>
                 {comparisonResults.winner === 'resumeA' && (
                   <div className="absolute -right-12 top-10 bg-green-500 text-white py-2 px-12 transform rotate-45 flex items-center justify-center z-10">
                     <Award className="w-4 h-4 mr-1" />
                     <span className="text-sm font-medium">WINNER</span>
                   </div>
                 )}
-                <CardHeader className="bg-gradient-to-r from-modern-blue-600 to-modern-blue-500 text-white">
+                <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-500 text-white">
                   <CardTitle className="text-center">Resume A Analysis</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="mb-6">
-                    <h3 className="text-xl font-sf-pro font-semibold mb-4">ATS Score Breakdown</h3>
+                    <h3 className="text-xl font-semibold mb-4">ATS Score Breakdown</h3>
                     <div className="space-y-3">
                       <div>
                         <div className="flex justify-between mb-1">
@@ -356,7 +366,7 @@ const ResumeCompare = () => {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                           <div 
-                            className="h-2.5 rounded-full bg-gradient-to-r from-modern-blue-500 to-soft-purple" 
+                            className="h-2.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500" 
                             style={{ width: `${comparisonResults.resumeA.atsScore || 0}%` }}
                           ></div>
                         </div>
@@ -369,7 +379,7 @@ const ResumeCompare = () => {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                           <div 
-                            className="h-2.5 rounded-full bg-gradient-to-r from-modern-blue-500 to-soft-purple" 
+                            className="h-2.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500" 
                             style={{ width: `${comparisonResults.resumeA.keywordScore || 0}%` }}
                           ></div>
                         </div>
@@ -382,7 +392,7 @@ const ResumeCompare = () => {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                           <div 
-                            className="h-2.5 rounded-full bg-gradient-to-r from-modern-blue-500 to-soft-purple" 
+                            className="h-2.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500" 
                             style={{ width: `${comparisonResults.resumeA.formatScore || 0}%` }}
                           ></div>
                         </div>
@@ -395,7 +405,7 @@ const ResumeCompare = () => {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                           <div 
-                            className="h-2.5 rounded-full bg-gradient-to-r from-modern-blue-500 to-soft-purple" 
+                            className="h-2.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500" 
                             style={{ width: `${comparisonResults.resumeA.contentScore || 0}%` }}
                           ></div>
                         </div>
@@ -404,7 +414,7 @@ const ResumeCompare = () => {
                   </div>
                   
                   <div className="mb-6">
-                    <h3 className="text-xl font-sf-pro font-semibold mb-3 text-green-600 flex items-center">
+                    <h3 className="text-xl font-semibold mb-3 text-green-600 flex items-center">
                       <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
                         <FileCheck className="w-4 h-4 text-green-600" />
                       </div>
@@ -418,7 +428,7 @@ const ResumeCompare = () => {
                   </div>
                   
                   <div>
-                    <h3 className="text-xl font-sf-pro font-semibold mb-3 text-amber-600 flex items-center">
+                    <h3 className="text-xl font-semibold mb-3 text-amber-600 flex items-center">
                       <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center mr-2">
                         <AlertTriangle className="w-4 h-4 text-amber-600" />
                       </div>
@@ -433,19 +443,19 @@ const ResumeCompare = () => {
                 </CardContent>
               </Card>
               
-              <Card className={`overflow-hidden ${comparisonResults.winner === 'resumeB' ? 'border-2 border-green-500' : ''}`}>
+              <Card className={`overflow-hidden relative bg-white/70 backdrop-blur-sm ${comparisonResults.winner === 'resumeB' ? 'border-2 border-green-500' : ''}`}>
                 {comparisonResults.winner === 'resumeB' && (
                   <div className="absolute -right-12 top-10 bg-green-500 text-white py-2 px-12 transform rotate-45 flex items-center justify-center z-10">
                     <Award className="w-4 h-4 mr-1" />
                     <span className="text-sm font-medium">WINNER</span>
                   </div>
                 )}
-                <CardHeader className="bg-gradient-to-r from-soft-purple to-modern-blue-500 text-white">
+                <CardHeader className="bg-gradient-to-r from-purple-600 to-blue-500 text-white">
                   <CardTitle className="text-center">Resume B Analysis</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="mb-6">
-                    <h3 className="text-xl font-sf-pro font-semibold mb-4">ATS Score Breakdown</h3>
+                    <h3 className="text-xl font-semibold mb-4">ATS Score Breakdown</h3>
                     <div className="space-y-3">
                       <div>
                         <div className="flex justify-between mb-1">
@@ -454,7 +464,7 @@ const ResumeCompare = () => {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                           <div 
-                            className="h-2.5 rounded-full bg-gradient-to-r from-soft-purple to-modern-blue-500" 
+                            className="h-2.5 rounded-full bg-gradient-to-r from-purple-500 to-blue-500" 
                             style={{ width: `${comparisonResults.resumeB.atsScore || 0}%` }}
                           ></div>
                         </div>
@@ -467,7 +477,7 @@ const ResumeCompare = () => {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                           <div 
-                            className="h-2.5 rounded-full bg-gradient-to-r from-soft-purple to-modern-blue-500" 
+                            className="h-2.5 rounded-full bg-gradient-to-r from-purple-500 to-blue-500" 
                             style={{ width: `${comparisonResults.resumeB.keywordScore || 0}%` }}
                           ></div>
                         </div>
@@ -480,7 +490,7 @@ const ResumeCompare = () => {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                           <div 
-                            className="h-2.5 rounded-full bg-gradient-to-r from-soft-purple to-modern-blue-500" 
+                            className="h-2.5 rounded-full bg-gradient-to-r from-purple-500 to-blue-500" 
                             style={{ width: `${comparisonResults.resumeB.formatScore || 0}%` }}
                           ></div>
                         </div>
@@ -493,7 +503,7 @@ const ResumeCompare = () => {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                           <div 
-                            className="h-2.5 rounded-full bg-gradient-to-r from-soft-purple to-modern-blue-500" 
+                            className="h-2.5 rounded-full bg-gradient-to-r from-purple-500 to-blue-500" 
                             style={{ width: `${comparisonResults.resumeB.contentScore || 0}%` }}
                           ></div>
                         </div>
@@ -502,7 +512,7 @@ const ResumeCompare = () => {
                   </div>
                   
                   <div className="mb-6">
-                    <h3 className="text-xl font-sf-pro font-semibold mb-3 text-green-600 flex items-center">
+                    <h3 className="text-xl font-semibold mb-3 text-green-600 flex items-center">
                       <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mr-2">
                         <FileCheck className="w-4 h-4 text-green-600" />
                       </div>
@@ -516,7 +526,7 @@ const ResumeCompare = () => {
                   </div>
                   
                   <div>
-                    <h3 className="text-xl font-sf-pro font-semibold mb-3 text-amber-600 flex items-center">
+                    <h3 className="text-xl font-semibold mb-3 text-amber-600 flex items-center">
                       <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center mr-2">
                         <AlertTriangle className="w-4 h-4 text-amber-600" />
                       </div>
@@ -532,10 +542,10 @@ const ResumeCompare = () => {
               </Card>
             </div>
             
-            <Card className="glassmorphism my-8">
+            <Card className="bg-white/70 backdrop-blur-sm my-8">
               <CardHeader>
-                <CardTitle className="flex items-center text-modern-blue-600">
-                  <Award className="mr-2 h-6 w-6 text-modern-blue-600" />
+                <CardTitle className="flex items-center text-blue-600">
+                  <Award className="mr-2 h-6 w-6 text-blue-600" />
                   Expert Recommendation
                 </CardTitle>
               </CardHeader>
@@ -544,16 +554,16 @@ const ResumeCompare = () => {
               </CardContent>
             </Card>
             
-            <Card className="mb-10">
-              <CardHeader className="bg-gradient-to-r from-modern-blue-600 to-soft-purple text-white">
+            <Card className="mb-10 bg-white/70 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
                 <CardTitle>Improvement Suggestions for Both Resumes</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <ul className="space-y-2">
                   {comparisonResults.improvementSuggestions.map((suggestion: string, index: number) => (
                     <li key={index} className="flex items-start">
-                      <div className="w-6 h-6 rounded-full bg-modern-blue-100 flex items-center justify-center mr-2 mt-0.5">
-                        <span className="text-modern-blue-600 text-sm font-bold">{index + 1}</span>
+                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center mr-2 mt-0.5">
+                        <span className="text-blue-600 text-sm font-bold">{index + 1}</span>
                       </div>
                       <span className="text-gray-700">{suggestion}</span>
                     </li>
@@ -658,10 +668,8 @@ const ResumeCompare = () => {
             
             <div className="text-center">
               <Button 
-                variant="gradient" 
-                size="xl"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg"
                 onClick={downloadComparisonReport}
-                className="flex items-center"
               >
                 <Download className="mr-2 h-5 w-5" />
                 Download Detailed Comparison Report
@@ -670,7 +678,7 @@ const ResumeCompare = () => {
           </motion.div>
         )}
       </div>
-    </MainLayout>
+    </StudentDashboardLayout>
   );
 };
 
