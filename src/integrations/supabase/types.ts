@@ -518,43 +518,61 @@ export type Database = {
       }
       job_applications: {
         Row: {
+          application_status: string | null
           company: string
           created_at: string
           date_applied: string
           feedback: string | null
+          hr_notes: string | null
           id: string
+          job_id: string | null
           job_title: string
           location: string | null
           next_step: string | null
           progress: number | null
+          rating: number | null
+          resume_file_name: string | null
+          resume_file_path: string | null
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          application_status?: string | null
           company: string
           created_at?: string
           date_applied?: string
           feedback?: string | null
+          hr_notes?: string | null
           id?: string
+          job_id?: string | null
           job_title: string
           location?: string | null
           next_step?: string | null
           progress?: number | null
+          rating?: number | null
+          resume_file_name?: string | null
+          resume_file_path?: string | null
           status: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          application_status?: string | null
           company?: string
           created_at?: string
           date_applied?: string
           feedback?: string | null
+          hr_notes?: string | null
           id?: string
+          job_id?: string | null
           job_title?: string
           location?: string | null
           next_step?: string | null
           progress?: number | null
+          rating?: number | null
+          resume_file_name?: string | null
+          resume_file_path?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -713,6 +731,47 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          related_application_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          related_application_id?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          related_application_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_related_application_id_fkey"
+            columns: ["related_application_id"]
+            isOneToOne: false
+            referencedRelation: "job_applications"
             referencedColumns: ["id"]
           },
         ]

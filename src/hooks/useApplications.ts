@@ -2,8 +2,28 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
-import { JobApplication } from '@/types/database';
 import { useToast } from '@/components/ui/use-toast';
+
+interface JobApplication {
+  id: string;
+  user_id: string;
+  job_id?: string;
+  job_title: string;
+  company: string;
+  location?: string;
+  status: string;
+  next_step?: string;
+  feedback?: string;
+  progress: number;
+  date_applied: string;
+  created_at: string;
+  updated_at: string;
+  resume_file_path?: string;
+  resume_file_name?: string;
+  hr_notes?: string;
+  rating?: number;
+  application_status?: string;
+}
 
 export const useApplications = () => {
   const [applications, setApplications] = useState<JobApplication[]>([]);
@@ -23,6 +43,7 @@ export const useApplications = () => {
       const { data, error } = await supabase
         .from('job_applications')
         .select('*')
+        .eq('user_id', user.id)
         .order('date_applied', { ascending: false });
 
       if (error) {

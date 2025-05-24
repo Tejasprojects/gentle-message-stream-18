@@ -1,13 +1,11 @@
-
 import React, { useState, useEffect } from "react";
-import { Users, Search, Filter, ChevronDown, Eye, CheckCircle, XCircle, Star } from "lucide-react";
+import { Users, Search, Eye, CheckCircle, XCircle, Star } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -15,21 +13,21 @@ import { useToast } from "@/components/ui/use-toast";
 interface Application {
   id: string;
   user_id: string;
-  job_id: string;
+  job_id?: string;
   job_title: string;
   company: string;
-  location: string;
+  location?: string;
   status: string;
   progress: number;
-  resume_file_path: string;
-  resume_file_name: string;
-  hr_notes: string;
-  rating: number;
-  application_status: string;
+  resume_file_path?: string;
+  resume_file_name?: string;
+  hr_notes?: string;
+  rating?: number;
+  application_status?: string;
   date_applied: string;
   profiles?: {
-    full_name: string;
-    email: string;
+    full_name?: string;
+    email?: string;
   };
 }
 
@@ -37,7 +35,6 @@ const Candidates = () => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -83,7 +80,6 @@ const Candidates = () => {
         throw error;
       }
 
-      // Update local state
       setApplications(prev => 
         prev.map(app => 
           app.id === applicationId 
@@ -310,8 +306,8 @@ const Candidates = () => {
                             </p>
                           </div>
                         </div>
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(application.application_status)}`}>
-                          {application.application_status}
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(application.application_status || 'pending')}`}>
+                          {application.application_status || 'pending'}
                         </span>
                       </div>
                       
@@ -324,7 +320,7 @@ const Candidates = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => viewResume(application.resume_file_path)}
+                              onClick={() => viewResume(application.resume_file_path!)}
                               className="text-blue-600 hover:text-blue-800"
                             >
                               <Eye className="h-4 w-4 mr-1" />
