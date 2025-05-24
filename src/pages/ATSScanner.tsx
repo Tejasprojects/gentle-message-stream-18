@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
@@ -458,7 +457,7 @@ const ATSScanner = () => {
                         <p className="text-sm text-gray-500 mb-3">{job.location}</p>
                         <div className="flex justify-between items-center">
                           <span className="text-sm font-medium text-green-600">
-                            {job.salary_range || "Salary not specified"}
+                            {job.salary || "Salary not specified"}
                           </span>
                           <Button size="sm" variant="outline">
                             View Job
