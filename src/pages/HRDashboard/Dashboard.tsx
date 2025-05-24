@@ -29,9 +29,9 @@ const Dashboard = () => {
 
         if (jobError) console.error("Error fetching jobs:", jobError);
 
-        // Fetch total applicants count
+        // Fetch total applicants count from job_applications table
         const { count: applicantCount, error: applicantError } = await supabase
-          .from('applications')
+          .from('job_applications')
           .select('*', { count: 'exact', head: true });
 
         if (applicantError) console.error("Error fetching applicants:", applicantError);
@@ -52,24 +52,38 @@ const Dashboard = () => {
           { title: "Offer Letters Sent", value: "8", icon: FileText }, // Keeping this hardcoded for now as we don't have a specific table for offers
         ]);
 
-        // Fetch recent applications with candidate names
+        // Fetch recent applications with user profiles from job_applications table
         const { data: applications, error: applicationsError } = await supabase
-          .from('applications')
+          .from('job_applications')
           .select(`
             id,
-            application_date,
-            candidates (
-              first_name,
-              last_name
-            )
+            date_applied,
+            job_title,
+            user_id
           `)
-          .order('application_date', { ascending: false })
+          .order('date_applied', { ascending: false })
           .limit(4);
 
         if (applicationsError) {
           console.error("Error fetching recent applications:", applicationsError);
         } else {
-          setRecentApplications(applications || []);
+          // Get user profiles for each application
+          const applicationsWithProfiles = await Promise.all(
+            (applications || []).map(async (app) => {
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('full_name')
+                .eq('id', app.user_id)
+                .single();
+
+              return {
+                ...app,
+                candidate_name: profileData?.full_name || 'Unknown Candidate'
+              };
+            })
+          );
+          
+          setRecentApplications(applicationsWithProfiles);
         }
       } catch (error) {
         console.error("Error in fetching dashboard data:", error);
@@ -127,13 +141,12 @@ const Dashboard = () => {
                 <div className="space-y-4">
                   {recentApplications.map((app: any) => (
                     <div key={app.id} className="flex items-center justify-between border-b pb-2">
-                      <span>
-                        {app.candidates ? 
-                          `${app.candidates.first_name} ${app.candidates.last_name}` : 
-                          "Unknown Candidate"}
-                      </span>
+                      <div>
+                        <span className="font-medium">{app.candidate_name}</span>
+                        <p className="text-sm text-muted-foreground">{app.job_title}</p>
+                      </div>
                       <span className="text-xs text-muted-foreground">
-                        {new Date(app.application_date).toLocaleDateString()}
+                        {new Date(app.date_applied).toLocaleDateString()}
                       </span>
                     </div>
                   ))}

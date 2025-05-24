@@ -19,12 +19,11 @@ const Jobs = () => {
     async function fetchJobs() {
       setLoading(true);
       try {
-        // Get all jobs for the table with updated fields
+        // Get all jobs for the table with applications count from job_applications table
         const { data: jobsData, error: jobsError } = await supabase
           .from('jobs')
           .select(`
             *,
-            applications(id),
             hr_members(first_name, last_name)
           `)
           .order('created_at', { ascending: false });
@@ -32,11 +31,26 @@ const Jobs = () => {
         if (jobsError) {
           console.error("Error fetching jobs:", jobsError);
         } else {
-          setJobs(jobsData || []);
-          setTotalJobs(jobsData?.length || 0);
+          // Get application counts for each job from job_applications table
+          const jobsWithApplicationCounts = await Promise.all(
+            (jobsData || []).map(async (job) => {
+              const { count } = await supabase
+                .from('job_applications')
+                .select('*', { count: 'exact', head: true })
+                .eq('job_id', job.id);
+
+              return {
+                ...job,
+                applications: { length: count || 0 }
+              };
+            })
+          );
+
+          setJobs(jobsWithApplicationCounts);
+          setTotalJobs(jobsWithApplicationCounts?.length || 0);
           
           // Count active jobs
-          const active = jobsData?.filter(job => job.status === 'Open').length || 0;
+          const active = jobsWithApplicationCounts?.filter(job => job.status === 'Open').length || 0;
           setActiveJobs(active);
         }
       } catch (error) {
