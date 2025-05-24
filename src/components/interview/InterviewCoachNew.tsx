@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -330,25 +329,25 @@ const InterviewCoachNew: React.FC = () => {
   };
 
   return (
-    <div className="container max-w-7xl py-6 space-y-6">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold">AI Interview Coach</h1>
-        <p className="text-muted-foreground">
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg shadow-lg">
+        <h1 className="text-3xl font-bold tracking-tight mb-2">AI Interview Coach</h1>
+        <p className="text-blue-100">
           Practice and master your interview skills with AI-powered feedback
         </p>
       </div>
       
       {/* Interview Setup */}
       {step === 'setup' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Interview Setup</CardTitle>
-            <CardDescription>
+        <Card className="shadow-lg border-0">
+          <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-t-lg">
+            <CardTitle className="text-xl">Interview Setup</CardTitle>
+            <CardDescription className="text-blue-100">
               Configure your mock interview settings
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             <form onSubmit={handleSetupSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="job-role">Job Role</Label>
@@ -358,6 +357,7 @@ const InterviewCoachNew: React.FC = () => {
                   value={jobRole}
                   onChange={(e) => setJobRole(e.target.value)}
                   required
+                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
               
@@ -369,6 +369,7 @@ const InterviewCoachNew: React.FC = () => {
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                   required
+                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
               
@@ -378,7 +379,7 @@ const InterviewCoachNew: React.FC = () => {
                   value={difficulty} 
                   onValueChange={setDifficulty}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="border-blue-200 focus:border-blue-500 focus:ring-blue-500">
                     <SelectValue placeholder="Select difficulty" />
                   </SelectTrigger>
                   <SelectContent>
@@ -391,7 +392,10 @@ const InterviewCoachNew: React.FC = () => {
             </form>
           </CardContent>
           <CardFooter>
-            <Button onClick={handleSetupSubmit} className="w-full">
+            <Button 
+              onClick={handleSetupSubmit} 
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+            >
               Prepare Interview
             </Button>
           </CardFooter>
@@ -400,25 +404,25 @@ const InterviewCoachNew: React.FC = () => {
       
       {/* Interview Briefing */}
       {step === 'briefing' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{jobRole} Interview at {company}</CardTitle>
-            <CardDescription>
+        <Card className="shadow-lg border-0">
+          <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-t-lg">
+            <CardTitle className="text-xl">{jobRole} Interview at {company}</CardTitle>
+            <CardDescription className="text-blue-100">
               {difficulty === 'easy' ? 'Introductory' : difficulty === 'hard' ? 'Advanced' : 'Standard'} level interview
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="p-6 space-y-6">
             <div className="space-y-2">
-              <h3 className="font-medium">Interview Overview</h3>
-              <p className="text-muted-foreground">
+              <h3 className="font-medium text-gray-900">Interview Overview</h3>
+              <p className="text-gray-600">
                 This mock interview will simulate a real {jobRole} interview at {company}. 
                 You'll be asked {questions.length} questions typical for this position.
               </p>
             </div>
             
             <div className="space-y-2">
-              <h3 className="font-medium">What to Expect</h3>
-              <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+              <h3 className="font-medium text-gray-900">What to Expect</h3>
+              <ul className="list-disc pl-5 space-y-1 text-gray-600">
                 <li>The video will record your responses for later review</li>
                 <li>You'll receive real-time AI feedback on your performance</li>
                 <li>A detailed report will be generated after the interview</li>
@@ -426,9 +430,9 @@ const InterviewCoachNew: React.FC = () => {
               </ul>
             </div>
             
-            <div className="bg-muted p-4 rounded-lg">
-              <h3 className="font-medium">Tips for Success</h3>
-              <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <h3 className="font-medium text-blue-800">Tips for Success</h3>
+              <ul className="list-disc pl-5 space-y-1 text-blue-700">
                 <li>Ensure your face is well-lit and visible</li>
                 <li>Speak clearly and at a moderate pace</li>
                 <li>Maintain eye contact with the camera</li>
@@ -437,19 +441,26 @@ const InterviewCoachNew: React.FC = () => {
               </ul>
             </div>
             
-            <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
-              <h3 className="font-medium text-blue-800 dark:text-blue-300">Camera and Microphone Access</h3>
-              <p className="text-blue-700 dark:text-blue-400 text-sm">
+            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+              <h3 className="font-medium text-purple-800">Camera and Microphone Access</h3>
+              <p className="text-purple-700 text-sm">
                 You'll need to allow camera and microphone access when prompted.
                 These are used only for the interview simulation and analysis.
               </p>
             </div>
           </CardContent>
           <CardFooter className="flex justify-between flex-wrap gap-2">
-            <Button variant="outline" onClick={() => setStep('setup')}>
+            <Button 
+              variant="outline" 
+              onClick={() => setStep('setup')}
+              className="border-blue-200 text-blue-600 hover:bg-blue-50"
+            >
               Back to Setup
             </Button>
-            <Button onClick={startInterview}>
+            <Button 
+              onClick={startInterview}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+            >
               <Video className="h-4 w-4 mr-2" />
               Start Interview
             </Button>
@@ -461,24 +472,24 @@ const InterviewCoachNew: React.FC = () => {
       {step === 'interview' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <Card className="overflow-hidden">
-              <CardHeader className="p-4 border-b">
+            <Card className="overflow-hidden shadow-lg border-0">
+              <CardHeader className="p-4 border-b bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-t-lg">
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-lg">{jobRole} Interview</CardTitle>
-                    <CardDescription>{company} • Question {currentQuestionIndex + 1} of {questions.length}</CardDescription>
+                    <CardDescription className="text-blue-100">{company} • Question {currentQuestionIndex + 1} of {questions.length}</CardDescription>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Badge variant={isRecording ? "destructive" : "outline"} className="flex items-center">
+                    <Badge variant={isRecording ? "destructive" : "outline"} className="flex items-center bg-white text-gray-800">
                       {isRecording ? (
                         <>
-                          <span className="animate-pulse mr-1">●</span> Recording
+                          <span className="animate-pulse mr-1 text-red-500">●</span> Recording
                         </>
                       ) : (
                         'Not Recording'
                       )}
                     </Badge>
-                    <Badge variant="outline">{formatTime(interviewTime)}</Badge>
+                    <Badge variant="outline" className="bg-white text-gray-800">{formatTime(interviewTime)}</Badge>
                   </div>
                 </div>
               </CardHeader>
@@ -495,8 +506,8 @@ const InterviewCoachNew: React.FC = () => {
                 
                 {/* Feedback popup */}
                 {videoFeedbackVisible && feedback && (
-                  <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-800/90 p-3 rounded-lg shadow-lg border border-border animate-fade-in">
-                    <p className="font-medium text-sm mb-2">Real-time Feedback</p>
+                  <div className="absolute top-4 right-4 bg-white/95 p-3 rounded-lg shadow-lg border border-blue-200 animate-fade-in">
+                    <p className="font-medium text-sm mb-2 text-blue-800">Real-time Feedback</p>
                     <div className="space-y-2 w-[250px]">
                       <div>
                         <div className="flex items-center justify-between text-xs">
@@ -522,7 +533,7 @@ const InterviewCoachNew: React.FC = () => {
                         <Progress value={feedback.voiceClarity} className="h-1" />
                       </div>
                     </div>
-                    <p className="text-xs mt-2 text-muted-foreground">{feedback.feedback}</p>
+                    <p className="text-xs mt-2 text-gray-600">{feedback.feedback}</p>
                   </div>
                 )}
                 
@@ -540,7 +551,7 @@ const InterviewCoachNew: React.FC = () => {
                         <Button 
                           variant="secondary" 
                           size="icon"
-                          className="bg-black/30 hover:bg-black/50 text-white"
+                          className="bg-black/30 hover:bg-black/50 text-white border-0"
                           onClick={toggleCamera}
                         >
                           {cameraOn ? <Camera size={16} /> : <Camera size={16} className="opacity-50" />}
@@ -558,7 +569,7 @@ const InterviewCoachNew: React.FC = () => {
                         <Button 
                           variant="secondary" 
                           size="icon"
-                          className="bg-black/30 hover:bg-black/50 text-white"
+                          className="bg-black/30 hover:bg-black/50 text-white border-0"
                           onClick={toggleMicrophone}
                         >
                           {micOn ? <Mic size={16} /> : <MicOff size={16} />}
@@ -572,10 +583,11 @@ const InterviewCoachNew: React.FC = () => {
                 </div>
               </div>
               
-              <CardFooter className="p-4 flex justify-between">
+              <CardFooter className="p-4 flex justify-between bg-gray-50">
                 <Button
                   onClick={toggleRecording}
                   variant={isRecording ? "destructive" : "default"}
+                  className={!isRecording ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white" : ""}
                 >
                   {isRecording ? (
                     <>
@@ -588,7 +600,10 @@ const InterviewCoachNew: React.FC = () => {
                   )}
                 </Button>
                 
-                <Button onClick={nextQuestion}>
+                <Button 
+                  onClick={nextQuestion}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                >
                   {currentQuestionIndex < questions.length - 1 ? 'Next Question' : 'Complete Interview'}
                 </Button>
               </CardFooter>
@@ -597,31 +612,31 @@ const InterviewCoachNew: React.FC = () => {
           
           <div className="lg:col-span-1">
             <div className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Interview Progress</CardTitle>
+              <Card className="shadow-lg border-0">
+                <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-t-lg">
+                  <CardTitle className="text-lg">Interview Progress</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4">
                   <div className="space-y-2">
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm">Questions</span>
-                        <span className="text-sm font-medium">{currentQuestionIndex + 1}/{questions.length}</span>
+                        <span className="text-sm text-gray-600">Questions</span>
+                        <span className="text-sm font-medium text-gray-900">{currentQuestionIndex + 1}/{questions.length}</span>
                       </div>
                       <Progress value={(currentQuestionIndex + 1) / questions.length * 100} className="h-2" />
                     </div>
                     
                     <div className="pt-2">
-                      <h4 className="text-sm font-medium mb-2">All Questions:</h4>
+                      <h4 className="text-sm font-medium mb-2 text-gray-900">All Questions:</h4>
                       <ul className="space-y-2">
                         {questions.map((q, index) => (
                           <li 
                             key={index} 
                             className={`text-sm p-2 rounded-md ${index === currentQuestionIndex 
-                              ? 'bg-primary text-primary-foreground' 
+                              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
                               : index < currentQuestionIndex 
-                                ? 'bg-muted line-through opacity-50' 
-                                : ''
+                                ? 'bg-blue-50 line-through opacity-50 text-gray-500' 
+                                : 'text-gray-700'
                             }`}
                           >
                             {index + 1}. {q}
@@ -633,47 +648,47 @@ const InterviewCoachNew: React.FC = () => {
                 </CardContent>
               </Card>
               
-              <Card>
-                <CardHeader>
-                  <CardTitle>Live Metrics</CardTitle>
+              <Card className="shadow-lg border-0">
+                <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-t-lg">
+                  <CardTitle className="text-lg">Live Metrics</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="p-4 space-y-3">
                   {feedback ? (
                     <>
                       <div>
                         <div className="flex items-center justify-between text-sm mb-1">
-                          <span>Confidence</span>
-                          <span>{Math.round(feedback.confidence)}%</span>
+                          <span className="text-gray-600">Confidence</span>
+                          <span className="font-medium text-gray-900">{Math.round(feedback.confidence)}%</span>
                         </div>
                         <Progress value={feedback.confidence} className="h-2" />
                       </div>
                       
                       <div>
                         <div className="flex items-center justify-between text-sm mb-1">
-                          <span>Eye Contact</span>
-                          <span>{Math.round(feedback.eyeContact)}%</span>
+                          <span className="text-gray-600">Eye Contact</span>
+                          <span className="font-medium text-gray-900">{Math.round(feedback.eyeContact)}%</span>
                         </div>
                         <Progress value={feedback.eyeContact} className="h-2" />
                       </div>
                       
                       <div>
                         <div className="flex items-center justify-between text-sm mb-1">
-                          <span>Voice Clarity</span>
-                          <span>{Math.round(feedback.voiceClarity)}%</span>
+                          <span className="text-gray-600">Voice Clarity</span>
+                          <span className="font-medium text-gray-900">{Math.round(feedback.voiceClarity)}%</span>
                         </div>
                         <Progress value={feedback.voiceClarity} className="h-2" />
                       </div>
                       
                       <div>
                         <div className="flex items-center justify-between text-sm mb-1">
-                          <span>Tone & Pacing</span>
-                          <span>{Math.round(feedback.tonePacing)}%</span>
+                          <span className="text-gray-600">Tone & Pacing</span>
+                          <span className="font-medium text-gray-900">{Math.round(feedback.tonePacing)}%</span>
                         </div>
                         <Progress value={feedback.tonePacing} className="h-2" />
                       </div>
                     </>
                   ) : (
-                    <div className="flex items-center justify-center py-8 text-muted-foreground">
+                    <div className="flex items-center justify-center py-8 text-gray-500">
                       Waiting for data...
                     </div>
                   )}
