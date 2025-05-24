@@ -93,12 +93,12 @@ const NewLogin = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-amber-900 to-yellow-900 relative overflow-hidden">
+    <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Floating Geometric Shapes */}
         <motion.div
-          className="absolute w-64 h-64 rounded-full bg-gradient-to-r from-amber-400/20 to-yellow-400/20 blur-3xl"
+          className="absolute w-64 h-64 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-500/20 blur-3xl"
           animate={{
             x: [0, 100, 0],
             y: [0, -50, 0],
@@ -112,7 +112,7 @@ const NewLogin = () => {
           style={{ top: '10%', left: '10%' }}
         />
         <motion.div
-          className="absolute w-96 h-96 rounded-full bg-gradient-to-r from-yellow-400/15 to-orange-400/15 blur-3xl"
+          className="absolute w-96 h-96 rounded-full bg-gradient-to-r from-blue-400/15 to-cyan-400/15 blur-3xl"
           animate={{
             x: [0, -80, 0],
             y: [0, 60, 0],
@@ -127,7 +127,7 @@ const NewLogin = () => {
           style={{ bottom: '20%', right: '15%' }}
         />
         <motion.div
-          className="absolute w-48 h-48 rounded-full bg-gradient-to-r from-orange-400/25 to-amber-400/25 blur-2xl"
+          className="absolute w-48 h-48 rounded-full bg-gradient-to-r from-indigo-400/25 to-blue-400/25 blur-2xl"
           animate={{
             x: [0, 60, 0],
             y: [0, -80, 0],
@@ -160,23 +160,23 @@ const NewLogin = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="flex items-center justify-center mb-4">
+            <div className="flex items-center justify-center mb-6">
               <motion.div
-                className="bg-gradient-to-r from-amber-500 to-yellow-600 p-3 rounded-2xl shadow-2xl"
+                className="bg-gradient-to-r from-blue-600 to-indigo-700 p-4 rounded-3xl shadow-2xl"
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
                 <img 
                   src="/lovable-uploads/080dbdc2-6401-4396-a66c-0fee37c675b7.png" 
                   alt="Mahayudh Logo" 
-                  className="h-8 w-8 text-white"
+                  className="h-12 w-12 text-white"
                 />
               </motion.div>
             </div>
             <h1 className="text-4xl font-bold text-white mb-2">
               Mahayudh
             </h1>
-            <p className="text-amber-200 text-lg">Professional Enterprise Solution</p>
+            <p className="text-blue-200 text-lg">Professional Enterprise Solution</p>
           </motion.div>
 
           {/* Main Card */}
@@ -193,12 +193,12 @@ const NewLogin = () => {
                 transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
                 className="transform-gpu"
               >
-                <Card className="backdrop-blur-xl bg-amber-50/10 border border-amber-200/20 shadow-2xl rounded-3xl overflow-hidden">
+                <Card className="backdrop-blur-xl bg-slate-800/30 border border-slate-600/20 shadow-2xl rounded-3xl overflow-hidden">
                   <CardHeader className="text-center pb-4">
                     <CardTitle className="text-2xl font-bold text-white">
                       {isLoginMode ? "Welcome Back" : "Create Account"}
                     </CardTitle>
-                    <CardDescription className="text-amber-200">
+                    <CardDescription className="text-slate-300">
                       {isLoginMode 
                         ? "Sign in to your account to continue" 
                         : "Join us to start your journey"
@@ -224,7 +224,7 @@ const NewLogin = () => {
                             placeholder="Enter your full name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="bg-amber-50/10 border-amber-200/20 text-white placeholder:text-white/60 backdrop-blur-sm focus:bg-amber-50/20 transition-all duration-300"
+                            className="bg-slate-700/30 border-slate-600/20 text-white placeholder:text-slate-400 backdrop-blur-sm focus:bg-slate-700/50 transition-all duration-300"
                             error={errors.name}
                           />
                           {errors.name && (
@@ -250,7 +250,7 @@ const NewLogin = () => {
                           placeholder="you@example.com"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="bg-amber-50/10 border-amber-200/20 text-white placeholder:text-white/60 backdrop-blur-sm focus:bg-amber-50/20 transition-all duration-300"
+                          className="bg-slate-700/30 border-slate-600/20 text-white placeholder:text-slate-400 backdrop-blur-sm focus:bg-slate-700/50 transition-all duration-300"
                           error={errors.email}
                         />
                         {errors.email && (
@@ -276,13 +276,13 @@ const NewLogin = () => {
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="bg-amber-50/10 border-amber-200/20 text-white placeholder:text-white/60 backdrop-blur-sm focus:bg-amber-50/20 transition-all duration-300 pr-10"
+                            className="bg-slate-700/30 border-slate-600/20 text-white placeholder:text-slate-400 backdrop-blur-sm focus:bg-slate-700/50 transition-all duration-300 pr-10"
                             error={errors.password}
                           />
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white transition-colors"
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
                           >
                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </button>
@@ -310,7 +310,7 @@ const NewLogin = () => {
                             Account Type
                           </Label>
                           <Select value={userRole} onValueChange={(value: UserRole) => setUserRole(value)}>
-                            <SelectTrigger className="bg-amber-50/10 border-amber-200/20 text-white backdrop-blur-sm">
+                            <SelectTrigger className="bg-slate-700/30 border-slate-600/20 text-white backdrop-blur-sm">
                               <SelectValue placeholder="Select account type" />
                             </SelectTrigger>
                             <SelectContent className="bg-slate-800 border-slate-700">
@@ -329,7 +329,7 @@ const NewLogin = () => {
                         <div className="flex justify-end">
                           <Link
                             to="/forgot-password"
-                            className="text-sm text-amber-300 hover:text-amber-200 transition-colors"
+                            className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
                           >
                             Forgot your password?
                           </Link>
@@ -342,7 +342,7 @@ const NewLogin = () => {
                       >
                         <Button
                           type="submit"
-                          className="w-full bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-0"
+                          className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-0"
                           disabled={isLoading}
                         >
                           {isLoading ? (
@@ -359,12 +359,12 @@ const NewLogin = () => {
                     </form>
 
                     <div className="text-center">
-                      <p className="text-white/70">
+                      <p className="text-slate-300">
                         {isLoginMode ? "Don't have an account?" : "Already have an account?"}
                       </p>
                       <motion.button
                         onClick={toggleMode}
-                        className="text-amber-300 hover:text-amber-200 font-medium transition-colors mt-1"
+                        className="text-blue-400 hover:text-blue-300 font-medium transition-colors mt-1"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -379,7 +379,7 @@ const NewLogin = () => {
 
           {/* Footer */}
           <motion.div
-            className="text-center mt-8 text-white/60"
+            className="text-center mt-8 text-slate-400"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.8 }}
