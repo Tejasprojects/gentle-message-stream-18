@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { Loader2, Plus, X } from "lucide-react";
+import { Loader2, Plus, X, Briefcase, Building, MapPin, Users, DollarSign, Calendar, Mail, Phone, Award, GraduationCap, Star, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const CreateJob = () => {
@@ -233,293 +233,440 @@ const CreateJob = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto py-6">
-        <h1 className="text-2xl font-bold mb-6">Create New Job Posting</h1>
-        
-        <form onSubmit={handleSubmit}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Job Details</CardTitle>
-              <CardDescription>Enter the details for the new job posting</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Basic Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Basic Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="company_name">Company Name <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="company_name"
-                      placeholder="e.g. Tech Corp Inc."
-                      value={jobData.company_name}
-                      onChange={(e) => handleChange('company_name', e.target.value)}
-                      required
-                    />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+        {/* Premium Header */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 text-white mb-8 rounded-2xl mx-4 mt-4">
+          <div className="absolute inset-0 opacity-10" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          }} />
+          
+          <div className="relative p-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+              <div>
+                <h1 className="text-4xl font-bold tracking-tight flex items-center gap-3 mb-2">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                    <Sparkles className="h-6 w-6" />
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Job Title <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="title"
-                      placeholder="e.g. Senior Software Engineer"
-                      value={jobData.title}
-                      onChange={(e) => handleChange('title', e.target.value)}
-                      required
-                    />
+                  Create Premium Job Posting
+                </h1>
+                <p className="text-xl text-slate-300">
+                  Design exceptional opportunities with our advanced job creation suite
+                </p>
+                <div className="flex items-center mt-4 space-x-6">
+                  <div className="flex items-center text-emerald-400">
+                    <Star className="w-4 h-4 mr-2" />
+                    <span className="text-sm font-medium">Enterprise-Grade Quality</span>
                   </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="description">Job Description <span className="text-red-500">*</span></Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Enter the job description"
-                    value={jobData.description}
-                    onChange={(e) => handleChange('description', e.target.value)}
-                    rows={5}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Skills Required <span className="text-red-500">*</span></Label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Enter a skill and press Add"
-                      value={skillInput}
-                      onChange={(e) => setSkillInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
-                    />
-                    <Button type="button" onClick={addSkill} variant="outline">
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {skills.map((skill, index) => (
-                      <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                        {skill}
-                        <X 
-                          className="h-3 w-3 cursor-pointer" 
-                          onClick={() => removeSkill(skill)}
-                        />
-                      </Badge>
-                    ))}
+                  <div className="flex items-center text-blue-400">
+                    <Award className="w-4 h-4 mr-2" />
+                    <span className="text-sm font-medium">AI-Enhanced Optimization</span>
                   </div>
                 </div>
               </div>
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/hr-dashboard/jobs')}
+                className="border-white/30 text-white hover:bg-white/10 px-6 py-3 rounded-xl font-semibold"
+              >
+                ← Back to Jobs
+              </Button>
+            </div>
+          </div>
+        </div>
 
-              {/* Employment Details */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Employment Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Experience Level <span className="text-red-500">*</span></Label>
-                    <Select value={jobData.experience_level} onValueChange={(value) => handleChange('experience_level', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select experience level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Entry Level">Entry Level</SelectItem>
-                        <SelectItem value="Mid-Level">Mid-Level</SelectItem>
-                        <SelectItem value="Senior">Senior</SelectItem>
-                        <SelectItem value="Executive">Executive</SelectItem>
-                      </SelectContent>
-                    </Select>
+        <div className="container mx-auto px-4 pb-8">
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-8">
+              {/* Basic Information Section */}
+              <Card className="bg-white/80 backdrop-blur-sm shadow-2xl border-0 rounded-3xl overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100/50">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+                      <Briefcase className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl font-bold text-slate-900">Essential Job Information</CardTitle>
+                      <CardDescription className="text-slate-600">Define the core details of your opportunity</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-8 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <Label htmlFor="company_name" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                        <Building className="w-4 h-4" />
+                        Company Name <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="company_name"
+                        placeholder="e.g. Tech Innovation Corp"
+                        value={jobData.company_name}
+                        onChange={(e) => handleChange('company_name', e.target.value)}
+                        className="h-12 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <Label htmlFor="title" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                        <Star className="w-4 h-4" />
+                        Job Title <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="title"
+                        placeholder="e.g. Senior Software Engineer"
+                        value={jobData.title}
+                        onChange={(e) => handleChange('title', e.target.value)}
+                        className="h-12 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <Label htmlFor="description" className="text-base font-semibold text-slate-700">
+                      Job Description <span className="text-red-500">*</span>
+                    </Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Craft a compelling description that attracts top talent..."
+                      value={jobData.description}
+                      onChange={(e) => handleChange('description', e.target.value)}
+                      rows={6}
+                      className="border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm resize-none"
+                      required
+                    />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Employment Type <span className="text-red-500">*</span></Label>
+                  <div className="space-y-3">
+                    <Label className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                      <Award className="w-4 h-4" />
+                      Required Skills <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="flex gap-3">
+                      <Input
+                        placeholder="Add a skill and press the + button"
+                        value={skillInput}
+                        onChange={(e) => setSkillInput(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                        className="h-12 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm"
+                      />
+                      <Button 
+                        type="button" 
+                        onClick={addSkill} 
+                        className="h-12 px-6 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-xl font-semibold"
+                      >
+                        <Plus className="h-5 w-5" />
+                      </Button>
+                    </div>
+                    <div className="flex flex-wrap gap-3 mt-4">
+                      {skills.map((skill, index) => (
+                        <Badge key={index} className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:shadow-md transition-all">
+                          {skill}
+                          <X 
+                            className="h-3 w-3 cursor-pointer hover:text-red-600 transition-colors" 
+                            onClick={() => removeSkill(skill)}
+                          />
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Employment Details Section */}
+              <Card className="bg-white/80 backdrop-blur-sm shadow-2xl border-0 rounded-3xl overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100/50">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center">
+                      <Users className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl font-bold text-slate-900">Employment Specifications</CardTitle>
+                      <CardDescription className="text-slate-600">Define role requirements and working arrangements</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-8 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <Label className="text-base font-semibold text-slate-700">Experience Level <span className="text-red-500">*</span></Label>
+                      <Select value={jobData.experience_level} onValueChange={(value) => handleChange('experience_level', value)}>
+                        <SelectTrigger className="h-12 border-2 border-slate-200 rounded-xl bg-white/70 backdrop-blur-sm">
+                          <SelectValue placeholder="Select experience level" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-0 shadow-2xl">
+                          <SelectItem value="Entry Level">Entry Level</SelectItem>
+                          <SelectItem value="Mid-Level">Mid-Level</SelectItem>
+                          <SelectItem value="Senior">Senior</SelectItem>
+                          <SelectItem value="Executive">Executive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label className="text-base font-semibold text-slate-700">Department <span className="text-red-500">*</span></Label>
+                      <Select value={jobData.department} onValueChange={(value) => handleChange('department', value)}>
+                        <SelectTrigger className="h-12 border-2 border-slate-200 rounded-xl bg-white/70 backdrop-blur-sm">
+                          <SelectValue placeholder="Select department" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-0 shadow-2xl">
+                          <SelectItem value="Engineering">Engineering</SelectItem>
+                          <SelectItem value="Product">Product</SelectItem>
+                          <SelectItem value="Design">Design</SelectItem>
+                          <SelectItem value="Marketing">Marketing</SelectItem>
+                          <SelectItem value="Sales">Sales</SelectItem>
+                          <SelectItem value="HR">Human Resources</SelectItem>
+                          <SelectItem value="Finance">Finance</SelectItem>
+                          <SelectItem value="Operations">Operations</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-base font-semibold text-slate-700">Employment Type <span className="text-red-500">*</span></Label>
                     <RadioGroup 
                       value={jobData.employment_type} 
                       onValueChange={(value) => handleChange('employment_type', value)}
-                      className="flex flex-wrap gap-4"
+                      className="grid grid-cols-2 md:grid-cols-5 gap-4"
                     >
                       {['Full-time', 'Part-time', 'Contract', 'Internship', 'Freelance'].map((type) => (
-                        <div key={type} className="flex items-center space-x-2">
-                          <RadioGroupItem value={type} id={type} />
-                          <Label htmlFor={type}>{type}</Label>
+                        <div key={type} className="flex items-center space-x-3 bg-white/50 border-2 border-slate-200 rounded-xl p-4 hover:border-blue-300 transition-colors">
+                          <RadioGroupItem value={type} id={type} className="text-blue-600" />
+                          <Label htmlFor={type} className="font-medium text-slate-700 cursor-pointer">{type}</Label>
                         </div>
                       ))}
                     </RadioGroup>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="work_location">Work Location <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="work_location"
-                      placeholder="e.g. Remote, New York, Hybrid"
-                      value={jobData.work_location}
-                      onChange={(e) => handleChange('work_location', e.target.value)}
-                      required
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <Label htmlFor="work_location" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
+                        Work Location <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="work_location"
+                        placeholder="e.g. Remote, New York, Hybrid"
+                        value={jobData.work_location}
+                        onChange={(e) => handleChange('work_location', e.target.value)}
+                        className="h-12 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label htmlFor="job_category" className="text-base font-semibold text-slate-700">Job Category <span className="text-red-500">*</span></Label>
+                      <Select value={jobData.job_category} onValueChange={(value) => handleChange('job_category', value)}>
+                        <SelectTrigger className="h-12 border-2 border-slate-200 rounded-xl bg-white/70 backdrop-blur-sm">
+                          <SelectValue placeholder="Select job category" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-0 shadow-2xl">
+                          <SelectItem value="Software Development">Software Development</SelectItem>
+                          <SelectItem value="Data Science">Data Science</SelectItem>
+                          <SelectItem value="Product Management">Product Management</SelectItem>
+                          <SelectItem value="UI/UX Design">UI/UX Design</SelectItem>
+                          <SelectItem value="DevOps">DevOps</SelectItem>
+                          <SelectItem value="Quality Assurance">Quality Assurance</SelectItem>
+                          <SelectItem value="Cybersecurity">Cybersecurity</SelectItem>
+                          <SelectItem value="Project Management">Project Management</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Compensation & Timeline Section */}
+              <Card className="bg-white/80 backdrop-blur-sm shadow-2xl border-0 rounded-3xl overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-100/50">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                      <DollarSign className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl font-bold text-slate-900">Compensation & Timeline</CardTitle>
+                      <CardDescription className="text-slate-600">Set competitive salary ranges and important dates</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-8 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-3">
+                      <Label htmlFor="salary_min" className="text-base font-semibold text-slate-700">Minimum Salary</Label>
+                      <Input
+                        id="salary_min"
+                        type="number"
+                        placeholder="50,000"
+                        value={jobData.salary_min}
+                        onChange={(e) => handleChange('salary_min', e.target.value)}
+                        className="h-12 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="salary_max" className="text-base font-semibold text-slate-700">Maximum Salary</Label>
+                      <Input
+                        id="salary_max"
+                        type="number"
+                        placeholder="80,000"
+                        value={jobData.salary_max}
+                        onChange={(e) => handleChange('salary_max', e.target.value)}
+                        className="h-12 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="currency" className="text-base font-semibold text-slate-700">Currency</Label>
+                      <Select value={jobData.currency} onValueChange={(value) => handleChange('currency', value)}>
+                        <SelectTrigger className="h-12 border-2 border-slate-200 rounded-xl bg-white/70 backdrop-blur-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-0 shadow-2xl">
+                          <SelectItem value="USD">USD</SelectItem>
+                          <SelectItem value="EUR">EUR</SelectItem>
+                          <SelectItem value="GBP">GBP</SelectItem>
+                          <SelectItem value="CAD">CAD</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <Label htmlFor="application_deadline" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Application Deadline <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="application_deadline"
+                        type="date"
+                        value={jobData.application_deadline}
+                        onChange={(e) => handleChange('application_deadline', e.target.value)}
+                        className="h-12 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="start_date" className="text-base font-semibold text-slate-700">Expected Start Date</Label>
+                      <Input
+                        id="start_date"
+                        type="date"
+                        value={jobData.start_date}
+                        onChange={(e) => handleChange('start_date', e.target.value)}
+                        className="h-12 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Contact & Additional Information Section */}
+              <Card className="bg-white/80 backdrop-blur-sm shadow-2xl border-0 rounded-3xl overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100/50">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center">
+                      <Mail className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl font-bold text-slate-900">Contact & Additional Details</CardTitle>
+                      <CardDescription className="text-slate-600">Provide contact information and enhance your job posting</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-8 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <Label htmlFor="contact_email" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        Contact Email <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="contact_email"
+                        type="email"
+                        placeholder="hr@company.com"
+                        value={jobData.contact_email}
+                        onChange={(e) => handleChange('contact_email', e.target.value)}
+                        className="h-12 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="contact_phone" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                        <Phone className="w-4 h-4" />
+                        Contact Phone
+                      </Label>
+                      <Input
+                        id="contact_phone"
+                        placeholder="+1 (555) 123-4567"
+                        value={jobData.contact_phone}
+                        onChange={(e) => handleChange('contact_phone', e.target.value)}
+                        className="h-12 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="benefits" className="text-base font-semibold text-slate-700">Benefits & Perks</Label>
+                    <Textarea
+                      id="benefits"
+                      placeholder="Health insurance, 401k, flexible hours, remote work options..."
+                      value={jobData.benefits}
+                      onChange={(e) => handleChange('benefits', e.target.value)}
+                      rows={4}
+                      className="border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm resize-none"
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="department">Department <span className="text-red-500">*</span></Label>
-                    <Select value={jobData.department} onValueChange={(value) => handleChange('department', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select department" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Engineering">Engineering</SelectItem>
-                        <SelectItem value="Product">Product</SelectItem>
-                        <SelectItem value="Design">Design</SelectItem>
-                        <SelectItem value="Marketing">Marketing</SelectItem>
-                        <SelectItem value="Sales">Sales</SelectItem>
-                        <SelectItem value="HR">Human Resources</SelectItem>
-                        <SelectItem value="Finance">Finance</SelectItem>
-                        <SelectItem value="Operations">Operations</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="job_category">Job Category <span className="text-red-500">*</span></Label>
-                  <Select value={jobData.job_category} onValueChange={(value) => handleChange('job_category', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select job category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Software Development">Software Development</SelectItem>
-                      <SelectItem value="Data Science">Data Science</SelectItem>
-                      <SelectItem value="Product Management">Product Management</SelectItem>
-                      <SelectItem value="UI/UX Design">UI/UX Design</SelectItem>
-                      <SelectItem value="DevOps">DevOps</SelectItem>
-                      <SelectItem value="Quality Assurance">Quality Assurance</SelectItem>
-                      <SelectItem value="Cybersecurity">Cybersecurity</SelectItem>
-                      <SelectItem value="Project Management">Project Management</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Compensation & Timeline */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Compensation & Timeline</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="salary_min">Minimum Salary</Label>
-                    <Input
-                      id="salary_min"
-                      type="number"
-                      placeholder="50000"
-                      value={jobData.salary_min}
-                      onChange={(e) => handleChange('salary_min', e.target.value)}
+                  <div className="space-y-3">
+                    <Label htmlFor="education_requirements" className="text-base font-semibold text-slate-700 flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4" />
+                      Education & Certification Requirements
+                    </Label>
+                    <Textarea
+                      id="education_requirements"
+                      placeholder="Bachelor's degree in Computer Science or equivalent experience..."
+                      value={jobData.education_requirements}
+                      onChange={(e) => handleChange('education_requirements', e.target.value)}
+                      rows={4}
+                      className="border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white/70 backdrop-blur-sm resize-none"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="salary_max">Maximum Salary</Label>
-                    <Input
-                      id="salary_max"
-                      type="number"
-                      placeholder="80000"
-                      value={jobData.salary_max}
-                      onChange={(e) => handleChange('salary_max', e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="currency">Currency</Label>
-                    <Select value={jobData.currency} onValueChange={(value) => handleChange('currency', value)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="USD">USD</SelectItem>
-                        <SelectItem value="EUR">EUR</SelectItem>
-                        <SelectItem value="GBP">GBP</SelectItem>
-                        <SelectItem value="CAD">CAD</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                </CardContent>
+              </Card>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="application_deadline">Application Deadline <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="application_deadline"
-                      type="date"
-                      value={jobData.application_deadline}
-                      onChange={(e) => handleChange('application_deadline', e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="start_date">Expected Start Date</Label>
-                    <Input
-                      id="start_date"
-                      type="date"
-                      value={jobData.start_date}
-                      onChange={(e) => handleChange('start_date', e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact & Additional Info */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Contact & Additional Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="contact_email">Contact Email <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="contact_email"
-                      type="email"
-                      placeholder="hr@company.com"
-                      value={jobData.contact_email}
-                      onChange={(e) => handleChange('contact_email', e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="contact_phone">Contact Phone</Label>
-                    <Input
-                      id="contact_phone"
-                      placeholder="+1 (555) 123-4567"
-                      value={jobData.contact_phone}
-                      onChange={(e) => handleChange('contact_phone', e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="benefits">Benefits & Perks</Label>
-                  <Textarea
-                    id="benefits"
-                    placeholder="Health insurance, 401k, flexible hours..."
-                    value={jobData.benefits}
-                    onChange={(e) => handleChange('benefits', e.target.value)}
-                    rows={3}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="education_requirements">Education & Certification Requirements</Label>
-                  <Textarea
-                    id="education_requirements"
-                    placeholder="Bachelor's degree in Computer Science or equivalent..."
-                    value={jobData.education_requirements}
-                    onChange={(e) => handleChange('education_requirements', e.target.value)}
-                    rows={3}
-                  />
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline" type="button" onClick={() => navigate('/hr-dashboard/jobs')}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create Job
-              </Button>
-            </CardFooter>
-          </Card>
-        </form>
+              {/* Action Buttons */}
+              <Card className="bg-gradient-to-r from-slate-50 to-blue-50 shadow-2xl border-0 rounded-3xl overflow-hidden">
+                <CardFooter className="p-8 flex justify-between items-center">
+                  <Button 
+                    variant="outline" 
+                    type="button" 
+                    onClick={() => navigate('/hr-dashboard/jobs')}
+                    className="px-8 py-3 h-12 border-2 border-slate-300 text-slate-700 hover:bg-slate-100 rounded-xl font-semibold"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    disabled={loading}
+                    className="px-12 py-3 h-12 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Creating Premium Job...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-5 w-5" />
+                        Create Premium Job
+                      </>
+                    )}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          </form>
+        </div>
       </div>
     </DashboardLayout>
   );
