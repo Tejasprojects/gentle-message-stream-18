@@ -19,7 +19,7 @@ const Jobs = () => {
     async function fetchJobs() {
       setLoading(true);
       try {
-        // Get all jobs for the table
+        // Get all jobs for the table with updated fields
         const { data: jobsData, error: jobsError } = await supabase
           .from('jobs')
           .select(`
@@ -35,7 +35,7 @@ const Jobs = () => {
           setJobs(jobsData || []);
           setTotalJobs(jobsData?.length || 0);
           
-          // Count active jobs - using 'Open' status which is a valid enum value
+          // Count active jobs
           const active = jobsData?.filter(job => job.status === 'Open').length || 0;
           setActiveJobs(active);
         }
@@ -65,6 +65,10 @@ const Jobs = () => {
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800/20 dark:text-yellow-400';
       case 'Closed':
         return 'bg-gray-100 text-gray-800 dark:bg-gray-800/20 dark:text-gray-400';
+      case 'Filled':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-800/20 dark:text-blue-400';
+      case 'On Hold':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-800/20 dark:text-orange-400';
       default:
         return 'bg-blue-100 text-blue-800 dark:bg-blue-800/20 dark:text-blue-400';
     }
@@ -136,10 +140,12 @@ const Jobs = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Job Title</TableHead>
+                      <TableHead>Company</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Applications</TableHead>
                       <TableHead>Department</TableHead>
-                      <TableHead>Location</TableHead>
+                      <TableHead>Experience Level</TableHead>
+                      <TableHead>Employment Type</TableHead>
                       <TableHead>Posted Date</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -148,22 +154,24 @@ const Jobs = () => {
                     {jobs.length > 0 ? jobs.map((job) => (
                       <TableRow key={job.id}>
                         <TableCell className="font-medium">{job.title}</TableCell>
+                        <TableCell>{job.company_name || "N/A"}</TableCell>
                         <TableCell>
                           <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(job.status)}`}>
                             {job.status}
                           </span>
                         </TableCell>
                         <TableCell>{job.applications?.length || 0}</TableCell>
-                        <TableCell>{job.department || "General"}</TableCell>
-                        <TableCell>{job.location || "Remote"}</TableCell>
-                        <TableCell>{new Date(job.posted_date).toLocaleDateString()}</TableCell>
+                        <TableCell>{job.department || "N/A"}</TableCell>
+                        <TableCell>{job.experience_level || "N/A"}</TableCell>
+                        <TableCell>{job.employment_type || "N/A"}</TableCell>
+                        <TableCell>{job.posted_date ? new Date(job.posted_date).toLocaleDateString() : "N/A"}</TableCell>
                         <TableCell>
                           <Button variant="ghost" size="sm" onClick={() => handleViewJob(job.id)}>View</Button>
                         </TableCell>
                       </TableRow>
                     )) : (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-6">
+                        <TableCell colSpan={9} className="text-center py-6">
                           No jobs found. Create a new job to get started.
                         </TableCell>
                       </TableRow>

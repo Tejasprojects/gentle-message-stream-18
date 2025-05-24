@@ -38,3 +38,35 @@ export interface JobListing {
   created_at: string;
   updated_at: string;
 }
+
+export interface Job {
+  id: string;
+  company_name: string | null;
+  title: string;
+  description: string;
+  skills_required: string[] | null;
+  experience_level: string | null;
+  employment_type: string | null;
+  work_location: string | null;
+  department: string | null;
+  job_category: string | null;
+  salary_min: number | null;
+  salary_max: number | null;
+  currency: string | null;
+  application_deadline: string | null;
+  start_date: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  benefits: string | null;
+  requirements: string | null;
+  education_requirements: string | null;
+  location: string | null;
+  job_type: string | null;
+  salary_range: string | null;
+  company_id: string;
+  assigned_hr_id: string | null;
+  status: string | null;
+  posted_date: string | null;
+  created_at: string;
+  updated_at: string;
+}

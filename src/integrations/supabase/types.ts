@@ -610,50 +610,95 @@ export type Database = {
         Row: {
           application_deadline: string | null
           assigned_hr_id: string | null
+          benefits: string | null
           company_id: string
+          company_name: string | null
+          contact_email: string | null
+          contact_phone: string | null
           created_at: string
+          currency: string | null
+          department: string | null
           description: string
+          education_requirements: string | null
+          employment_type: string | null
+          experience_level: string | null
           id: string
+          job_category: string | null
           job_type: Database["public"]["Enums"]["job_type_option"] | null
           location: string | null
           posted_date: string | null
           requirements: string | null
+          salary_max: number | null
+          salary_min: number | null
           salary_range: string | null
+          skills_required: string[] | null
+          start_date: string | null
           status: Database["public"]["Enums"]["job_status_type"] | null
           title: string
           updated_at: string
+          work_location: string | null
         }
         Insert: {
           application_deadline?: string | null
           assigned_hr_id?: string | null
+          benefits?: string | null
           company_id: string
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
+          currency?: string | null
+          department?: string | null
           description: string
+          education_requirements?: string | null
+          employment_type?: string | null
+          experience_level?: string | null
           id?: string
+          job_category?: string | null
           job_type?: Database["public"]["Enums"]["job_type_option"] | null
           location?: string | null
           posted_date?: string | null
           requirements?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
           salary_range?: string | null
+          skills_required?: string[] | null
+          start_date?: string | null
           status?: Database["public"]["Enums"]["job_status_type"] | null
           title: string
           updated_at?: string
+          work_location?: string | null
         }
         Update: {
           application_deadline?: string | null
           assigned_hr_id?: string | null
+          benefits?: string | null
           company_id?: string
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
+          currency?: string | null
+          department?: string | null
           description?: string
+          education_requirements?: string | null
+          employment_type?: string | null
+          experience_level?: string | null
           id?: string
+          job_category?: string | null
           job_type?: Database["public"]["Enums"]["job_type_option"] | null
           location?: string | null
           posted_date?: string | null
           requirements?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
           salary_range?: string | null
+          skills_required?: string[] | null
+          start_date?: string | null
           status?: Database["public"]["Enums"]["job_status_type"] | null
           title?: string
           updated_at?: string
+          work_location?: string | null
         }
         Relationships: [
           {
@@ -848,6 +893,17 @@ export type Database = {
         | "Rejected"
         | "On Hold"
         | "Withdrawn"
+      employment_type_enum:
+        | "Full-time"
+        | "Part-time"
+        | "Contract"
+        | "Internship"
+        | "Freelance"
+      experience_level_enum:
+        | "Entry Level"
+        | "Mid-Level"
+        | "Senior"
+        | "Executive"
       hr_member_role_option:
         | "Recruiter"
         | "Sourcer"
@@ -876,6 +932,7 @@ export type Database = {
         | "Internship"
         | "Temporary"
       user_role: "student" | "organization" | "admin"
+      work_location_type_enum: "Remote" | "On-site" | "Hybrid"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1035,6 +1092,19 @@ export const Constants = {
         "On Hold",
         "Withdrawn",
       ],
+      employment_type_enum: [
+        "Full-time",
+        "Part-time",
+        "Contract",
+        "Internship",
+        "Freelance",
+      ],
+      experience_level_enum: [
+        "Entry Level",
+        "Mid-Level",
+        "Senior",
+        "Executive",
+      ],
       hr_member_role_option: [
         "Recruiter",
         "Sourcer",
@@ -1067,6 +1137,7 @@ export const Constants = {
         "Temporary",
       ],
       user_role: ["student", "organization", "admin"],
+      work_location_type_enum: ["Remote", "On-site", "Hybrid"],
     },
   },
 } as const
