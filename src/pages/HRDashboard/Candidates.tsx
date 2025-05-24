@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Users, Search, Eye, CheckCircle, XCircle, Star } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,7 +26,7 @@ interface Application {
   rating?: number;
   application_status?: string;
   date_applied: string;
-  profiles?: {
+  user_profile?: {
     full_name?: string;
     email?: string;
   };
@@ -44,24 +45,39 @@ const Candidates = () => {
   const fetchApplications = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // First get all applications
+      const { data: applicationsData, error: applicationsError } = await supabase
         .from('job_applications')
-        .select(`
-          *,
-          profiles(full_name, email)
-        `)
+        .select('*')
         .order('date_applied', { ascending: false });
 
-      if (error) {
-        console.error("Error fetching applications:", error);
+      if (applicationsError) {
+        console.error("Error fetching applications:", applicationsError);
         toast({
           title: "Error",
           description: "Failed to fetch applications",
           variant: "destructive"
         });
-      } else {
-        setApplications(data || []);
+        return;
       }
+
+      // Then get user profiles for each application
+      const applicationsWithProfiles = await Promise.all(
+        (applicationsData || []).map(async (app) => {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('full_name, email')
+            .eq('id', app.user_id)
+            .single();
+
+          return {
+            ...app,
+            user_profile: profileData || undefined
+          };
+        })
+      );
+
+      setApplications(applicationsWithProfiles);
     } catch (error) {
       console.error("Error in fetching applications:", error);
     } finally {
@@ -193,8 +209,8 @@ const Candidates = () => {
     if (!searchQuery) return true;
     
     const searchLower = searchQuery.toLowerCase();
-    const candidateName = app.profiles?.full_name?.toLowerCase() || '';
-    const email = app.profiles?.email?.toLowerCase() || '';
+    const candidateName = app.user_profile?.full_name?.toLowerCase() || '';
+    const email = app.user_profile?.email?.toLowerCase() || '';
     const jobTitle = app.job_title?.toLowerCase() || '';
     
     return candidateName.includes(searchLower) || 
@@ -293,16 +309,16 @@ const Candidates = () => {
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10">
                             <AvatarFallback className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400">
-                              {application.profiles?.full_name ? 
-                                application.profiles.full_name.split(' ').map(n => n[0]).join('') : '??'}
+                              {application.user_profile?.full_name ? 
+                                application.user_profile.full_name.split(' ').map(n => n[0]).join('') : '??'}
                             </AvatarFallback>
                           </Avatar>
                           <div>
                             <h3 className="font-medium text-gray-900 dark:text-white">
-                              {application.profiles?.full_name || 'Unknown Candidate'}
+                              {application.user_profile?.full_name || 'Unknown Candidate'}
                             </h3>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {application.profiles?.email}
+                              {application.user_profile?.email}
                             </p>
                           </div>
                         </div>
