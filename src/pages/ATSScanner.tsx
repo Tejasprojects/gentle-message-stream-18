@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import MainLayout from "@/components/layout/MainLayout";
+import StudentDashboardLayout from "@/components/layout/StudentDashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Upload, FileText, CheckCircle, AlertCircle, Zap, Download, Target, Info, Briefcase } from "lucide-react";
@@ -224,318 +224,199 @@ const ATSScanner = () => {
             professional: "Project Management, Business Analysis",
             technical: "JavaScript, React, Node.js, TypeScript",
             soft: "Communication, Teamwork, Problem Solving"
-          },
-          objective: "Experienced software engineer seeking a challenging role in a dynamic organization."
+          }
         };
         
-        const scoreData = await generateATSScore(mockResumeData);
-        setAtsScore(scoreData);
+        const score = await generateATSScore(mockResumeData);
+        setAtsScore(score);
         setIsAnalyzing(false);
         
-        toast({
-          title: "Analysis Complete",
-          description: "Your resume has been analyzed successfully."
-        });
-        
-        // Fetch job recommendations based on skills and job title
         setIsLoadingJobs(true);
-        
         try {
-          // Extract skills from the resume
-          const skills = Object.values(mockResumeData.skills)
-            .filter(Boolean)
-            .join(", ")
-            .split(/[,;]\s*/)
-            .filter(Boolean);
-          
-          const jobTitle = mockResumeData.personalInfo.jobTitle;
-          const location = mockResumeData.personalInfo.location;
-          
-          const jobs = await getJobRecommendations(skills, jobTitle, location);
-          setJobRecommendations(jobs.slice(0, 6)); // Display top 6 recommendations
-        } catch (jobError) {
-          console.error("Error fetching job recommendations:", jobError);
+          const recommendations = await getJobRecommendations({
+            skills: mockResumeData.skills.technical.split(', '),
+            experience: 3,
+            location: "San Francisco, CA"
+          });
+          setJobRecommendations(recommendations);
+        } catch (error) {
+          console.error("Error fetching job recommendations:", error);
         } finally {
           setIsLoadingJobs(false);
         }
+        
+        toast({
+          title: "Analysis complete",
+          description: "Your resume has been analyzed successfully!",
+        });
       }, 3000);
     } catch (error) {
-      console.error("Error analyzing resume:", error);
       setIsAnalyzing(false);
-      
       toast({
-        title: "Analysis Error",
-        description: "There was a problem analyzing your resume. Please try again.",
+        title: "Analysis failed",
+        description: "There was an error analyzing your resume. Please try again.",
         variant: "destructive"
       });
     }
   };
-  
+
   return (
-    <MainLayout>
-      <div className="min-h-screen py-12 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 z-0"></div>
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-purple-600/20 blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-blue-600/20 blur-3xl animate-pulse"></div>
-        </div>
-        <div className="absolute inset-0 z-0 opacity-5">
-          <div className="h-full w-full" style={{
-            backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.7) 1px, transparent 1px)',
-            backgroundSize: '30px 30px'
-          }}></div>
-        </div>
-        <div className="container mx-auto relative z-10">
-          <div className="text-center mb-10">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-200 mb-4">
-              Scan Your Resume & Optimize for Success
-            </h1>
-            <p className="mx-auto max-w-2xl text-lg text-indigo-200">
-              Upload your resume and our AI will analyze it for ATS compatibility, giving you actionable insights to improve your chances of getting hired.
-            </p>
+    <StudentDashboardLayout>
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row justify-between md:items-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">ATS Scanner</h1>
+            <p className="text-muted-foreground">Optimize your resume for Applicant Tracking Systems</p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div className="order-2 lg:order-1">
-              <Card className="border shadow-sm h-full bg-black/20 backdrop-blur-lg border-white/10">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center text-white">
-                    <Upload className="mr-2 h-5 w-5 text-blue-500" />
-                    Resume Scanner
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div 
-                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
-                      isDragging ? 'border-primary bg-primary/10' : 'border-gray-600 hover:border-primary/70'
-                    }`}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                  >
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleFileInput}
-                      className="hidden"
-                      accept=".pdf,.doc,.docx"
-                    />
-                    
-                    <div className="flex flex-col items-center justify-center">
-                      <FileText className="h-16 w-16 text-indigo-400 mb-4" />
-                      <h3 className="text-xl font-medium text-white mb-2">
-                        Drag & Drop Your Resume
-                      </h3>
-                      <p className="text-gray-400 mb-4">
-                        Upload your PDF or Word resume for ATS analysis
-                      </p>
-                      <Button 
-                        onClick={() => fileInputRef.current?.click()}
-                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-lg hover:from-blue-700 hover:to-indigo-700"
-                      >
-                        <Upload className="mr-2 h-4 w-4" />
-                        Select File
-                      </Button>
-                    </div>
+        </div>
+
+        {/* Upload Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5" />
+              Resume Upload
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div 
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                isDragging 
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20' 
+                  : 'border-gray-300 dark:border-gray-600'
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              {file ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center">
+                    <FileText className="h-16 w-16 text-blue-500" />
                   </div>
-                  
-                  {file && (
-                    <div className="bg-white/5 rounded-lg p-4 backdrop-blur-sm border border-white/10 flex justify-between items-center">
-                      <div className="flex items-center">
-                        <FileText className="h-8 w-8 text-indigo-400 mr-3" />
-                        <div>
-                          <p className="text-white font-medium">{file.name}</p>
-                          <p className="text-gray-400 text-sm">{(file.size / 1024).toFixed(1)} KB</p>
-                        </div>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={removeFile}
-                        className="hover:bg-red-500/20 hover:text-red-500"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </Button>
-                    </div>
-                  )}
-                  
-                  <Button 
-                    onClick={analyzeResume} 
-                    disabled={!file || isAnalyzing} 
-                    className={`w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-lg hover:from-indigo-700 hover:to-purple-700 rounded-lg py-6 text-lg transition-all duration-300 ${
-                      isAnalyzing ? 'animate-pulse' : ''
-                    }`}
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <span className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                        Analyzing Resume...
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="mr-2 h-5 w-5" />
-                        Analyze Resume
-                      </>
-                    )}
-                  </Button>
-                  
-                  <div className="bg-blue-600/10 backdrop-blur-sm border border-blue-600/20 rounded-lg p-4 text-sm text-gray-300">
-                    <div className="flex">
-                      <Info className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-medium text-white mb-1">How it works:</p>
-                        <p>Our AI scans your resume to identify keywords, formatting issues, and content gaps. It then provides a comprehensive ATS score analysis with targeted recommendations to improve your resume's performance.</p>
-                      </div>
-                    </div>
+                  <div>
+                    <p className="text-lg font-medium">{file.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <div className="order-1 lg:order-2">
-              {isAnalyzing ? (
-                <Card className="border shadow-sm h-full bg-black/20 backdrop-blur-lg border-white/10">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center text-white">
-                      <Target className="mr-2 h-5 w-5 text-blue-500" />
-                      Scanning Resume
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div 
-                      ref={scannerRef}
-                      className="flex flex-col items-center justify-center h-[400px] w-full"
+                  <div className="flex justify-center gap-3">
+                    <Button 
+                      onClick={analyzeResume}
+                      disabled={isAnalyzing}
+                      className="bg-blue-600 hover:bg-blue-700"
                     >
-                    </div>
-                    <div className="text-center mt-4">
-                      <p className="text-indigo-300 animate-pulse">Scanning and analyzing your resume...</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ) : atsScore ? (
-                <ATSScoreDisplay scoreData={atsScore} isLoading={false} />
+                      {isAnalyzing ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                          Analyzing...
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="h-4 w-4 mr-2" />
+                          Analyze Resume
+                        </>
+                      )}
+                    </Button>
+                    <Button variant="outline" onClick={removeFile}>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Remove
+                    </Button>
+                  </div>
+                </div>
               ) : (
-                <Card className="border shadow-sm h-full bg-black/20 backdrop-blur-lg border-white/10">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center text-white">
-                      <Target className="mr-2 h-5 w-5 text-blue-500" />
-                      Resume Analysis
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col items-center justify-center py-10 text-center">
-                      <div className="w-24 h-24 rounded-full bg-indigo-900/50 flex items-center justify-center mb-6">
-                        <FileText className="h-12 w-12 text-indigo-400" />
-                      </div>
-                      <h3 className="text-xl font-medium text-white mb-2">
-                        Upload Your Resume to Begin
-                      </h3>
-                      <p className="text-gray-400 max-w-md">
-                        Our AI will analyze your resume for ATS compatibility and provide detailed suggestions to improve your chances of getting hired.
-                      </p>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-                      <div className="flex flex-col items-center text-center p-4 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10">
-                        <div className="w-10 h-10 rounded-full bg-blue-900/50 flex items-center justify-center mb-3">
-                          <Target className="h-5 w-5 text-blue-400" />
-                        </div>
-                        <h4 className="text-white font-medium mb-1">ATS Score</h4>
-                        <p className="text-gray-400 text-sm">Get a detailed breakdown of your resume's performance</p>
-                      </div>
-                      
-                      <div className="flex flex-col items-center text-center p-4 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10">
-                        <div className="w-10 h-10 rounded-full bg-purple-900/50 flex items-center justify-center mb-3">
-                          <AlertCircle className="h-5 w-5 text-purple-400" />
-                        </div>
-                        <h4 className="text-white font-medium mb-1">Suggestions</h4>
-                        <p className="text-gray-400 text-sm">Receive actionable recommendations to improve your resume</p>
-                      </div>
-                      
-                      <div className="flex flex-col items-center text-center p-4 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10">
-                        <div className="w-10 h-10 rounded-full bg-green-900/50 flex items-center justify-center mb-3">
-                          <CheckCircle className="h-5 w-5 text-green-400" />
-                        </div>
-                        <h4 className="text-white font-medium mb-1">Job Match</h4>
-                        <p className="text-gray-400 text-sm">See which jobs your resume is best suited for</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center">
+                    <Upload className="h-16 w-16 text-gray-400" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-medium">Drop your resume here</p>
+                    <p className="text-sm text-gray-500">
+                      or click to browse (PDF, DOC, DOCX)
+                    </p>
+                  </div>
+                  <Button onClick={() => fileInputRef.current?.click()}>
+                    Choose File
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={handleFileInput}
+                    className="hidden"
+                  />
+                </div>
               )}
             </div>
-          </div>
-          
-          {/* Job Recommendations Section */}
-          {(atsScore && jobRecommendations.length > 0) && (
-            <div className="mt-10">
-              <Card className="border shadow-sm bg-black/20 backdrop-blur-lg border-white/10">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center text-white">
-                    <Briefcase className="mr-2 h-5 w-5 text-green-400" />
-                    Recommended Jobs Based on Your Resume
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingJobs ? (
-                    <div className="flex justify-center py-8">
-                      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {jobRecommendations.map(job => (
-                        <div 
-                          key={job.id} 
-                          className="bg-white/5 rounded-lg p-4 border border-white/10 hover:bg-white/10 transition-colors"
-                        >
-                          <h3 className="font-semibold text-white mb-1 line-clamp-1">{job.title}</h3>
-                          <p className="text-sm text-blue-300 mb-2">{job.company}</p>
-                          <p className="text-xs text-gray-300 mb-3">{job.location}</p>
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {job.tags.slice(0, 3).map((tag, index) => (
-                              <span 
-                                key={index} 
-                                className="text-xs bg-indigo-900/50 text-indigo-300 px-2 py-0.5 rounded"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                          <p className="text-xs text-gray-400 line-clamp-2 mb-3">{job.description}</p>
-                          <a 
-                            href={job.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="text-xs text-white bg-indigo-600 hover:bg-indigo-700 rounded px-3 py-1.5 inline-block"
-                          >
-                            View Job
-                          </a>
+          </CardContent>
+        </Card>
+
+        {/* 3D Scanner Visualization */}
+        {isAnalyzing && (
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Analysis in Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div ref={scannerRef} className="w-full h-[300px] rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20" />
+              <p className="text-center mt-4 text-sm text-gray-600 dark:text-gray-400">
+                Scanning your resume for ATS compatibility...
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Results Section */}
+        {atsScore && (
+          <div className="space-y-6">
+            <ATSScoreDisplay score={atsScore} />
+            
+            {/* Job Recommendations */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Briefcase className="h-5 w-5" />
+                  Recommended Jobs
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoadingJobs ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent mx-auto mb-4" />
+                    <p>Finding relevant job opportunities...</p>
+                  </div>
+                ) : jobRecommendations.length > 0 ? (
+                  <div className="grid gap-4">
+                    {jobRecommendations.slice(0, 3).map((job) => (
+                      <div key={job.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-medium">{job.title}</h4>
+                          <span className="text-sm text-gray-500">{job.matchPercentage}% match</span>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          )}
-          
-          <div className="mt-16 text-center">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white mb-6">
-              Ready to build a professional resume from scratch?
-            </h2>
-            <Button 
-              asChild 
-              size="lg" 
-              className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300 text-lg px-8 py-6 hover:scale-105 transform rounded-xl"
-            >
-              <Link to="/builder">
-                <Zap className="mr-2 h-5 w-5" />
-                Build Your Resume
-              </Link>
-            </Button>
+                        <p className="text-sm text-gray-600 mb-2">{job.company}</p>
+                        <p className="text-sm text-gray-500 mb-3">{job.location}</p>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-green-600">
+                            ${job.salaryRange}
+                          </span>
+                          <Button size="sm" variant="outline">
+                            View Job
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-center text-gray-500 py-8">
+                    No job recommendations available at the moment.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
           </div>
-        </div>
+        )}
       </div>
-    </MainLayout>
+    </StudentDashboardLayout>
   );
 };
 
