@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -62,7 +61,6 @@ const StudentDashboardLayout = ({ children }: StudentDashboardLayoutProps) => {
     {
       items: [
         { name: "Dashboard", icon: Home, path: "/student-home" },
-        { name: "Job Search", icon: Search, path: "/job-search" },
         { name: "Apply for Jobs", icon: FileText, path: "/apply" },
         { name: "My Applications", icon: Mail, path: "/my-applications", badge: applicationCount || 0 },
         { name: "My Analytics", icon: BarChart, path: "/analytics" },
