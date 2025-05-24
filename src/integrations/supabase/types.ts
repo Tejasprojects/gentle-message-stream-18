@@ -271,6 +271,60 @@ export type Database = {
           },
         ]
       }
+      ats_scan_results: {
+        Row: {
+          content_score: number
+          created_at: string | null
+          file_name: string
+          file_size: number | null
+          format_score: number
+          id: string
+          job_match: string | null
+          keyword_score: number
+          overall_score: number
+          scan_date: string | null
+          strengths: string[] | null
+          suggestions: string[]
+          updated_at: string | null
+          user_id: string
+          weaknesses: string[] | null
+        }
+        Insert: {
+          content_score: number
+          created_at?: string | null
+          file_name: string
+          file_size?: number | null
+          format_score: number
+          id?: string
+          job_match?: string | null
+          keyword_score: number
+          overall_score: number
+          scan_date?: string | null
+          strengths?: string[] | null
+          suggestions: string[]
+          updated_at?: string | null
+          user_id: string
+          weaknesses?: string[] | null
+        }
+        Update: {
+          content_score?: number
+          created_at?: string | null
+          file_name?: string
+          file_size?: number | null
+          format_score?: number
+          id?: string
+          job_match?: string | null
+          keyword_score?: number
+          overall_score?: number
+          scan_date?: string | null
+          strengths?: string[] | null
+          suggestions?: string[]
+          updated_at?: string | null
+          user_id?: string
+          weaknesses?: string[] | null
+        }
+        Relationships: []
+      }
       candidates: {
         Row: {
           created_at: string
