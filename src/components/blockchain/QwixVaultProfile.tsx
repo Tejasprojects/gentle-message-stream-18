@@ -1,10 +1,11 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Fingerprint, QrCode, Shield, Copy, RefreshCw, Loader2 } from "lucide-react";
 import { useBlockchain } from '@/context/BlockchainContext';
 import { useToast } from "@/components/ui/use-toast";
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import { Link } from 'react-router-dom';
 import { getUserDocumentsByOwner } from '@/utils/blockchainDocuments';
 import { useAuth } from '@/context/AuthContext';
@@ -112,7 +113,7 @@ const QwixVaultProfile = () => {
       <CardContent className="space-y-4">
         <div className="flex flex-col items-center justify-center p-4 bg-muted/50 rounded-lg">
           <div className="bg-white p-2 rounded-lg mb-3">
-            <QRCode value={verificationUrl} size={150} />
+            <QRCodeSVG value={verificationUrl} size={150} />
           </div>
           <p className="text-xs text-center text-muted-foreground">
             Scan this QR code to view your QwixVault profile and documents
