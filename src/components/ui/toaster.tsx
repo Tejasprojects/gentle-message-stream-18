@@ -13,10 +13,10 @@ export function Toaster() {
   const { toasts } = useToast()
 
   return (
-    <ToastProvider>
+    <ToastProvider swipeDirection="right">
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
-          <Toast key={id} {...props} className="bg-white border shadow-lg border-gray-200">
+          <Toast key={id} {...props} className="bg-white border shadow-lg border-gray-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full">
             <div className="grid gap-1">
               {title && <ToastTitle className="text-gray-900 font-semibold">{title}</ToastTitle>}
               {description && (

@@ -11,6 +11,237 @@
   **🏆 Powered by QwikZen Group India**
 </div>
 
+## 🚨 TROUBLESHOOTING & COMMON ERRORS
+
+### 🔧 Local Development Setup
+
+#### Prerequisites
+- Node.js (version 18 or higher)
+- npm or yarn package manager
+- Git
+
+#### Installation Steps
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd qwixed360-suite
+
+# Install dependencies
+npm install
+# or
+yarn install
+
+# Start development server
+npm run dev
+# or
+yarn dev
+```
+
+### ❌ Common Errors & Solutions
+
+#### 1. **Port Already in Use Error**
+```
+Error: Port 8080 is already in use
+```
+**Solution:**
+```bash
+# Kill process using port 8080
+npx kill-port 8080
+# or use different port
+npm run dev -- --port 3000
+```
+
+#### 2. **Module Resolution Errors**
+```
+Cannot resolve module '@/components/...'
+```
+**Solution:**
+- Ensure `vite.config.ts` has correct path aliases
+- Check `tsconfig.json` paths configuration
+- Restart development server
+
+#### 3. **Supabase Connection Issues**
+```
+Error: Invalid API key or Project URL
+```
+**Solution:**
+```bash
+# Create .env.local file (not tracked in git)
+echo "VITE_SUPABASE_URL=your_supabase_url" > .env.local
+echo "VITE_SUPABASE_ANON_KEY=your_supabase_anon_key" >> .env.local
+```
+
+#### 4. **Build Failures**
+```
+Error: Build failed with TypeScript errors
+```
+**Solutions:**
+- Fix TypeScript type errors
+- Ensure all imports are correct
+- Check for unused variables/imports
+- Run `npm run build` to see detailed errors
+
+#### 5. **Dependency Conflicts**
+```
+Error: Cannot resolve dependency tree
+```
+**Solutions:**
+```bash
+# Clear node_modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
+
+# Or force install
+npm install --force
+```
+
+#### 6. **Memory Issues**
+```
+Error: JavaScript heap out of memory
+```
+**Solution:**
+```bash
+# Increase Node.js memory limit
+export NODE_OPTIONS="--max-old-space-size=4096"
+npm run dev
+```
+
+#### 7. **Missing Environment Variables**
+```
+Error: Missing required environment variables
+```
+**Solution:**
+Create `.env.local` file with:
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_GEMINI_API_KEY=your_gemini_api_key
+VITE_RAPIDAPI_KEY=your_rapidapi_key
+```
+
+#### 8. **CORS Errors**
+```
+Error: Access blocked by CORS policy
+```
+**Solution:**
+- Configure Supabase CORS settings
+- Check API endpoint configurations
+- Ensure proper domain whitelist in Supabase
+
+#### 9. **Blockchain Connection Issues**
+```
+Error: MetaMask not detected
+```
+**Solution:**
+- Install MetaMask browser extension
+- Enable MetaMask in browser
+- Check network configuration
+
+#### 10. **File Upload Errors**
+```
+Error: File upload failed / Storage bucket not found
+```
+**Solution:**
+- Configure Supabase Storage buckets
+- Set proper RLS policies
+- Check file size limits
+
+### 🏗️ Build & Deployment Issues
+
+#### Production Build
+```bash
+# Test production build locally
+npm run build
+npm run preview
+```
+
+#### Common Build Errors:
+1. **Unused imports** - Remove unused imports
+2. **Type errors** - Fix TypeScript issues
+3. **Missing dependencies** - Install required packages
+4. **Path resolution** - Check import paths
+
+### 🔒 Security Configuration
+
+#### Required Supabase Policies
+```sql
+-- Enable RLS on all tables
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE resume_files ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_experiences ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_skills ENABLE ROW LEVEL SECURITY;
+ALTER TABLE certifications ENABLE ROW LEVEL SECURITY;
+
+-- Example policy for profiles table
+CREATE POLICY "Users can view own profile" ON profiles
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own profile" ON profiles
+    FOR UPDATE USING (auth.uid() = user_id);
+```
+
+### 🌐 Hosting Configuration
+
+#### Vercel Deployment
+```json
+{
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
+```
+
+#### Netlify Deployment
+Create `_redirects` file in `public/`:
+```
+/*    /index.html   200
+```
+
+#### Environment Variables for Production
+Set these in your hosting platform:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `VITE_GEMINI_API_KEY`
+- `VITE_RAPIDAPI_KEY`
+
+### 🐛 Debug Mode
+
+Enable debug logging:
+```bash
+# Development with debug logs
+DEBUG=* npm run dev
+```
+
+### 📞 Support
+
+If you're still experiencing issues:
+1. Check browser console for errors
+2. Verify all environment variables are set
+3. Ensure Supabase project is properly configured
+4. Check network connectivity
+5. Try incognito/private browsing mode
+
+**Common Quick Fixes:**
+- Clear browser cache and cookies
+- Disable browser extensions
+- Check internet connection
+- Restart development server
+- Update dependencies: `npm update`
+
+---
+
 ## 🚀 About QwiXEd360°Suite
 
 QwiXEd360°Suite is an intelligent career development platform that leverages AI and blockchain technology to transform how job seekers prepare for, secure, and advance in their careers. Our platform addresses critical challenges faced by modern job seekers through innovative tools designed to provide measurable competitive advantages.
