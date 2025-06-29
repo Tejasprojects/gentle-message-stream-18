@@ -13,7 +13,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { Certificate, BlockchainTransaction, VerificationMethod } from "@/types/certification";
 import { verifyCertificate, verifyCertificateFromFile, generateCertificatePDF, shareCertificate, getUserCertificates } from "@/utils/blockchain";
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface CertificateVerifierProps {
   initialHash?: string;
@@ -40,14 +40,12 @@ const CertificateVerifier = ({ initialHash }: CertificateVerifierProps) => {
   
   const { toast } = useToast();
 
-  // Debug log certificates when component mounts
   useEffect(() => {
     const certificates = getUserCertificates();
     console.log("Available certificates:", certificates);
     console.log("Initial hash:", initialHash);
   }, [initialHash]);
 
-  // Auto-verify if initialHash is provided
   useEffect(() => {
     if (initialHash && initialHash.trim() !== '') {
       console.log("Auto-verifying with hash:", initialHash);
@@ -71,10 +69,7 @@ const CertificateVerifier = ({ initialHash }: CertificateVerifierProps) => {
     try {
       console.log("Verifying with:", { certHash, method: verificationMethod });
       
-      // Clean up the certHash to remove any whitespace
       const cleanCertHash = certHash.trim();
-      
-      // Only use valid verification methods for the verifyCertificate function
       const validMethod = verificationMethod === 'file' ? 'certHash' : verificationMethod;
       const verificationResult = await verifyCertificate(cleanCertHash, validMethod);
       
@@ -200,7 +195,6 @@ const CertificateVerifier = ({ initialHash }: CertificateVerifierProps) => {
           description: "Your certificate has been shared successfully",
         });
       } else {
-        // Fallback to copy link if Web Share API is not supported
         const verificationUrl = `${window.location.origin}/verify-cert/${result.certificate.certHash}`;
         await navigator.clipboard.writeText(verificationUrl);
         
@@ -317,7 +311,7 @@ const CertificateVerifier = ({ initialHash }: CertificateVerifierProps) => {
                 <div className="flex flex-col items-center justify-center space-y-3 p-4 border rounded-md">
                   <p className="text-sm text-muted-foreground">Scan a QR code to verify a certificate</p>
                   <div className="bg-white p-3 rounded-lg border">
-                    <QRCode value={verificationUrl || "https://qwikzen.com/verify-certificate"} size={150} />
+                    <QRCodeSVG value={verificationUrl || "https://qwikzen.com/verify-certificate"} size={150} />
                   </div>
                 </div>
               )}
@@ -547,7 +541,7 @@ const CertificateVerifier = ({ initialHash }: CertificateVerifierProps) => {
                             <div className="text-center">
                               <h4 className="text-sm font-medium text-muted-foreground mb-2">Verification QR Code</h4>
                               <div className="bg-white p-3 rounded-lg border inline-block">
-                                <QRCode value={verificationUrl} size={150} />
+                                <QRCodeSVG value={verificationUrl} size={150} />
                                 <p className="text-xs text-muted-foreground mt-2">Scan to verify certificate</p>
                               </div>
                             </div>

@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from 'date-fns';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface CertificateCardProps {
   certificate: Certificate;
@@ -217,7 +217,7 @@ const CertificateCard = ({ certificate, onUpdateVisibility }: CertificateCardPro
           {showQR && (
             <div className="flex justify-center my-4 bg-white p-3 rounded-md">
               <div className="text-center">
-                <QRCode value={verificationUrl} size={150} />
+                <QRCodeSVG value={verificationUrl} size={150} />
                 <p className="text-xs text-muted-foreground mt-2">Scan to verify</p>
               </div>
             </div>

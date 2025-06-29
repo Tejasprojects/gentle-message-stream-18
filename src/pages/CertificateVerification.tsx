@@ -31,7 +31,7 @@ import {
 import { useToast } from '@/components/ui/use-toast';
 import { verifyCertificateByHash } from '@/utils/blockchainDocuments';
 import { generateCertificatePDF, shareCertificate } from '@/utils/blockchain';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 
 const CertificateVerification = () => {
   const { certHash } = useParams<{ certHash?: string }>();
@@ -52,10 +52,8 @@ const CertificateVerification = () => {
   const verifyCertificate = async (hash: string) => {
     setIsLoading(true);
     
-    // Add a slight delay to simulate blockchain verification
     setTimeout(() => {
       try {
-        // Call the verification function
         const certificateData = verifyCertificateByHash(hash);
         
         if (certificateData) {
@@ -114,7 +112,6 @@ const CertificateVerification = () => {
     try {
       const pdfUrl = await generateCertificatePDF(certificate);
       
-      // Create a temporary link element and trigger download
       const link = document.createElement('a');
       link.href = pdfUrl;
       link.download = `${certificate.title.replace(/\s+/g, '-')}-${certificate.certHash}.pdf`;
@@ -334,11 +331,10 @@ const CertificateVerification = () => {
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground mb-2">Verification QR Code</p>
                   <div className="bg-white p-3 border rounded">
-                    <QRCode
+                    <QRCodeSVG
                       value={verificationUrl}
                       size={150}
                       level="H"
-                      renderAs="svg"
                     />
                   </div>
                 </div>

@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useBlockchain } from '@/context/BlockchainContext';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QrCode, FileText, Download, Share2, Fingerprint, Shield, RefreshCw, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import DocumentVerifier from './DocumentVerifier';
 import type { BlockchainDocument } from '@/types/blockchain';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -218,10 +217,9 @@ const DocumentsDashboard: React.FC = () => {
                   <div className="flex flex-col items-center space-y-4 w-full">
                     <div className="border p-3 rounded bg-white w-full text-center">
                       <h4 className="text-sm font-medium mb-2">Document QR Verification</h4>
-                      <QRCode 
+                      <QRCodeSVG 
                         value={qrCodeUrl}
                         size={150}
-                        renderAs="svg" 
                         className="mx-auto"
                       />
                       <p className="text-xs text-muted-foreground mt-2">
